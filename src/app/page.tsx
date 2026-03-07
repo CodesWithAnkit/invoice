@@ -3,16 +3,19 @@ import InvoiceTemplate from "@/components/InvoiceTemplate";
 
 export default function Home() {
   return (
-    <main style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem" }}>
-      <div>
-        <h1>Invoice Generator MVP</h1>
-        <p>Fill out the form below to update the preview.</p>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+      {/* Left Panel: Editor */}
+      <aside style={{ width: "40%", height: "100%", overflowY: "auto", borderRight: "1px solid #ddd", padding: "20px" }}>
+        <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Invoice Editor</h1>
         <InvoiceForm />
-      </div>
-      <div>
-        <h2>Preview</h2>
-        <InvoiceTemplate />
-      </div>
-    </main>
+      </aside>
+
+      {/* Right Panel: Live Preview */}
+      <main style={{ flex: 1, height: "100%", overflowY: "auto", backgroundColor: "#f5f5f5", padding: "40px 20px" }}>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+          <InvoiceTemplate />
+        </div>
+      </main>
+    </div>
   );
 }
