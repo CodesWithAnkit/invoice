@@ -14,6 +14,9 @@ export default function InvoiceTemplate() {
   const handlePrint = useReactToPrint({
     contentRef: invoiceRef,
     documentTitle: `invoice-${meta.invoiceNumber || "draft"}`,
+    onAfterPrint: () => {
+      console.log("PDF generated");
+    },
   });
 
   const sortedItems = [...items].sort((a, b) => b.total - a.total);
@@ -33,15 +36,15 @@ export default function InvoiceTemplate() {
         id="invoice-root"
         style={{
           width: "190mm",
-          minHeight: "297mm",
+          height: "277mm",
           padding: "10mm",
           margin: "0 auto",
-          border: "1px solid #ddd",
           backgroundColor: "white",
           color: "#333",
           fontFamily: "sans-serif",
           lineHeight: "1.5",
-          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+          boxSizing: "border-box",
+          overflow: "hidden",
         }}
       >
         {/* Top Header */}
@@ -158,10 +161,13 @@ export default function InvoiceTemplate() {
 
       <div style={{ marginTop: "20px", textAlign: "center" }}>
         <button
-          onClick={() => handlePrint()}
+          onClick={() => {
+            setTimeout(() => handlePrint(), 100);
+          }}
           style={{
             padding: "12px 24px",
             fontSize: "1rem",
+            margin: "0px auto 50px",
             backgroundColor: "#0070f3",
             color: "white",
             border: "none",
@@ -169,7 +175,7 @@ export default function InvoiceTemplate() {
             cursor: "pointer",
           }}
         >
-          Print / Save as PDF
+          Download PDF
         </button>
       </div>
     </div>

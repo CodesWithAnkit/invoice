@@ -1,0 +1,19 @@
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  #invoice-root {
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 10mm;
+    box-shadow: none;
+    box-sizing: border-box;
+  }
+
+  button {
+    display: none;
+  }
+}
