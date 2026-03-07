@@ -1,7 +1,6 @@
 "use client";
 
 import { useInvoice } from "@/hooks/useInvoice";
-import { generateInvoicePDF } from "@/lib/pdf/pdfGenerator";
 import { parseInvoicePDF } from "@/lib/pdf/pdfParser";
 import { formatINR } from "@/utils/formatCurrency";
 import { useState } from "react";
@@ -347,12 +346,6 @@ export default function InvoiceForm() {
             style={{ padding: "1rem 2rem", fontSize: "1.2rem", cursor: "pointer" }}
         >
           Finalize Data
-        </button>
-        <button 
-            onClick={() => generateInvoicePDF(invoice.meta.invoiceNumber)}
-            style={{ padding: "1rem 2rem", fontSize: "1.2rem", cursor: "pointer", backgroundColor: "#0070f3", color: "white", border: "none" }}
-        >
-          Download PDF
         </button>
       </div>
       

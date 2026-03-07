@@ -9,14 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "html2canvas": "^1.4.1",
-    "jspdf": "^4.2.0",
     "next": "16.1.6",
     "pdf-parse-new": "^2.0.0",
     "pdfjs-dist": "^5.5.207",
     "pdfreader": "^3.0.8",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-to-print": "^3.3.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
