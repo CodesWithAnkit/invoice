@@ -17,3 +17,36 @@
     display: none;
   }
 }
+
+.desktop-items {
+  display: block;
+}
+
+.mobile-items {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-items {
+    display: none;
+  }
+
+  .mobile-items {
+    display: block;
+  }
+
+  .item-card {
+    border: 1px solid #ddd;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+}

@@ -21,26 +21,43 @@ export async function POST(req: Request) {
       .map((l: string) => l.trim())
       .filter(Boolean);
 
+
     // Extraction Logic (migrated from pdfParser.ts)
     
-    // 1. Extract metadata
+    // 1. Extract metadata & phone
     const gstin = text.match(/GSTIN:\s*([A-Z0-9]+)/)?.[1] || "";
-    const phone = text.match(/Ph\s*:\s*([\d]+)/)?.[1] || "";
-    const quoteNo = text.match(/Quote\s*No:\s*#?(\d+)/)?.[1] || "";
-    const date = text.match(/Date:\s*([0-9/]+)/)?.[1] || "";
+    const phone = 
+      text.match(/Ph\s*:\s*(\d+)/)?.[1] || 
+      text.match(/Phone:\s*(\d+)/)?.[1] || 
+      "";
+    const quoteNo = 
+      text.match(/Quote\s*No:\s*#?(\d+)/)?.[1] || 
+      text.match(/Invoice\s*#:\s*(\d+)/)?.[1] || 
+      "";
+    const date = text.match(/Date:\s*([\d/-]+)/)?.[1] || "";
 
     // 2. Extract business name
-    const businessIndex = lines.findIndex((l: string) => 
-      l.includes("PRICE QUOTE") || l.includes("BILL INVOCIE")
-    );
-    const businessName = businessIndex >= 0 ? lines[businessIndex + 1] : "";
+    const gstIndex = lines.findIndex((l: string) => l.includes("GSTIN"));
+    const businessName = gstIndex > 1 ? lines[gstIndex - 2].trim() : "";
 
-    // 3. Extract customer name
+    // 3. Extract customer name and address
+    let customerName = "";
+    let customerAddress = "";
+
     const proLine = lines.find((l: string) => l.startsWith("Pro:-"));
-    const customerName = proLine?.replace("Pro:-", "").trim() || "";
-
-    // 4. Extract customer address
-    const customerAddress = text.match(/Address:-\s*(.+)/)?.[1]?.trim() || "";
+    if (proLine) {
+      // Format A logic
+      customerName = proLine.replace("Pro:-", "").trim();
+      customerAddress = text.match(/Address:-\s*(.+)/)?.[1]?.trim() || "";
+    } else {
+      // Format B fallback
+      const billToIndex = lines.findIndex(l => l.toUpperCase().includes("BILL TO"));
+      if (billToIndex !== -1) {
+        customerName = lines[billToIndex + 1] || "";
+        customerAddress = (lines[billToIndex + 2] || "") + " " + (lines[billToIndex + 3] || "");
+        customerAddress = customerAddress.trim();
+      }
+    }
 
     // Extract additional customer fields
     const customerFields: Record<string, string> = {};
@@ -53,21 +70,30 @@ export async function POST(req: Request) {
     // 5. Extract items
     const tableStart = lines.findIndex((l: string) => l.includes("Item Description"));
     const items: any[] = [];
+    let itemBuffer = "";
 
     if (tableStart !== -1) {
       for (let i = tableStart + 1; i < lines.length; i++) {
         const line = lines[i];
         if (line.startsWith("Amount in Word")) break;
 
-        const match = line.match(/(.+?)\s+(\d{1,2})\s+([\d,.]+)\s+([\d,.]+)/);
-        if (match) {
-          items.push({
-            id: crypto.randomUUID(),
-            description: match[1].trim(),
-            quantity: parseInt(match[2]),
-            unitPrice: parseFloat(match[3].replace(/,/g, "")),
-            total: parseFloat(match[4].replace(/,/g, "")),
-          });
+        const hasPrices = /\d+\s+[\d,]+.\d+\s+[\d,]+.\d+/.test(line);
+
+        if (hasPrices) {
+          const combined = (itemBuffer + " " + line).trim();
+          itemBuffer = "";
+          const match = combined.match(/(.+?)\s+(\d+)\s+([\d,.]+)\s+([\d,.]+)/);
+          if (match) {
+            items.push({
+              id: crypto.randomUUID(),
+              description: match[1].trim(),
+              quantity: parseInt(match[2]),
+              unitPrice: parseFloat(match[3].replace(/,/g, "")),
+              total: parseFloat(match[4].replace(/,/g, "")),
+            });
+          }
+        } else {
+          itemBuffer += " " + line;
         }
       }
     }
@@ -90,10 +116,13 @@ export async function POST(req: Request) {
     const amountWords = text.match(/Amount in Word:-\s*(.+)/)?.[1]?.trim() || "";
 
     // 8. Extract bank details
-    const bankName = text.match(/Bank Name:-\s*(.+)/)?.[1]?.trim() || "";
-    const accountName = text.match(/Account Holder Name:-\s*(.+)/)?.[1]?.trim() || "";
-    const accountNumber = text.match(/Account Number:-\s*([\d]+)/)?.[1] || "";
-    const ifsc = text.match(/IFC Code:-\s*([A-Z0-9]+)/)?.[1] || "";
+    const bankName = text.match(/Bank Name[:-]\s*(.+)/)?.[1]?.trim() || "";
+    const accountName = 
+      text.match(/Account Name[:-]\s*(.+)/)?.[1]?.trim() ||
+      text.match(/Account Holder Name[:-]\s*(.+)/)?.[1]?.trim() || 
+      "";
+    const accountNumber = text.match(/Account Number[:-]\s*(\d+)/)?.[1] || "";
+    const ifsc = text.match(/IFSC[:-]\s*([A-Z0-9]+)/)?.[1] || "";
 
     return NextResponse.json({
       business: { name: businessName, phone, gstin },
