@@ -42,8 +42,17 @@ export async function parseInvoicePDF(file: File) {
     // 4. Extract customer address
     const customerAddress = text.match(/Address:-\s*(.+)/)?.[1]?.trim() || "";
 
+    // Extract additional customer fields
+    const customerFields: Record<string, string> = {};
+    const mobileMatch = text.match(/Mobile[:-]?\s*(\d{10})/);
+    const aadhaarMatch = text.match(/Aadhaar[:-]?\s*(\d{12})/);
+
+    if (mobileMatch) customerFields.phone = mobileMatch[1];
+    if (aadhaarMatch) customerFields.aadhaar = aadhaarMatch[1];
+
     console.log("businessName", businessName);
     console.log("customerName", customerName);
+    console.log("customerFields", customerFields);
 
     // 5. Extract items
     const tableStart = lines.findIndex((l: string) => l.includes("Item Description"));
@@ -100,6 +109,7 @@ export async function parseInvoicePDF(file: File) {
       customer: {
         name: customerName,
         address: customerAddress,
+        fields: customerFields,
       },
       meta: {
         quoteNo,

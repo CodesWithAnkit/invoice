@@ -21,8 +21,7 @@ const INITIAL_STATE: InvoiceData = {
   customer: {
     name: "",
     address: "",
-    mobile: "",
-    aadhaar: "",
+    fields: {},
   },
   items: [
     { id: crypto.randomUUID(), description: "", quantity: 1, unitPrice: 0, total: 0 }

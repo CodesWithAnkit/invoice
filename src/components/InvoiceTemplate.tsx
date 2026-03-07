@@ -50,6 +50,11 @@ export default function InvoiceTemplate() {
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "0.8rem", color: "#777" }}>Bill To:</div>
           <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{customer.name}</div>
+          {Object.entries(customer.fields || {}).map(([label, value]) => (
+            <div key={label}>
+              <span style={{ fontWeight: "bold", textTransform: "capitalize" }}>{label}:</span> {value}
+            </div>
+          ))}
           <div style={{ whiteSpace: "pre-line" }}>{customer.address}</div>
         </div>
         <div style={{ flex: 1, textAlign: "right" }}>

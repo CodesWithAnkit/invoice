@@ -6,11 +6,10 @@ export interface InvoiceItem {
   total: number;
 }
 
-export interface CustomerDetails {
+export interface CustomerData {
   name: string;
   address: string;
-  mobile: string;
-  aadhaar: string;
+  fields: Record<string, string>;
 }
 
 export interface BankDetails {
@@ -39,7 +38,7 @@ export interface InvoiceData {
   phone: string;
   gstin: string;
   meta: InvoiceMeta;
-  customer: CustomerDetails;
+  customer: CustomerData;
   items: InvoiceItem[];
   totals: InvoiceTotals;
   bank: BankDetails;

@@ -44,8 +44,13 @@ export default function InvoiceForm() {
         // Customer details mappings
         if (data.customer.name) setInvoiceField("customer.name", data.customer.name);
         if (data.customer.address) setInvoiceField("customer.address", data.customer.address);
-
-        // Bank details mappings
+        
+        // Merge dynamic customer fields
+        if (data.customer.fields) {
+          Object.entries(data.customer.fields).forEach(([key, value]) => {
+            if (value) setInvoiceField(`customer.fields.${key}`, value);
+          });
+        }
         if (data.bank.bankName) setInvoiceField("bank.bankName", data.bank.bankName);
         if (data.bank.accountName) setInvoiceField("bank.accountName", data.bank.accountName);
         if (data.bank.accountNumber) setInvoiceField("bank.accountNumber", data.bank.accountNumber);
@@ -174,37 +179,26 @@ export default function InvoiceForm() {
       <section>
         <h2>Customer Details</h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
-            <div style={{ gridColumn: "span 2" }}>
-              <label>Customer Name</label>
-              <br />
-              <input
-                type="text"
-                style={{ width: "100%" }}
-                value={invoice.customer.name}
-                onChange={(e) => setInvoiceField("customer.name", e.target.value)}
-              />
-            </div>
+          <div>
+            <label>Customer Name</label>
+            <br />
+            <input
+              type="text"
+              style={{ width: "100%" }}
+              value={invoice.customer.name}
+              onChange={(e) => setInvoiceField("customer.name", e.target.value)}
+            />
+          </div>
+          
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
             <div>
               <label>Mobile</label>
               <br />
               <input
                 type="text"
                 style={{ width: "100%" }}
-                value={invoice.customer.mobile}
-                onChange={(e) => setInvoiceField("customer.mobile", e.target.value)}
-              />
-            </div>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1rem" }}>
-            <div>
-              <label>Customer Address</label>
-              <br />
-              <textarea
-                style={{ width: "100%" }}
-                rows={3}
-                value={invoice.customer.address}
-                onChange={(e) => setInvoiceField("customer.address", e.target.value)}
+                value={invoice.customer.fields?.phone || ""}
+                onChange={(e) => setInvoiceField("customer.fields.phone", e.target.value)}
               />
             </div>
             <div>
@@ -213,10 +207,21 @@ export default function InvoiceForm() {
               <input
                 type="text"
                 style={{ width: "100%" }}
-                value={invoice.customer.aadhaar}
-                onChange={(e) => setInvoiceField("customer.aadhaar", e.target.value)}
+                value={invoice.customer.fields?.aadhaar || ""}
+                onChange={(e) => setInvoiceField("customer.fields.aadhaar", e.target.value)}
               />
             </div>
+          </div>
+
+          <div>
+            <label>Customer Address</label>
+            <br />
+            <textarea
+              style={{ width: "100%" }}
+              rows={3}
+              value={invoice.customer.address}
+              onChange={(e) => setInvoiceField("customer.address", e.target.value)}
+            />
           </div>
         </div>
       </section>
