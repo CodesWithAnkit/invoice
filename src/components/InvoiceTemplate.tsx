@@ -8,6 +8,8 @@ export default function InvoiceTemplate() {
 
   const { meta, customer, items, totals, bank, amountWords } = invoice;
 
+  const sortedItems = [...items].sort((a, b) => b.total - a.total);
+
   const rowStyle: React.CSSProperties = {
     borderBottom: "1px solid #eee",
   };
@@ -78,7 +80,7 @@ export default function InvoiceTemplate() {
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => (
+          {sortedItems.map((item) => (
             <tr key={item.id} style={rowStyle}>
               <td style={cellStyle}>{item.description}</td>
               <td style={{ ...cellStyle, textAlign: "center" }}>{item.quantity}</td>
