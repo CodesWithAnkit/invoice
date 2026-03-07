@@ -20,20 +20,28 @@ export default function InvoiceForm() {
     if (!file) return;
 
     try {
-      const data = await parseInvoicePDF(file);
+      const formData = new FormData();
+      formData.append("file", file);
+      const data = await parseInvoicePDF(formData);
       if (data) {
         if (data.meta.invoiceNumber) setInvoiceField("meta.invoiceNumber", data.meta.invoiceNumber);
         if (data.meta.date) setInvoiceField("meta.date", data.meta.date);
         
         // Auto-populate items if found
         if (data.items && data.items.length > 0) {
-          setInvoiceField("items", data.items);
+          // Add IDs if needed (Server action already adds partial IDs but let's be consistent)
+          const itemsWithIds = data.items.map(item => ({
+             ...item,
+             id: item.id || crypto.randomUUID()
+          }));
+          setInvoiceField("items", itemsWithIds);
           alert(`Extracted ${data.items.length} items, Invoice #, and Date from PDF!`);
         } else {
           alert("Extracted Invoice # and Date from PDF. No items found.");
         }
       }
     } catch (err) {
+      console.error(err);
       alert("Failed to parse PDF. Please check the console.");
     }
   };
