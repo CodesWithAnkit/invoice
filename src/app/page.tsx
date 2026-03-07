@@ -1,21 +1,70 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import InvoiceForm from "@/components/InvoiceForm";
 import InvoiceTemplate from "@/components/InvoiceTemplate";
 
 export default function Home() {
-  return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-      {/* Left Panel: Editor */}
-      <aside style={{ width: "40%", height: "100%", overflowY: "auto", borderRight: "1px solid #ddd", padding: "20px" }}>
-        <h1 style={{ fontSize: "1.5rem", marginBottom: "1rem" }}>Invoice Editor</h1>
-        <InvoiceForm />
-      </aside>
+  const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
-      {/* Right Panel: Live Preview */}
-      <main style={{ flex: 1, height: "100%", overflowY: "auto", backgroundColor: "#f5f5f5", padding: "40px 20px" }}>
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+  useEffect(() => {
+    const auth = localStorage.getItem("invoice_auth");
+    if (!auth) {
+      router.push("/login");
+    } else {
+      setIsAuthorized(true);
+    }
+  }, [router]);
+
+  if (!isAuthorized) {
+    return null; // Or a loading spinner
+  }
+
+  return (
+    <div
+      style={{
+        padding: "20px",
+        maxWidth: "1400px",
+        margin: "0 auto",
+        fontFamily: "sans-serif",
+      }}
+    >
+      <header style={{ marginBottom: "2rem", borderBottom: "1px solid #eee", paddingBottom: "1rem" }}>
+        <h1 style={{ margin: 0, color: "#333" }}>Invoice Editor & Preview</h1>
+      </header>
+
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "30px",
+          alignItems: "flex-start",
+        }}
+      >
+        {/* Editor Column */}
+        <div
+          style={{
+            flex: "1 1 450px",
+            minWidth: "320px",
+          }}
+        >
+          <InvoiceForm />
+        </div>
+
+        {/* Preview Column */}
+        <div
+          style={{
+            flex: "1 1 600px",
+            minWidth: "320px",
+            position: "sticky",
+            top: "20px",
+          }}
+        >
           <InvoiceTemplate />
         </div>
-      </main>
+      </div>
     </div>
   );
 }
