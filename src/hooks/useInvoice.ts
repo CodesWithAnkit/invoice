@@ -128,12 +128,12 @@ export const useInvoice = () => {
 
   const generateInvoice = useCallback(() => {
     setGlobalState((prev) => {
-      const newTotals = calculateInvoiceTotals(prev.items);
-      const newAmountWords = amountToWords(newTotals.grandTotal);
+      const totals = calculateInvoiceTotals(prev.items);
+      const words = amountToWords(totals.grandTotal);
       return {
         ...prev,
-        totals: newTotals,
-        amountWords: newAmountWords,
+        totals,
+        amountWords: words,
       };
     });
   }, []);

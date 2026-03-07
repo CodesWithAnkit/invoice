@@ -2,6 +2,7 @@
 
 import { useInvoice } from "@/hooks/useInvoice";
 import { generateInvoicePDF } from "@/lib/pdf/pdfGenerator";
+import { parseInvoicePDF } from "@/lib/pdf/pdfParser";
 import { formatINR } from "@/utils/formatCurrency";
 
 export default function InvoiceForm() {
@@ -14,6 +15,29 @@ export default function InvoiceForm() {
     generateInvoice,
   } = useInvoice();
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const data = await parseInvoicePDF(file);
+      if (data) {
+        if (data.meta.invoiceNumber) setInvoiceField("meta.invoiceNumber", data.meta.invoiceNumber);
+        if (data.meta.date) setInvoiceField("meta.date", data.meta.date);
+        
+        // Auto-populate items if found
+        if (data.items && data.items.length > 0) {
+          setInvoiceField("items", data.items);
+          alert(`Extracted ${data.items.length} items, Invoice #, and Date from PDF!`);
+        } else {
+          alert("Extracted Invoice # and Date from PDF. No items found.");
+        }
+      }
+    } catch (err) {
+      alert("Failed to parse PDF. Please check the console.");
+    }
+  };
+
   const handleNumberChange = (index: number, field: "quantity" | "unitPrice", value: string) => {
     const parsed = parseFloat(value);
     updateItem(index, field, isNaN(parsed) ? 0 : parsed);
@@ -21,6 +45,15 @@ export default function InvoiceForm() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "2rem", padding: "1rem" }}>
+      {/* 0. PDF Uploader */}
+      <section style={{ backgroundColor: "#f9f9f9", padding: "1rem", borderRadius: "8px", border: "1px dashed #ccc" }}>
+        <h3>Auto-populate from PDF</h3>
+        <input type="file" accept="application/pdf" onChange={handleFileUpload} />
+        <p style={{ fontSize: "0.8rem", color: "#666", marginTop: "0.5rem" }}>
+          Upload a previous invoice PDF to extract metadata.
+        </p>
+      </section>
+
       {/* 1. Invoice Meta */}
       <section>
         <h2>Invoice Meta</h2>
