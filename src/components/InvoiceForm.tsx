@@ -1,6 +1,8 @@
 "use client";
 
 import { useInvoice } from "@/hooks/useInvoice";
+import { generateInvoicePDF } from "@/lib/pdf/pdfGenerator";
+import { formatINR } from "@/utils/formatCurrency";
 
 export default function InvoiceForm() {
   const {
@@ -11,6 +13,11 @@ export default function InvoiceForm() {
     updateItem,
     generateInvoice,
   } = useInvoice();
+
+  const handleNumberChange = (index: number, field: "quantity" | "unitPrice", value: string) => {
+    const parsed = parseFloat(value);
+    updateItem(index, field, isNaN(parsed) ? 0 : parsed);
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "2rem", padding: "1rem" }}>
@@ -96,7 +103,7 @@ export default function InvoiceForm() {
           </thead>
           <tbody>
             {invoice.items.map((item, index) => (
-              <tr key={index} style={{ borderBottom: "1px solid #eee" }}>
+              <tr key={item.id} style={{ borderBottom: "1px solid #eee" }}>
                 <td>
                   <input
                     type="text"
@@ -109,17 +116,17 @@ export default function InvoiceForm() {
                   <input
                     type="number"
                     value={item.quantity}
-                    onChange={(e) => updateItem(index, "quantity", Number(e.target.value))}
+                    onChange={(e) => handleNumberChange(index, "quantity", e.target.value)}
                   />
                 </td>
                 <td>
                   <input
                     type="number"
                     value={item.unitPrice}
-                    onChange={(e) => updateItem(index, "unitPrice", Number(e.target.value))}
+                    onChange={(e) => handleNumberChange(index, "unitPrice", e.target.value)}
                   />
                 </td>
-                <td>{item.total.toFixed(2)}</td>
+                <td>{formatINR(item.total)}</td>
                 <td>
                   <button onClick={() => removeItem(index)} disabled={invoice.items.length <= 1}>
                     Remove
@@ -130,14 +137,16 @@ export default function InvoiceForm() {
           </tbody>
         </table>
         <div style={{ marginTop: "1rem" }}>
-          <button onClick={addItem}>Add Item</button>
+          <button onClick={addItem} disabled={invoice.items.length >= 15}>
+            Add Item {invoice.items.length >= 15 ? "(Limit Reached)" : ""}
+          </button>
         </div>
 
         <div style={{ marginTop: "2rem", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.5rem" }}>
-          <div>Subtotal: {invoice.totals.subTotal.toFixed(2)}</div>
-          <div>SGST (9%): {invoice.totals.sgst.toFixed(2)}</div>
-          <div>CGST (9%): {invoice.totals.cgst.toFixed(2)}</div>
-          <div style={{ fontWeight: "bold" }}>Grand Total: {invoice.totals.grandTotal.toFixed(2)}</div>
+          <div>Subtotal: {formatINR(invoice.totals.subTotal)}</div>
+          <div>SGST (9%): {formatINR(invoice.totals.sgst)}</div>
+          <div>CGST (9%): {formatINR(invoice.totals.cgst)}</div>
+          <div style={{ fontWeight: "bold" }}>Grand Total: {formatINR(invoice.totals.grandTotal)}</div>
         </div>
       </section>
 
@@ -190,12 +199,18 @@ export default function InvoiceForm() {
         </div>
       </section>
 
-      <div style={{ marginTop: "2rem" }}>
+      <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>
         <button 
             onClick={generateInvoice}
             style={{ padding: "1rem 2rem", fontSize: "1.2rem", cursor: "pointer" }}
         >
-          Generate Invoice / Finalize
+          Finalize Data
+        </button>
+        <button 
+            onClick={() => generateInvoicePDF(invoice.meta.invoiceNumber)}
+            style={{ padding: "1rem 2rem", fontSize: "1.2rem", cursor: "pointer", backgroundColor: "#0070f3", color: "white", border: "none" }}
+        >
+          Download PDF
         </button>
       </div>
       

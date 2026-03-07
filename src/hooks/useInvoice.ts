@@ -22,7 +22,7 @@ const INITIAL_STATE: InvoiceData = {
     address: "",
   },
   items: [
-    { description: "", quantity: 1, unitPrice: 0, total: 0 }
+    { id: crypto.randomUUID(), description: "", quantity: 1, unitPrice: 0, total: 0 }
   ],
   totals: {
     subTotal: 0,
@@ -39,28 +39,41 @@ const INITIAL_STATE: InvoiceData = {
   amountWords: "",
 };
 
-export const useInvoice = () => {
-  const [invoice, setInvoice] = useState<InvoiceData>(INITIAL_STATE);
-  const [isLoaded, setIsLoaded] = useState(false);
+// Singleton state management without an external library
+let globalState: InvoiceData = INITIAL_STATE;
+let listeners: Array<(state: InvoiceData) => void> = [];
 
-  // Load from localStorage on init
+const setGlobalState = (newState: InvoiceData | ((prev: InvoiceData) => InvoiceData)) => {
+  if (typeof newState === "function") {
+    globalState = newState(globalState);
+  } else {
+    globalState = newState;
+  }
+  listeners.forEach((listener) => listener(globalState));
+  saveToStorage(STORAGE_KEY, globalState);
+};
+
+// Initialize from storage immediately (if in browser)
+if (typeof window !== "undefined") {
+  const saved = getFromStorage<InvoiceData>(STORAGE_KEY);
+  if (saved) {
+    globalState = saved;
+  }
+}
+
+export const useInvoice = () => {
+  const [state, setState] = useState<InvoiceData>(globalState);
+
   useEffect(() => {
-    const saved = getFromStorage<InvoiceData>(STORAGE_KEY);
-    if (saved) {
-      setInvoice(saved);
-    }
-    setIsLoaded(true);
+    const listener = (newState: InvoiceData) => setState(newState);
+    listeners.push(listener);
+    return () => {
+      listeners = listeners.filter((l) => l !== listener);
+    };
   }, []);
 
-  // Save to localStorage whenever invoice changes
-  useEffect(() => {
-    if (isLoaded) {
-      saveToStorage(STORAGE_KEY, invoice);
-    }
-  }, [invoice, isLoaded]);
-
   const setInvoiceField = useCallback((path: string, value: any) => {
-    setInvoice((prev) => {
+    setGlobalState((prev) => {
       const keys = path.split(".");
       const newInvoice = { ...prev };
       let current: any = newInvoice;
@@ -76,21 +89,22 @@ export const useInvoice = () => {
   }, []);
 
   const recalculateTotals = useCallback(() => {
-    setInvoice((prev) => {
+    setGlobalState((prev) => {
       const newTotals = calculateInvoiceTotals(prev.items);
       return { ...prev, totals: newTotals };
     });
   }, []);
 
   const addItem = useCallback(() => {
-    setInvoice((prev) => ({
+    if (globalState.items.length >= 15) return;
+    setGlobalState((prev) => ({
       ...prev,
-      items: [...prev.items, { description: "", quantity: 1, unitPrice: 0, total: 0 }],
+      items: [...prev.items, { id: crypto.randomUUID(), description: "", quantity: 1, unitPrice: 0, total: 0 }],
     }));
   }, []);
 
   const removeItem = useCallback((index: number) => {
-    setInvoice((prev) => {
+    setGlobalState((prev) => {
       const newItems = prev.items.filter((_, i) => i !== index);
       return { ...prev, items: newItems };
     });
@@ -98,7 +112,7 @@ export const useInvoice = () => {
   }, [recalculateTotals]);
 
   const updateItem = useCallback((index: number, field: keyof InvoiceItem, value: any) => {
-    setInvoice((prev) => {
+    setGlobalState((prev) => {
       const newItems = [...prev.items];
       const updatedItem = { ...newItems[index], [field]: value };
       
@@ -113,7 +127,7 @@ export const useInvoice = () => {
   }, [recalculateTotals]);
 
   const generateInvoice = useCallback(() => {
-    setInvoice((prev) => {
+    setGlobalState((prev) => {
       const newTotals = calculateInvoiceTotals(prev.items);
       const newAmountWords = amountToWords(newTotals.grandTotal);
       return {
@@ -125,8 +139,7 @@ export const useInvoice = () => {
   }, []);
 
   return {
-    invoice,
-    setInvoice,
+    invoice: state,
     setInvoiceField,
     addItem,
     removeItem,
