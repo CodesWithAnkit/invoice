@@ -1,108 +1,127 @@
 "use server";
 
-import { PdfReader } from "pdfreader";
-
 /**
- * Parses an invoice PDF to extract key fields using pdfreader on the server.
- * @param formData The FormData containing the PDF file.
- * @returns A partial InvoiceData object with extracted meta, items, and totals.
+ * Parses an invoice PDF using pdf-parse-new and regex.
+ * @param file The uploaded File object.
+ * @returns An object with structured invoice data.
  */
-export async function parseInvoicePDF(formData: FormData) {
-  const file = formData.get("file") as File;
-  if (!file) {
-    throw new Error("No file provided");
-  }
-
+export async function parseInvoicePDF(file: File) {
   try {
-    const arrayBuffer = await file.arrayBuffer();
-    const rows: { [key: number]: any[] } = {};
+    // Dynamically import pdf-parse-new
+    const pdfParse = (await import("pdf-parse-new")).default;
 
-    await new Promise((resolve, reject) => {
-      // PdfReader expects a Buffer or a string path
-      new PdfReader().parseBuffer(Buffer.from(arrayBuffer), (err: any, item: any) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        if (!item) {
-          resolve(true);
-          return;
-        }
-        if (item.text) {
-          const y = Math.round(item.y);
-          if (!rows[y]) rows[y] = [];
-          rows[y].push({
-            text: item.text,
-            x: item.x,
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const data = await pdfParse(buffer);
+    const text = data.text;
+
+    console.log("PDF TEXT", text);
+
+    const lines = text
+      .split("\n")
+      .map((l: string) => l.trim())
+      .filter(Boolean);
+
+    // 1. Extract metadata
+    const gstin = text.match(/GSTIN:\s*([A-Z0-9]+)/)?.[1] || "";
+    const phone = text.match(/Ph\s*:\s*([\d]+)/)?.[1] || "";
+    const quoteNo = text.match(/Quote\s*No:\s*#?(\d+)/)?.[1] || "";
+    const date = text.match(/Date:\s*([0-9/]+)/)?.[1] || "";
+
+    // 2. Extract business name
+    const businessIndex = lines.findIndex((l: string) => 
+      l.includes("PRICE QUOTE") || l.includes("BILL INVOCIE")
+    );
+    const businessName = businessIndex >= 0 ? lines[businessIndex + 1] : "";
+
+    // 3. Extract customer name
+    const proLine = lines.find((l: string) => l.startsWith("Pro:-"));
+    const customerName = proLine?.replace("Pro:-", "").trim() || "";
+
+    // 4. Extract customer address
+    const customerAddress = text.match(/Address:-\s*(.+)/)?.[1]?.trim() || "";
+
+    console.log("businessName", businessName);
+    console.log("customerName", customerName);
+
+    // 5. Extract items
+    const tableStart = lines.findIndex((l: string) => l.includes("Item Description"));
+    const items: any[] = [];
+
+    if (tableStart !== -1) {
+      for (let i = tableStart + 1; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.startsWith("Amount in Word")) break;
+
+        const match = line.match(/(.+?)\s+(\d{1,2})\s+([\d,.]+)\s+([\d,.]+)/);
+        if (match) {
+          items.push({
+            id: crypto.randomUUID(),
+            description: match[1].trim(),
+            quantity: parseInt(match[2]),
+            unitPrice: parseFloat(match[3].replace(/,/g, "")),
+            total: parseFloat(match[4].replace(/,/g, "")),
           });
         }
-      });
-    });
-
-    // Convert rows to ordered lines
-    const lines = Object.values(rows).map((row) =>
-      row
-        .sort((a, b) => a.x - b.x)
-        .map((cell) => cell.text)
-        .join(" ")
-    );
-
-    const items: any[] = [];
-    // The user's requested regex
-    const itemRegex = /(.+?)\s+(\d{1,2})\s+([\d,]+\.?\d*)\s+([\d,]+\.?\d*)/;
-
-    lines.forEach((line) => {
-      const match = line.match(itemRegex);
-      if (match) {
-        items.push({
-          id: Math.random().toString(36).substring(2, 9), // crypto.randomUUID() might not be available in all Node versions, using simple ID
-          description: match[1].trim(),
-          quantity: parseInt(match[2]),
-          unitPrice: parseFloat(match[3].replace(/,/g, "")),
-          total: parseFloat(match[4].replace(/,/g, "")),
-        });
       }
-    });
-
-    if (items.length === 0) {
-      // We'll log the full text to see why extraction failed if needed
-      console.log("Full reconstructed text:", lines.join("\n"));
-      throw new Error("Invoice table could not be detected");
     }
 
-    // Temporarily log parsed items
-    console.table(items);
+    // 6. Extract totals
+    const subTotal = parseFloat(
+      text.match(/Sub Total\s*([\d,.]+)/)?.[1]?.replace(/,/g, "") || "0"
+    );
+    const sgst = parseFloat(
+      text.match(/SGST\s*9%\s*([\d,.]+)/)?.[1]?.replace(/,/g, "") || "0"
+    );
+    const cgst = parseFloat(
+      text.match(/CGST\s*9%\s*([\d,.]+)/)?.[1]?.replace(/,/g, "") || "0"
+    );
+    const grandTotal = parseFloat(
+      text.match(/Grand Total\s*([\d,.]+)/)?.[1]?.replace(/,/g, "") || "0"
+    );
 
-    // Extract invoice metadata
-    const fullText = lines.join(" ");
-    
-    const invMatch = fullText.match(/Bill No:\s*#?(\d+)/i);
-    const invoiceNumber = invMatch ? invMatch[1] : "";
+    // 7. Extract amount in words
+    const amountWords = text.match(/Amount in Word:-\s*(.+)/)?.[1]?.trim() || "";
 
-    const dateMatch = fullText.match(/Date:\s*(\d{2}\/\d{2}\/\d{4})/i);
-    const date = dateMatch ? dateMatch[1] : "";
+    // 8. Extract bank details
+    const bankName = text.match(/Bank Name:-\s*(.+)/)?.[1]?.trim() || "";
+    const accountName = text.match(/Account Holder Name:-\s*(.+)/)?.[1]?.trim() || "";
+    const accountNumber = text.match(/Account Number:-\s*([\d]+)/)?.[1] || "";
+    const ifsc = text.match(/IFC Code:-\s*([A-Z0-9]+)/)?.[1] || "";
 
-    const parseCurrency = (val: string) => (val ? parseFloat(val.replace(/,/g, "")) : 0);
-
-    const subTotalMatch = fullText.match(/Sub Total\s*([\d,.]+)/i);
-    const subTotal = subTotalMatch ? parseCurrency(subTotalMatch[1]) : 0;
-
-    const sgstMatch = fullText.match(/SGST.*?([\d,.]+)/i);
-    const sgst = sgstMatch ? parseCurrency(sgstMatch[1]) : 0;
-
-    const cgstMatch = fullText.match(/CGST.*?([\d,.]+)/i);
-    const cgst = cgstMatch ? parseCurrency(cgstMatch[1]) : 0;
-
-    const grandTotalMatch = fullText.match(/Grand Total\s*([\d,.]+)/i);
-    const grandTotal = grandTotalMatch ? parseCurrency(grandTotalMatch[1]) : 0;
-
+    // 9. Return structured object
     return {
-      meta: { invoiceNumber, date },
+      business: {
+        name: businessName,
+        phone,
+        gstin,
+      },
+      customer: {
+        name: customerName,
+        address: customerAddress,
+      },
+      meta: {
+        quoteNo,
+        date,
+      },
       items,
-      totals: { subTotal, sgst, cgst, grandTotal },
+      totals: {
+        subTotal,
+        sgst,
+        cgst,
+        grandTotal,
+      },
+      bank: {
+        bankName,
+        accountName,
+        accountNumber,
+        ifsc,
+      },
+      amountWords,
     };
   } catch (error) {
-    console.error("Error parsing PDF:", error);
-    throw new Error(error instanceof Error ? error.message : "Failed to parse PDF. Please ensure it's a valid invoice PDF.");
+    console.error("Error parsing PDF with pdf-parse-new:", error);
+    throw new Error(error instanceof Error ? error.message : "Failed to parse PDF.");
   }
 }

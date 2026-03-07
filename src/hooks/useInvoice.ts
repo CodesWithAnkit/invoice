@@ -9,6 +9,7 @@ import { amountToWords } from "@/utils/amountToWords";
 const STORAGE_KEY = "invoice_draft";
 
 const INITIAL_STATE: InvoiceData = {
+  businessName: "",
   businessAddress: "",
   phone: "",
   gstin: "",
@@ -20,6 +21,8 @@ const INITIAL_STATE: InvoiceData = {
   customer: {
     name: "",
     address: "",
+    mobile: "",
+    aadhaar: "",
   },
   items: [
     { id: crypto.randomUUID(), description: "", quantity: 1, unitPrice: 0, total: 0 }

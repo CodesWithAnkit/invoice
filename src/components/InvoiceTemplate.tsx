@@ -34,8 +34,7 @@ export default function InvoiceTemplate() {
       {/* Top Header */}
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "30px" }}>
         <div style={{ fontSize: "0.9rem" }}>
-          <div style={{ fontWeight: "bold", fontSize: "1.2rem", marginBottom: "5px" }}>YOUR BUSINESS NAME</div>
-          <div style={{ whiteSpace: "pre-line" }}>{invoice.businessAddress}</div>
+          <div style={{ fontWeight: "bold", fontSize: "1.2rem", marginBottom: "5px" }}>{invoice.businessName}</div>
           <div>Phone: {invoice.phone}</div>
           <div>GSTIN: {invoice.gstin}</div>
         </div>

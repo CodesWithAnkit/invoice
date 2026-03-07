@@ -9,6 +9,8 @@ export interface InvoiceItem {
 export interface CustomerDetails {
   name: string;
   address: string;
+  mobile: string;
+  aadhaar: string;
 }
 
 export interface BankDetails {
@@ -32,6 +34,7 @@ export interface InvoiceTotals {
 }
 
 export interface InvoiceData {
+  businessName: string;
   businessAddress: string;
   phone: string;
   gstin: string;

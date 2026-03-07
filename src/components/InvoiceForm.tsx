@@ -4,6 +4,7 @@ import { useInvoice } from "@/hooks/useInvoice";
 import { generateInvoicePDF } from "@/lib/pdf/pdfGenerator";
 import { parseInvoicePDF } from "@/lib/pdf/pdfParser";
 import { formatINR } from "@/utils/formatCurrency";
+import { useState } from "react";
 
 export default function InvoiceForm() {
   const {
@@ -12,37 +13,64 @@ export default function InvoiceForm() {
     addItem,
     removeItem,
     updateItem,
+    recalculateTotals,
     generateInvoice,
   } = useInvoice();
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const data = await parseInvoicePDF(formData);
+      setLoading(true);
+      setError(null);
+      
+      const data = await parseInvoicePDF(file);
+      console.log("Parsed Data:", data);
+      
       if (data) {
-        if (data.meta.invoiceNumber) setInvoiceField("meta.invoiceNumber", data.meta.invoiceNumber);
+        // Business details mappings
+        if (data.business.name) setInvoiceField("businessName", data.business.name);
+        if (data.business.phone) setInvoiceField("phone", data.business.phone);
+        if (data.business.gstin) setInvoiceField("gstin", data.business.gstin);
+
+        // Meta details mappings
+        if (data.meta.quoteNo) setInvoiceField("meta.invoiceNumber", data.meta.quoteNo);
         if (data.meta.date) setInvoiceField("meta.date", data.meta.date);
         
-        // Auto-populate items if found
+        // Customer details mappings
+        if (data.customer.name) setInvoiceField("customer.name", data.customer.name);
+        if (data.customer.address) setInvoiceField("customer.address", data.customer.address);
+
+        // Bank details mappings
+        if (data.bank.bankName) setInvoiceField("bank.bankName", data.bank.bankName);
+        if (data.bank.accountName) setInvoiceField("bank.accountName", data.bank.accountName);
+        if (data.bank.accountNumber) setInvoiceField("bank.accountNumber", data.bank.accountNumber);
+        if (data.bank.ifsc) setInvoiceField("bank.ifsc", data.bank.ifsc);
+
+        // Amount in words
+        if (data.amountWords) setInvoiceField("amountWords", data.amountWords);
+
+        // Items and Totals
         if (data.items && data.items.length > 0) {
-          // Add IDs if needed (Server action already adds partial IDs but let's be consistent)
-          const itemsWithIds = data.items.map(item => ({
-             ...item,
-             id: item.id || crypto.randomUUID()
-          }));
-          setInvoiceField("items", itemsWithIds);
-          alert(`Extracted ${data.items.length} items, Invoice #, and Date from PDF!`);
+          setInvoiceField("items", data.items);
+          // Manually trigger a totals recalculation
+          setTimeout(() => recalculateTotals(), 0);
+          alert(`Extracted ${data.items.length} items and structured fields from PDF!`);
         } else {
-          alert("Extracted Invoice # and Date from PDF. No items found.");
+          alert("Extracted structured fields from PDF. No items found.");
         }
+        
+        console.log("Structured Data Extracted:", data);
       }
     } catch (err) {
       console.error(err);
       alert("Failed to parse PDF. Please check the console.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -62,7 +90,46 @@ export default function InvoiceForm() {
         </p>
       </section>
 
-      {/* 1. Invoice Meta */}
+      {/* 1. Business Details */}
+      <section>
+        <h2>Business Details</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+          <div>
+            <label>Business Name</label>
+            <br />
+            <input
+              type="text"
+              style={{ width: "100%" }}
+              value={invoice.businessName}
+              onChange={(e) => setInvoiceField("businessName", e.target.value)}
+            />
+          </div>
+          <div>
+            <label>Phone</label>
+            <br />
+            <input
+              type="text"
+              style={{ width: "100%" }}
+              value={invoice.phone}
+              onChange={(e) => setInvoiceField("phone", e.target.value)}
+            />
+          </div>
+          <div>
+            <label>GSTIN</label>
+            <br />
+            <input
+              type="text"
+              style={{ width: "100%" }}
+              value={invoice.gstin}
+              onChange={(e) => setInvoiceField("gstin", e.target.value)}
+            />
+          </div>
+        </div>
+      </section>
+
+      <hr />
+
+      {/* 2. Invoice Meta */}
       <section>
         <h2>Invoice Meta</h2>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
@@ -71,6 +138,7 @@ export default function InvoiceForm() {
             <br />
             <input
               type="text"
+              style={{ width: "100%" }}
               value={invoice.meta.invoiceNumber}
               onChange={(e) => setInvoiceField("meta.invoiceNumber", e.target.value)}
             />
@@ -80,6 +148,7 @@ export default function InvoiceForm() {
             <br />
             <input
               type="date"
+              style={{ width: "100%" }}
               value={invoice.meta.date}
               onChange={(e) => setInvoiceField("meta.date", e.target.value)}
             />
@@ -88,6 +157,7 @@ export default function InvoiceForm() {
             <label>Type</label>
             <br />
             <select
+              style={{ width: "100%" }}
               value={invoice.meta.type}
               onChange={(e) => setInvoiceField("meta.type", e.target.value)}
             >
@@ -100,36 +170,60 @@ export default function InvoiceForm() {
 
       <hr />
 
-      {/* 2. Customer Details */}
+      {/* 3. Customer Details */}
       <section>
         <h2>Customer Details</h2>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <div>
-            <label>Customer Name</label>
-            <br />
-            <input
-              type="text"
-              style={{ width: "100%" }}
-              value={invoice.customer.name}
-              onChange={(e) => setInvoiceField("customer.name", e.target.value)}
-            />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
+            <div style={{ gridColumn: "span 2" }}>
+              <label>Customer Name</label>
+              <br />
+              <input
+                type="text"
+                style={{ width: "100%" }}
+                value={invoice.customer.name}
+                onChange={(e) => setInvoiceField("customer.name", e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Mobile</label>
+              <br />
+              <input
+                type="text"
+                style={{ width: "100%" }}
+                value={invoice.customer.mobile}
+                onChange={(e) => setInvoiceField("customer.mobile", e.target.value)}
+              />
+            </div>
           </div>
-          <div>
-            <label>Customer Address</label>
-            <br />
-            <textarea
-              style={{ width: "100%" }}
-              rows={3}
-              value={invoice.customer.address}
-              onChange={(e) => setInvoiceField("customer.address", e.target.value)}
-            />
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1rem" }}>
+            <div>
+              <label>Customer Address</label>
+              <br />
+              <textarea
+                style={{ width: "100%" }}
+                rows={3}
+                value={invoice.customer.address}
+                onChange={(e) => setInvoiceField("customer.address", e.target.value)}
+              />
+            </div>
+            <div>
+              <label>Aadhaar</label>
+              <br />
+              <input
+                type="text"
+                style={{ width: "100%" }}
+                value={invoice.customer.aadhaar}
+                onChange={(e) => setInvoiceField("customer.aadhaar", e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </section>
 
       <hr />
 
-      {/* 3. Items Table */}
+      {/* 4. Items Table */}
       <section>
         <h2>Items Table</h2>
         <table style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
@@ -156,6 +250,7 @@ export default function InvoiceForm() {
                 <td>
                   <input
                     type="number"
+                    style={{ width: "60px" }}
                     value={item.quantity}
                     onChange={(e) => handleNumberChange(index, "quantity", e.target.value)}
                   />
@@ -163,6 +258,7 @@ export default function InvoiceForm() {
                 <td>
                   <input
                     type="number"
+                    style={{ width: "100px" }}
                     value={item.unitPrice}
                     onChange={(e) => handleNumberChange(index, "unitPrice", e.target.value)}
                   />
@@ -193,7 +289,7 @@ export default function InvoiceForm() {
 
       <hr />
 
-      {/* 4. Bank Details */}
+      {/* 5. Bank Details */}
       <section>
         <h2>Bank Details</h2>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
