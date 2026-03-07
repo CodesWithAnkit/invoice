@@ -4,6 +4,7 @@ import { useInvoice } from "@/hooks/useInvoice";
 import { parseInvoicePDF } from "@/lib/pdf/pdfParser";
 import { formatINR } from "@/utils/formatCurrency";
 import { useState } from "react";
+import SignaturePad from "./SignaturePad";
 
 export default function InvoiceForm() {
   const {
@@ -338,6 +339,16 @@ export default function InvoiceForm() {
             />
           </div>
         </div>
+      </section>
+
+      {/* Signature Section */}
+      <section style={{ marginTop: "2rem", borderTop: "1px solid #eee", paddingTop: "2rem" }}>
+        <h2 style={{ marginBottom: "1rem" }}>Authorized Signatory</h2>
+        <SignaturePad 
+          initialValue={invoice.signature}
+          onSave={(dataURL) => setInvoiceField("signature", dataURL)}
+          onClear={() => setInvoiceField("signature", "")}
+        />
       </section>
 
       <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>

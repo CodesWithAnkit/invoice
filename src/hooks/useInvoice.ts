@@ -39,6 +39,7 @@ const INITIAL_STATE: InvoiceData = {
     ifsc: "",
   },
   amountWords: "",
+  signature: "",
 };
 
 // Singleton state management without an external library

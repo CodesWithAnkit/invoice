@@ -43,4 +43,5 @@ export interface InvoiceData {
   totals: InvoiceTotals;
   bank: BankDetails;
   amountWords: string;
+  signature: string;
 }

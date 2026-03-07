@@ -36,7 +36,7 @@ export default function InvoiceTemplate() {
         id="invoice-root"
         style={{
           width: "190mm",
-          height: "277mm",
+          height: "297mm",
           padding: "10mm",
           margin: "0 auto",
           backgroundColor: "white",
@@ -145,6 +145,13 @@ export default function InvoiceTemplate() {
             </div>
           </div>
           <div style={{ textAlign: "center", alignSelf: "flex-end" }}>
+            {invoice.signature && (
+              <img 
+                src={invoice.signature} 
+                alt="Signature" 
+                style={{ height: "60px", marginBottom: "5px", display: "block", margin: "0 auto" }} 
+              />
+            )}
             <div style={{ borderTop: "1px solid #333", paddingTop: "5px", width: "150px", fontSize: "0.9rem" }}>
               Authorized Signatory
             </div>
