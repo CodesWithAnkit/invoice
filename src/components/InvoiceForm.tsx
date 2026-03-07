@@ -1,7 +1,6 @@
 "use client";
 
 import { useInvoice } from "@/hooks/useInvoice";
-import { parseInvoicePDF } from "@/lib/pdf/pdfParser";
 import { formatINR } from "@/utils/formatCurrency";
 import { useState } from "react";
 import SignaturePad from "./SignaturePad";
@@ -28,10 +27,22 @@ export default function InvoiceForm() {
       setLoading(true);
       setError(null);
       
-      const data = await parseInvoicePDF(file);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/parse-invoice", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to parse PDF via server");
+      }
+
+      const data = await res.json();
       console.log("Parsed Data:", data);
       
-      if (data) {
+      if (data && !data.error) {
         // Business details mappings
         if (data.business.name) setInvoiceField("businessName", data.business.name);
         if (data.business.phone) setInvoiceField("phone", data.business.phone);

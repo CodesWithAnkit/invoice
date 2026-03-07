@@ -1,28 +1,28 @@
-"use server";
+import { NextResponse } from "next/server";
 
-/**
- * Parses an invoice PDF using pdf-parse-new and regex.
- * @param file The uploaded File object.
- * @returns An object with structured invoice data.
- */
-export async function parseInvoicePDF(file: File) {
+export async function POST(req: Request) {
   try {
-    // Dynamically import pdf-parse-new
+    const formData = await req.formData();
+    const file = formData.get("file") as File;
+
+    if (!file) {
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    
+    // Dynamically import pdf-parse-new (Node-only)
     const pdfParse = (await import("pdf-parse-new")).default;
-
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
     const data = await pdfParse(buffer);
     const text = data.text;
-
-    console.log("PDF TEXT", text);
 
     const lines = text
       .split("\n")
       .map((l: string) => l.trim())
       .filter(Boolean);
 
+    // Extraction Logic (migrated from pdfParser.ts)
+    
     // 1. Extract metadata
     const gstin = text.match(/GSTIN:\s*([A-Z0-9]+)/)?.[1] || "";
     const phone = text.match(/Ph\s*:\s*([\d]+)/)?.[1] || "";
@@ -49,10 +49,6 @@ export async function parseInvoicePDF(file: File) {
 
     if (mobileMatch) customerFields.phone = mobileMatch[1];
     if (aadhaarMatch) customerFields.aadhaar = aadhaarMatch[1];
-
-    console.log("businessName", businessName);
-    console.log("customerName", customerName);
-    console.log("customerFields", customerFields);
 
     // 5. Extract items
     const tableStart = lines.findIndex((l: string) => l.includes("Item Description"));
@@ -99,39 +95,18 @@ export async function parseInvoicePDF(file: File) {
     const accountNumber = text.match(/Account Number:-\s*([\d]+)/)?.[1] || "";
     const ifsc = text.match(/IFC Code:-\s*([A-Z0-9]+)/)?.[1] || "";
 
-    // 9. Return structured object
-    return {
-      business: {
-        name: businessName,
-        phone,
-        gstin,
-      },
-      customer: {
-        name: customerName,
-        address: customerAddress,
-        fields: customerFields,
-      },
-      meta: {
-        quoteNo,
-        date,
-      },
+    return NextResponse.json({
+      business: { name: businessName, phone, gstin },
+      customer: { name: customerName, address: customerAddress, fields: customerFields },
+      meta: { quoteNo, date },
       items,
-      totals: {
-        subTotal,
-        sgst,
-        cgst,
-        grandTotal,
-      },
-      bank: {
-        bankName,
-        accountName,
-        accountNumber,
-        ifsc,
-      },
-      amountWords,
-    };
+      totals: { subTotal, sgst, cgst, grandTotal },
+      bank: { bankName, accountName, accountNumber, ifsc },
+      amountWords
+    });
+
   } catch (error) {
-    console.error("Error parsing PDF with pdf-parse-new:", error);
-    throw new Error(error instanceof Error ? error.message : "Failed to parse PDF.");
+    console.error("API Error parsing PDF:", error);
+    return NextResponse.json({ error: "Failed to parse PDF" }, { status: 500 });
   }
 }
