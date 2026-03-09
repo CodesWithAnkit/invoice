@@ -89,9 +89,14 @@ function distributeBudget(templateItems: BusinessItem[], preTaxBudget: number) {
 
   let allocatedTotal = 0;
   const items = templateItems.map((item) => {
-    const price = Math.floor((item.weight / totalWeight) * preTaxBudget);
-    const finalPrice = price === 0 ? 1 : price;
+    // Total amount allocated for this line item based on weight
+    const rawLineTotal = (item.weight / totalWeight) * preTaxBudget;
+    // Unit price = Line total / quantity (rounded down to stay within budget)
+    const unitPrice = Math.floor(rawLineTotal / item.quantity);
+    const finalPrice = unitPrice === 0 ? 1 : unitPrice;
+    
     allocatedTotal += finalPrice * item.quantity;
+    
     return {
       name: item.name,
       quantity: item.quantity,
@@ -99,13 +104,11 @@ function distributeBudget(templateItems: BusinessItem[], preTaxBudget: number) {
     };
   });
 
-  // Adjust for any rounding surplus to stay strictly within budget
+  // If we slightly exceed budget due to the price=1 floor or other rounding, adjust the first item
   if (allocatedTotal > preTaxBudget && items.length > 0) {
     const difference = allocatedTotal - preTaxBudget;
-    // Reduce the price of the first item (or largest) to fit budget
-    // We divide difference by quantity to adjust the unit price
-    const adjustment = Math.ceil(difference / items[0].quantity);
-    items[0].price = Math.max(1, items[0].price - adjustment);
+    const adjustmentPerUnit = Math.ceil(difference / items[0].quantity);
+    items[0].price = Math.max(1, items[0].price - adjustmentPerUnit);
   }
 
   return items;
