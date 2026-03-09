@@ -10,6 +10,8 @@ import CustomerDetails from "./form/CustomerDetails";
 import InvoiceItems from "./form/InvoiceItems";
 import BankDetails from "./form/BankDetails";
 import SignatureSection from "./form/SignatureSection";
+// import InvoiceAIGenerator from "./InvoiceAIGenerator";
+import InvoiceBusinessGenerator from "./InvoiceBusinessGenerator";
 
 export default function InvoiceForm() {
   const {
@@ -20,12 +22,19 @@ export default function InvoiceForm() {
     updateItem,
     recalculateTotals,
     generateInvoice,
+    setInvoiceData,
   } = useInvoice();
 
   const { loading, handleFileUpload } = usePdfParser(setInvoiceField, recalculateTotals);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "2rem", padding: "1rem" }}>
+      {/* Business Setup Generator */}
+      <InvoiceBusinessGenerator onGenerate={setInvoiceData} />
+
+      {/* AI Generator */}
+      {/* <InvoiceAIGenerator onGenerate={setInvoiceData} /> */}
+
       {/* 0. PDF Uploader */}
       <section style={{ backgroundColor: "#f9f9f9", padding: "1rem", borderRadius: "8px", border: "1px dashed #ccc" }}>
         <h3>Auto-populate from PDF</h3>
@@ -70,6 +79,7 @@ export default function InvoiceForm() {
       <InvoiceItems 
         items={invoice.items}
         totals={invoice.totals}
+        taxPercent={invoice.taxPercent}
         onAddItem={addItem}
         onRemoveItem={removeItem}
         onUpdateItem={updateItem}

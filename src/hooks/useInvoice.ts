@@ -26,6 +26,7 @@ const INITIAL_STATE: InvoiceData = {
   items: [
     { id: crypto.randomUUID(), description: "", quantity: 1, unitPrice: 0, total: 0 }
   ],
+  taxPercent: 18,
   totals: {
     subTotal: 0,
     sgst: 0,
@@ -93,7 +94,7 @@ export const useInvoice = () => {
 
   const recalculateTotals = useCallback(() => {
     setGlobalState((prev) => {
-      const newTotals = calculateInvoiceTotals(prev.items);
+      const newTotals = calculateInvoiceTotals(prev.items, prev.taxPercent);
       return { ...prev, totals: newTotals };
     });
   }, []);
@@ -126,8 +127,11 @@ export const useInvoice = () => {
       newItems[index] = updatedItem;
       return { ...prev, items: newItems };
     });
-    recalculateTotals();
-  }, [recalculateTotals]);
+    setGlobalState((prev) => ({
+      ...prev,
+      totals: calculateInvoiceTotals(prev.items, prev.taxPercent),
+    }));
+  }, []);
 
   const generateInvoice = useCallback(() => {
     setGlobalState((prev) => {
@@ -141,6 +145,15 @@ export const useInvoice = () => {
     });
   }, []);
 
+  const setInvoiceData = useCallback((data: Partial<InvoiceData>, taxPercent?: number) => {
+    setGlobalState((prev) => ({
+      ...prev,
+      ...data,
+      // Recalculate totals if items or taxPercent were updated
+      totals: data.items ? calculateInvoiceTotals(data.items, taxPercent ?? 18) : prev.totals,
+    }));
+  }, []);
+
   return {
     invoice: state,
     setInvoiceField,
@@ -149,5 +162,6 @@ export const useInvoice = () => {
     updateItem,
     recalculateTotals,
     generateInvoice,
+    setInvoiceData,
   };
 };

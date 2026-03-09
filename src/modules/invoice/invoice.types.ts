@@ -40,6 +40,8 @@ export interface InvoiceData {
   meta: InvoiceMeta;
   customer: CustomerData;
   items: InvoiceItem[];
+  taxPercent?: number;
+  businessType?: string;
   totals: InvoiceTotals;
   bank: BankDetails;
   amountWords: string;

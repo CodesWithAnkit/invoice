@@ -112,11 +112,11 @@ export default function InvoiceTemplate() {
                   <td style={{ ...cellStyle, textAlign: "right" }}>{formatINR(totals.subTotal)}</td>
                 </tr>
                 <tr>
-                  <td style={{ ...cellStyle, textAlign: "right" }}>SGST 9%</td>
+                  <td style={{ ...cellStyle, textAlign: "right" }}>SGST {(invoice.taxPercent ?? 18) / 2}%</td>
                   <td style={{ ...cellStyle, textAlign: "right" }}>{formatINR(totals.sgst)}</td>
                 </tr>
                 <tr>
-                  <td style={{ ...cellStyle, textAlign: "right" }}>CGST 9%</td>
+                  <td style={{ ...cellStyle, textAlign: "right" }}>CGST {(invoice.taxPercent ?? 18) / 2}%</td>
                   <td style={{ ...cellStyle, textAlign: "right" }}>{formatINR(totals.cgst)}</td>
                 </tr>
                 <tr style={{ backgroundColor: "#f2f2f2" }}>

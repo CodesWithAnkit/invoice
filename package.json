@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "next": "16.1.6",
     "pdf-parse-new": "^2.0.0",
     "pdfjs-dist": "^5.5.207",

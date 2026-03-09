@@ -13,6 +13,7 @@ interface InvoiceItemsProps {
   onAddItem: () => void;
   onRemoveItem: (index: number) => void;
   onUpdateItem: (index: number, field: keyof InvoiceItem, value: any) => void;
+  taxPercent?: number;
 }
 
 export default function InvoiceItems({
@@ -21,7 +22,9 @@ export default function InvoiceItems({
   onAddItem,
   onRemoveItem,
   onUpdateItem,
+  taxPercent = 18,
 }: InvoiceItemsProps) {
+  const halfTax = taxPercent / 2;
   const handleNumberChange = (index: number, field: "quantity" | "unitPrice", value: string) => {
     const parsed = parseFloat(value);
     onUpdateItem(index, field, isNaN(parsed) ? 0 : parsed);
@@ -174,8 +177,8 @@ export default function InvoiceItems({
         gap: "0.5rem" 
       }}>
         <div style={{ fontSize: "14px", color: "#666" }}>Subtotal: {formatINR(totals.subTotal)}</div>
-        <div style={{ fontSize: "14px", color: "#666" }}>SGST (9%): {formatINR(totals.sgst)}</div>
-        <div style={{ fontSize: "14px", color: "#666" }}>CGST (9%): {formatINR(totals.cgst)}</div>
+        <div style={{ fontSize: "14px", color: "#666" }}>SGST ({halfTax}%): {formatINR(totals.sgst)}</div>
+        <div style={{ fontSize: "14px", color: "#666" }}>CGST ({halfTax}%): {formatINR(totals.cgst)}</div>
         <div style={{ 
           fontWeight: "bold", 
           fontSize: "18px", 
