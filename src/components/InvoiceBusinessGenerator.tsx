@@ -195,15 +195,40 @@ export default function InvoiceBusinessGenerator({ onGenerate }: InvoiceBusiness
             <textarea
               style={{ 
                 ...commonInputStyle, 
-                height: "120px", 
+                height: "150px", 
                 resize: "vertical",
-                fontFamily: "inherit"
               }}
-              placeholder='Example: "Create invoice for cafe setup with 500000 budget including 18% GST"'
+              placeholder="e.g. Create a quotation for a Medical Store with a budget of 10 Lakhs including 18% GST"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               disabled={loading}
             />
+            <div style={{ fontSize: "0.85rem", color: "#666", display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.5rem" }}>
+              <span style={{ fontWeight: "bold" }}>Try:</span>
+              {[
+                "Medical Store setup for 10 Lakhs including 18% GST",
+                "Bakery shop with 5 Lakhs budget and 12% GST",
+                "Textile business setup cost 15 Lakhs"
+              ].map((example) => (
+                <button
+                  key={example}
+                  type="button"
+                  onClick={() => setPrompt(example)}
+                  style={{ 
+                    border: "1px solid #ddd", 
+                    borderRadius: "4px", 
+                    padding: "2px 8px", 
+                    background: "#f9f9f9", 
+                    cursor: "pointer",
+                    fontSize: "0.8rem"
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.background = "#ececec")}
+                  onMouseOut={(e) => (e.currentTarget.style.background = "#f9f9f9")}
+                >
+                  {example}
+                </button>
+              ))}
+            </div>
           </div>
         )}
         

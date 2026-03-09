@@ -106,6 +106,77 @@ export const businessTemplates: Record<string, BusinessTemplate> = {
       { name: "Paper glass packaging materials", category: "material", quantity: 1, weight: 5 },
     ],
   },
+  textile: {
+  "industryName": "Textile",
+  "items": [
+    {
+      "name": "Industrial Single Needle Sewing Machine",
+      "category": "machine",
+      "quantity": 6,
+      "weight": 45
+    },
+    {
+      "name": "Four-Thread Overlock Machine",
+      "category": "machine",
+      "quantity": 2,
+      "weight": 38
+    },
+    {
+      "name": "Vertical Fabric Cutting Machine",
+      "category": "machine",
+      "quantity": 1,
+      "weight": 30
+    },
+    {
+      "name": "Industrial Steam Iron with Boiler",
+      "category": "equipment",
+      "quantity": 2,
+      "weight": 25
+    },
+    {
+      "name": "Professional Pattern Making Plotter",
+      "category": "machine",
+      "quantity": 1,
+      "weight": 35
+    },
+    {
+      "name": "Large Scale Fabric Cutting Table",
+      "category": "infrastructure",
+      "quantity": 2,
+      "weight": 40
+    },
+    {
+      "name": "Heavy Duty Fabric Storage Racks",
+      "category": "infrastructure",
+      "quantity": 4,
+      "weight": 20
+    },
+    {
+      "name": "Raw Cotton and Synthetic Fabric Rolls",
+      "category": "material",
+      "quantity": 25,
+      "weight": 50
+    },
+    {
+      "name": "Industrial Grade Sewing Thread Sets",
+      "category": "material",
+      "quantity": 150,
+      "weight": 12
+    },
+    {
+      "name": "LED Factory Task Lighting",
+      "category": "infrastructure",
+      "quantity": 1,
+      "weight": 15
+    },
+    {
+      "name": "Quality Control Inspection Station",
+      "category": "equipment",
+      "quantity": 1,
+      "weight": 18
+    }
+  ]
+},
 };
 
 export function getBusinessTemplate(businessType: string): BusinessItem[] | null {
