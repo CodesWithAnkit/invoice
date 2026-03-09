@@ -48,6 +48,7 @@ export default function InvoiceForm() {
       {/* 1. Business Details */}
       <BusinessDetails 
         businessName={invoice.businessName}
+        businessAddress={invoice.businessAddress}
         phone={invoice.phone}
         gstin={invoice.gstin}
         onUpdate={setInvoiceField}

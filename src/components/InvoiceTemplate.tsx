@@ -53,12 +53,13 @@ export default function InvoiceTemplate() {
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "30px" }}>
               <div style={{ fontSize: "0.9rem" }}>
                 <div style={{ fontWeight: "bold", fontSize: "1.2rem", marginBottom: "5px" }}>{invoice.businessName}</div>
+                <div style={{ whiteSpace: "pre-line", marginBottom: "5px" }}>{invoice.businessAddress}</div>
                 <div>Phone: {invoice.phone}</div>
                 <div>GSTIN: {invoice.gstin}</div>
               </div>
               <div style={{ textAlign: "right" }}>
                 <h1 style={{ margin: 0, fontSize: "2rem", color: "#444" }}>
-                  {meta.type === "invoice" ? "TAX INVOICE" : "BUSINESS QUOTATION"}
+                  {meta.type === "invoice" ? "BILL INVOICE" : "PRICE QUOTATION"}
                 </h1>
               </div>
             </div>
@@ -85,14 +86,14 @@ export default function InvoiceTemplate() {
                     {meta.type === "invoice" ? "Invoice #:" : "Quotation #:"}
                   </div>
                   <div>{meta.invoiceNumber}</div>
-                  {meta.type === "quote" && (
+                  {/* {meta.type === "quote" && (
                     <>
                       <div style={{ fontWeight: "bold", color: "#777" }}>Valid Until:</div>
                       <div>
                         {new Date(new Date(meta.date || Date.now()).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString()}
                       </div>
                     </>
-                  )}
+                  )} */}
                 </div>
               </div>
             </div>

@@ -2,6 +2,7 @@ import { commonInputStyle } from "../../constants/styles";
 
 interface BusinessDetailsProps {
   businessName: string;
+  businessAddress: string;
   phone: string;
   gstin: string;
   onUpdate: (field: string, value: string) => void;
@@ -9,6 +10,7 @@ interface BusinessDetailsProps {
 
 export default function BusinessDetails({
   businessName,
+  businessAddress,
   phone,
   gstin,
   onUpdate,
@@ -42,6 +44,14 @@ export default function BusinessDetails({
             style={commonInputStyle}
             value={gstin}
             onChange={(e) => onUpdate("gstin", e.target.value)}
+          />
+        </div>
+        <div style={{ gridColumn: "1 / -1" }}>
+          <label>Business Address</label>
+          <textarea
+            style={{ ...commonInputStyle, height: "80px", resize: "vertical" }}
+            value={businessAddress}
+            onChange={(e) => onUpdate("businessAddress", e.target.value)}
           />
         </div>
       </div>
