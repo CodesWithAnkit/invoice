@@ -24,11 +24,13 @@ export const calculateSubTotal = (items: InvoiceItem[]): number => {
 };
 
 /**
- * Calculates SGST and CGST (9% each).
+ * Calculates SGST and CGST based on the provided total tax percentage.
+ * Default is 18% (9% SGST + 9% CGST).
  */
-export const calculateGST = (subTotal: number) => {
-  const sgst = round2(subTotal * 0.09);
-  const cgst = round2(subTotal * 0.09);
+export const calculateGST = (subTotal: number, taxPercent: number = 18) => {
+  const halfTax = taxPercent / 2;
+  const sgst = round2(subTotal * (halfTax / 100));
+  const cgst = round2(subTotal * (halfTax / 100));
   return { sgst, cgst };
 };
 
@@ -42,9 +44,9 @@ export const calculateGrandTotal = (subTotal: number, sgst: number, cgst: number
 /**
  * Computes all invoice totals.
  */
-export const calculateInvoiceTotals = (items: InvoiceItem[]): InvoiceTotals => {
+export const calculateInvoiceTotals = (items: InvoiceItem[], taxPercent: number = 18): InvoiceTotals => {
   const subTotal = calculateSubTotal(items);
-  const { sgst, cgst } = calculateGST(subTotal);
+  const { sgst, cgst } = calculateGST(subTotal, taxPercent);
   const grandTotal = calculateGrandTotal(subTotal, sgst, cgst);
 
   return {
