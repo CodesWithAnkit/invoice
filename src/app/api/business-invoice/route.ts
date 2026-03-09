@@ -87,12 +87,26 @@ function normalizePrompt(prompt: string) {
 function distributeBudget(templateItems: BusinessItem[], preTaxBudget: number) {
   const totalWeight = templateItems.reduce((sum, item) => sum + item.weight, 0);
 
-  return templateItems.map((item) => {
+  let allocatedTotal = 0;
+  const items = templateItems.map((item) => {
     const price = Math.floor((item.weight / totalWeight) * preTaxBudget);
+    const finalPrice = price === 0 ? 1 : price;
+    allocatedTotal += finalPrice * item.quantity;
     return {
       name: item.name,
       quantity: item.quantity,
-      price: price === 0 ? 1 : price, // Ensure price is at least 1
+      price: finalPrice,
     };
   });
+
+  // Adjust for any rounding surplus to stay strictly within budget
+  if (allocatedTotal > preTaxBudget && items.length > 0) {
+    const difference = allocatedTotal - preTaxBudget;
+    // Reduce the price of the first item (or largest) to fit budget
+    // We divide difference by quantity to adjust the unit price
+    const adjustment = Math.ceil(difference / items[0].quantity);
+    items[0].price = Math.max(1, items[0].price - adjustment);
+  }
+
+  return items;
 }
