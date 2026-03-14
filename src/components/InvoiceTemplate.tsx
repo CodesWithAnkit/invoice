@@ -6,37 +6,37 @@ import { useInvoice } from "@/hooks/useInvoice";
 import { formatINR } from "@/utils/formatCurrency";
 
 const TotalsSection = ({ totals, taxPercent, amountWords }: { totals: any, taxPercent?: number, amountWords?: string }) => (
-  <div style={{ display: "flex", border: "1px solid #333" }}>
-    <div style={{ flex: 1.6, padding: "8px 10px", fontSize: "0.85rem", borderRight: "1px solid #333", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-      <div style={{ marginBottom: "5px" }}>
+  <div style={{ display: "flex", border: "1px solid #333", borderTop: "none" }}>
+    <div style={{ flex: 1.4, padding: "8px 10px", fontSize: "0.85rem", borderRight: "1px solid #333", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+      <div style={{ marginBottom: "2px" }}>
         <span style={{ fontWeight: "bold" }}>Amount in Words:</span>
       </div>
-      <div style={{ textTransform: "uppercase", fontWeight: "500", color: "#444" }}>
+      <div style={{ textTransform: "uppercase", fontSize: "0.8rem", fontWeight: "500", color: "#444", lineHeight: "1.2" }}>
         {amountWords || "Zero Rupees Only"}
       </div>
     </div>
     <div style={{ flex: 1 }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
         <tbody>
           <tr>
-            <td style={{ padding: "4px 10px", textAlign: "left", borderBottom: "1px solid #ccc" }}>Sub Total</td>
-            <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #ccc", fontWeight: "500" }}>{formatINR(totals.subTotal)}</td>
+            <td style={{ padding: "4px 10px", textAlign: "left", borderBottom: "1px solid #333" }}>Sub Total</td>
+            <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #333", fontWeight: "600" }}>{formatINR(totals.subTotal)}</td>
           </tr>
           {(totals.sgst > 0 || totals.cgst > 0) && (
             <>
               <tr>
-                <td style={{ padding: "4px 10px", textAlign: "left", borderBottom: "1px solid #ccc" }}>SGST ({(taxPercent ?? 18) / 2}%)</td>
-                <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #ccc" }}>{formatINR(totals.sgst)}</td>
+                <td style={{ padding: "4px 10px", textAlign: "left", borderBottom: "1px solid #333" }}>SGST ({(taxPercent ?? 18) / 2}%)</td>
+                <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #333" }}>{formatINR(totals.sgst)}</td>
               </tr>
               <tr>
-                <td style={{ padding: "4px 10px", textAlign: "left", borderBottom: "1px solid #ccc" }}>CGST ({(taxPercent ?? 18) / 2}%)</td>
-                <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #ccc" }}>{formatINR(totals.cgst)}</td>
+                <td style={{ padding: "4px 10px", textAlign: "left", borderBottom: "1px solid #333" }}>CGST ({(taxPercent ?? 18) / 2}%)</td>
+                <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #333" }}>{formatINR(totals.cgst)}</td>
               </tr>
             </>
           )}
           <tr>
-            <td style={{ padding: "6px 10px", fontWeight: "bold", textAlign: "left", fontSize: "1rem" }}>Grand Total</td>
-            <td style={{ padding: "6px 10px", fontWeight: "bold", textAlign: "right", fontSize: "1.1rem" }}>
+            <td style={{ padding: "8px 10px", fontWeight: "bold", textAlign: "left", fontSize: "1rem", whiteSpace: "nowrap" }}>Grand Total</td>
+            <td style={{ padding: "8px 10px", fontWeight: "bold", textAlign: "right", fontSize: "1.1rem", color: "#000" }}>
               {formatINR(totals.grandTotal)}
             </td>
           </tr>
@@ -44,6 +44,32 @@ const TotalsSection = ({ totals, taxPercent, amountWords }: { totals: any, taxPe
       </table>
     </div>
   </div>
+);
+
+const PrintStyles = () => (
+  <style>{`
+    @media print {
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      body {
+        margin: 0;
+        -webkit-print-color-adjust: exact;
+      }
+      .no-print {
+        display: none !important;
+      }
+      #invoice-root {
+        margin: 0 !important;
+        padding: 10mm !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        box-shadow: none !important;
+        transform: scale(1) !important;
+      }
+    }
+  `}</style>
 );
 
 export default function InvoiceTemplate() {
@@ -78,16 +104,16 @@ export default function InvoiceTemplate() {
 
   return (
     <div style={{ padding: "20px", backgroundColor: "#f0f0f0" }}>
-      <div style={{ width: "100%", overflowX: "auto" }}>
-        <div style={{ transform: "scale(0.9)", transformOrigin: "top left" }}>
+      <PrintStyles />
+      <div style={{ width: "100%", overflowX: "auto", display: "flex", justifyContent: "center" }}>
+        <div style={{ minWidth: "210mm", display: "flex", justifyContent: "center", padding: "20px 0" }}>
           <div
             ref={invoiceRef}
             id="invoice-root"
             style={{
-              width: "190mm",
-              height: "297mm", // Fixed A4 height
+              width: "210mm",
+              height: "297mm",
               padding: "10mm",
-              margin: "0 auto",
               backgroundColor: "white",
               color: "#333",
               fontFamily: "sans-serif",
@@ -96,44 +122,45 @@ export default function InvoiceTemplate() {
               overflow: "hidden",
               display: "flex",
               flexDirection: "column",
+              boxShadow: "0 0 10px rgba(0,0,0,0.1)",
             }}
           >
             {/* 1. Header Section (Fixed at Top) */}
-            <div style={{ flexShrink: 0, paddingBottom: "5px", marginBottom: "8px" }}>
+            <div style={{ flexShrink: 0, paddingBottom: "2px", marginBottom: "5px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: "bold", fontSize: "1.4rem", color: "#b30000", marginBottom: "2px" }}>
+                  <div style={{ fontWeight: "bold", fontSize: "1.3rem", color: "#b30000", marginBottom: "1px" }}>
                     {invoice.businessName}
                   </div>
-                  <div style={{ whiteSpace: "pre-line", fontSize: "0.8rem", marginBottom: "2px", fontWeight: "500", color: "#555" }}>
+                  <div style={{ whiteSpace: "pre-line", fontSize: "0.75rem", marginBottom: "1px", fontWeight: "500", color: "#555", lineHeight: "1.2" }}>
                     {invoice.businessAddress}
                   </div>
-                  {invoice.phone && <div style={{ fontSize: "0.8rem", color: "#555" }}><b>Phone:</b> {invoice.phone}</div>}
-                  {invoice.gstin && <div style={{ fontSize: "0.8rem", color: "#555" }}><b>GSTIN:</b> {invoice.gstin}</div>}
+                  {invoice.phone && <div style={{ fontSize: "0.75rem", color: "#555" }}><b>Phone:</b> {invoice.phone}</div>}
+                  {invoice.gstin && <div style={{ fontSize: "0.75rem", color: "#555" }}><b>GSTIN:</b> {invoice.gstin}</div>}
                 </div>
                 <div style={{ textAlign: "right", flex: 1 }}>
-                  <h1 style={{ margin: 0, fontSize: "1.8rem", color: "#333", textTransform: "uppercase" }}>
+                  <h1 style={{ margin: 0, fontSize: "1.6rem", color: "#333", textTransform: "uppercase" }}>
                     {meta.type === "invoice" ? "TAX INVOICE" : "PRICE QUOTE"}
                   </h1>
                 </div>
               </div>
 
               {/* Customer and Document Meta */}
-              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", padding: "8px", border: "1px solid #333", backgroundColor: "#fdfdfd" }}>
-                <div style={{ flex: 1, borderRight: "1px solid #ccc", paddingRight: "15px" }}>
-                  <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "0.75rem", color: "#777", marginBottom: "4px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "8px", padding: "6px", border: "1px solid #333", backgroundColor: "#fdfdfd" }}>
+                <div style={{ flex: 1, borderRight: "1px solid #ccc", paddingRight: "12px" }}>
+                  <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "0.7rem", color: "#777", marginBottom: "2px" }}>
                     Customer Details
                   </div>
-                  <div style={{ fontWeight: "bold", fontSize: "1.1rem", color: "#000" }}>{customer.name}</div>
-                  <div style={{ whiteSpace: "pre-line", fontSize: "0.9rem", marginTop: "2px" }}>{customer.address}</div>
+                  <div style={{ fontWeight: "bold", fontSize: "1rem", color: "#000" }}>{customer.name}</div>
+                  <div style={{ whiteSpace: "pre-line", fontSize: "0.85rem", marginTop: "1px", lineHeight: "1.2" }}>{customer.address}</div>
                   {Object.entries(customer.fields || {}).map(([label, value]) => (
-                    <div key={label} style={{ fontSize: "0.9rem", marginTop: "2px" }}>
+                    <div key={label} style={{ fontSize: "0.85rem", marginTop: "1px" }}>
                       <span style={{ fontWeight: "bold", textTransform: "capitalize" }}>{label}:</span> {String(value)}
                     </div>
                   ))}
                 </div>
-                <div style={{ flex: 0.8, paddingLeft: "15px", alignSelf: "center" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.9rem" }}>
+                <div style={{ flex: 0.8, paddingLeft: "12px", alignSelf: "center" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "4px", fontSize: "0.85rem" }}>
                     <div style={{ fontWeight: "bold", color: "#555" }}>{meta.type === "invoice" ? "Invoice No:" : "Quote No:"}</div>
                     <div style={{ fontWeight: "bold" }}>{meta.invoiceNumber}</div>
                     <div style={{ fontWeight: "bold", color: "#555" }}>Date:</div>
@@ -156,13 +183,13 @@ export default function InvoiceTemplate() {
                 </thead>
                 <tbody style={{ verticalAlign: "top" }}>
                     {sortedItems.map((item, index) => (
-                      <tr key={item.id} style={{ height: 12}}>
-                        <td style={{ ...cellStyle, borderBottom: index === sortedItems.length - 1 ? "none" : "1px solid #ccc", fontSize: "0.85rem", padding: "6px 8px" }}>
+                      <tr key={item.id} style={{ minHeight: "24px" }}>
+                        <td style={{ ...cellStyle, borderBottom: "1px solid #333", fontSize: "0.85rem", padding: "4px 8px" }}>
                           <div style={{ fontWeight: "bold" }}>{item.description}</div>
                         </td>
-                        <td style={{ ...cellStyle, borderBottom: index === sortedItems.length - 1 ? "none" : "1px solid #ccc", textAlign: "center", fontSize: "0.85rem", padding: "6px 8px" }}>{item.quantity}</td>
-                        <td style={{ ...cellStyle, borderBottom: index === sortedItems.length - 1 ? "none" : "1px solid #ccc", textAlign: "right", fontSize: "0.85rem", padding: "6px 8px" }}>{formatINR(item.unitPrice)}</td>
-                        <td style={{ ...cellStyle, borderBottom: index === sortedItems.length - 1 ? "none" : "1px solid #ccc", textAlign: "right", fontSize: "0.85rem", padding: "6px 8px", fontWeight: "500" }}>{formatINR(item.total)}</td>
+                        <td style={{ ...cellStyle, borderBottom: "1px solid #333", textAlign: "center", fontSize: "0.85rem", padding: "4px 8px" }}>{item.quantity}</td>
+                        <td style={{ ...cellStyle, borderBottom: "1px solid #333", textAlign: "right", fontSize: "0.85rem", padding: "4px 8px" }}>{formatINR(item.unitPrice)}</td>
+                        <td style={{ ...cellStyle, borderBottom: "1px solid #333", textAlign: "right", fontSize: "0.85rem", padding: "4px 8px", fontWeight: "500" }}>{formatINR(item.total)}</td>
                       </tr>
                     ))}
                 </tbody>
@@ -192,35 +219,25 @@ export default function InvoiceTemplate() {
                    )}
                    <div style={{ fontSize: "0.75rem", color: "#555" }}>
                     <div style={{ fontWeight: "bold", marginBottom: "2px", color: "#333" }}>Terms & Conditions:</div>
-                    {meta.type === "invoice" ? (
                       <>
-                        <div>1. Goods once sold will not be taken back.</div>
-                        <div>2. Interest @ 18% p.a. will be charged if payment is delayed.</div>
-                        <div>3. Subject to local jurisdiction.</div>
-                      </>
-                    ) : (
-                      <>
-                        <div>1. Quotation valid for 15 days from issue date.</div>
-                        <div>2. Prices subject to change based on market conditions.</div>
-                        <div>3. This is not a tax invoice.</div>
-                      </>
-                    )}
+                        <div>1.Customer will be billed after indicating acceptance of this quote.</div>
+                        <div>2. Payment will be due prior to delivery of service and goods.</div>
+                       </>
                   </div>
                 </div>
 
-                <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center" }}>
-
-                  <div style={{ width: "100%", textAlign: "center" }}>
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center" }}>
+                  <div style={{ width: "100%", textAlign: "center", position: "relative" }}>
                     {invoice.signature ? (
                       <img
                         src={invoice.signature}
                         alt="Signature"
-                        style={{ maxHeight: "60px", maxWidth: "100%", objectFit: "contain" }}
+                        style={{ height: "45px", maxWidth: "150px", objectFit: "contain", marginBottom: "-8px" }}
                       />
                     ) : (
-                      <div style={{ color: "#aaa", fontStyle: "italic", fontSize: "0.8rem" }}></div>
+                      <div style={{ height: "45px" }}></div>
                     )}
-                    <div style={{ borderTop: "1px solid #333", paddingTop: "5px", fontSize: "0.85rem", fontWeight: "bold" }}>
+                    <div style={{ borderTop: "1px solid #333", paddingTop: "4px", fontSize: "0.8rem", fontWeight: "bold" }}>
                        Authorized Signature
                     </div>
                   </div>
@@ -237,10 +254,10 @@ export default function InvoiceTemplate() {
         </div>
       </div>
 
-      <div style={{ marginTop: "20px", textAlign: "center" }}>
+      <div style={{ marginTop: "20px", textAlign: "center" }} className="no-print">
         <button
           onClick={() => {
-            setTimeout(() => handlePrint(), 100);
+            handlePrint();
           }}
           style={{
             padding: "12px 24px",
