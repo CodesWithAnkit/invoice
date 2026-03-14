@@ -95,7 +95,8 @@ export const useInvoice = () => {
   const recalculateTotals = useCallback(() => {
     setGlobalState((prev) => {
       const newTotals = calculateInvoiceTotals(prev.items, prev.taxPercent);
-      return { ...prev, totals: newTotals };
+      const words = amountToWords(newTotals.grandTotal);
+      return { ...prev, totals: newTotals, amountWords: words };
     });
   }, []);
 
@@ -127,10 +128,15 @@ export const useInvoice = () => {
       newItems[index] = updatedItem;
       return { ...prev, items: newItems };
     });
-    setGlobalState((prev) => ({
-      ...prev,
-      totals: calculateInvoiceTotals(prev.items, prev.taxPercent),
-    }));
+    setGlobalState((prev) => {
+      const newTotals = calculateInvoiceTotals(prev.items, prev.taxPercent);
+      const words = amountToWords(newTotals.grandTotal);
+      return {
+        ...prev,
+        totals: newTotals,
+        amountWords: words,
+      };
+    });
   }, []);
 
   const generateInvoice = useCallback(() => {
@@ -146,12 +152,20 @@ export const useInvoice = () => {
   }, []);
 
   const setInvoiceData = useCallback((data: Partial<InvoiceData>, taxPercent?: number) => {
-    setGlobalState((prev) => ({
-      ...prev,
-      ...data,
-      // Recalculate totals if items or taxPercent were updated
-      totals: data.items ? calculateInvoiceTotals(data.items, taxPercent ?? 18) : prev.totals,
-    }));
+    setGlobalState((prev) => {
+      const nextItems = data.items || prev.items;
+      const nextTax = taxPercent ?? prev.taxPercent ?? 18;
+      const newTotals = calculateInvoiceTotals(nextItems, nextTax);
+      const words = amountToWords(newTotals.grandTotal);
+      
+      return {
+        ...prev,
+        ...data,
+        taxPercent: nextTax,
+        totals: newTotals,
+        amountWords: words
+      };
+    });
   }, []);
 
   return {

@@ -12,6 +12,7 @@ import BankDetails from "./form/BankDetails";
 import SignatureSection from "./form/SignatureSection";
 // import InvoiceAIGenerator from "./InvoiceAIGenerator";
 import InvoiceBusinessGenerator from "./InvoiceBusinessGenerator";
+import { useInvoicePrint } from "@/hooks/useInvoicePrint";
 
 export default function InvoiceForm() {
   const {
@@ -26,6 +27,7 @@ export default function InvoiceForm() {
   } = useInvoice();
 
   const { loading, handleFileUpload } = usePdfParser(setInvoiceField, recalculateTotals);
+  const { printInvoice } = useInvoicePrint();
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "2rem", padding: "1rem" }}>
@@ -108,18 +110,34 @@ export default function InvoiceForm() {
         <button 
             onClick={generateInvoice}
             style={{ 
-              padding: "1rem 2rem", 
-              fontSize: "1.2rem", 
+              padding: "1rem", 
+              fontSize: "1rem", 
+              cursor: "pointer",
+              backgroundColor: "#1e293b",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "bold",
+              flex: 1
+            }}
+        >
+          Force Recalculate
+        </button>
+        <button 
+            onClick={printInvoice}
+            style={{ 
+              padding: "1rem", 
+              fontSize: "1rem", 
               cursor: "pointer",
               backgroundColor: "#0070f3",
               color: "white",
               border: "none",
               borderRadius: "8px",
               fontWeight: "bold",
-              width: "100%"
+              flex: 1
             }}
         >
-          Finalize & Preview
+          Print / PDF
         </button>
       </div>
       
