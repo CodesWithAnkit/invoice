@@ -5,6 +5,47 @@ import { useReactToPrint } from "react-to-print";
 import { useInvoice } from "@/hooks/useInvoice";
 import { formatINR } from "@/utils/formatCurrency";
 
+const TotalsSection = ({ totals, taxPercent, amountWords }: { totals: any, taxPercent?: number, amountWords?: string }) => (
+  <div style={{ display: "flex", border: "1px solid #333" }}>
+    <div style={{ flex: 1.6, padding: "8px 10px", fontSize: "0.85rem", borderRight: "1px solid #333", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+      <div style={{ marginBottom: "5px" }}>
+        <span style={{ fontWeight: "bold" }}>Amount in Words:</span>
+      </div>
+      <div style={{ textTransform: "uppercase", fontWeight: "500", color: "#444" }}>
+        {amountWords || "Zero Rupees Only"}
+      </div>
+    </div>
+    <div style={{ flex: 1 }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}>
+        <tbody>
+          <tr>
+            <td style={{ padding: "4px 10px", textAlign: "left", borderBottom: "1px solid #ccc" }}>Sub Total</td>
+            <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #ccc", fontWeight: "500" }}>{formatINR(totals.subTotal)}</td>
+          </tr>
+          {(totals.sgst > 0 || totals.cgst > 0) && (
+            <>
+              <tr>
+                <td style={{ padding: "4px 10px", textAlign: "left", borderBottom: "1px solid #ccc" }}>SGST ({(taxPercent ?? 18) / 2}%)</td>
+                <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #ccc" }}>{formatINR(totals.sgst)}</td>
+              </tr>
+              <tr>
+                <td style={{ padding: "4px 10px", textAlign: "left", borderBottom: "1px solid #ccc" }}>CGST ({(taxPercent ?? 18) / 2}%)</td>
+                <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #ccc" }}>{formatINR(totals.cgst)}</td>
+              </tr>
+            </>
+          )}
+          <tr>
+            <td style={{ padding: "6px 10px", fontWeight: "bold", textAlign: "left", fontSize: "1rem" }}>Grand Total</td>
+            <td style={{ padding: "6px 10px", fontWeight: "bold", textAlign: "right", fontSize: "1.1rem" }}>
+              {formatINR(totals.grandTotal)}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
 export default function InvoiceTemplate() {
   const { invoice } = useInvoice();
   const invoiceRef = useRef<HTMLDivElement>(null);
@@ -21,12 +62,18 @@ export default function InvoiceTemplate() {
 
   const sortedItems = [...items].sort((a, b) => b.total - a.total);
 
-  const rowStyle: React.CSSProperties = {
-    borderBottom: "1px solid #eee",
-  };
-
   const cellStyle: React.CSSProperties = {
     padding: "8px",
+    borderLeft: "1px solid #333",
+    borderRight: "1px solid #333",
+  };
+
+  const headerCellStyle: React.CSSProperties = {
+    ...cellStyle,
+    backgroundColor: "#f2f2f2",
+    borderTop: "1px solid #333",
+    borderBottom: "1px solid #333",
+    fontWeight: "bold",
   };
 
   return (
@@ -38,156 +85,153 @@ export default function InvoiceTemplate() {
             id="invoice-root"
             style={{
               width: "190mm",
-              height: "297mm",
+              height: "297mm", // Fixed A4 height
               padding: "10mm",
               margin: "0 auto",
               backgroundColor: "white",
               color: "#333",
               fontFamily: "sans-serif",
-              lineHeight: "1.5",
+              lineHeight: "1.4",
               boxSizing: "border-box",
               overflow: "hidden",
+              display: "flex",
+              flexDirection: "column",
             }}
           >
-            {/* Top Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "30px" }}>
-              <div style={{ fontSize: "0.9rem" }}>
-                <div style={{ fontWeight: "bold", fontSize: "1.2rem", marginBottom: "5px" }}>{invoice.businessName}</div>
-                <div style={{ whiteSpace: "pre-line", marginBottom: "5px" }}>{invoice.businessAddress}</div>
-                <div>Phone: {invoice.phone}</div>
-                <div>GSTIN: {invoice.gstin}</div>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <h1 style={{ margin: 0, fontSize: "2rem", color: "#444" }}>
-                  {meta.type === "invoice" ? "BILL INVOICE" : "PRICE QUOTATION"}
-                </h1>
-              </div>
-            </div>
-
-            {/* Customer & Meta Section */}
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "30px" }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "0.8rem", color: "#777" }}>
-                  {meta.type === "invoice" ? "Bill To:" : "Customer Information:"}
+            {/* 1. Header Section (Fixed at Top) */}
+            <div style={{ flexShrink: 0, paddingBottom: "5px", marginBottom: "8px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: "bold", fontSize: "1.4rem", color: "#b30000", marginBottom: "2px" }}>
+                    {invoice.businessName}
+                  </div>
+                  <div style={{ whiteSpace: "pre-line", fontSize: "0.8rem", marginBottom: "2px", fontWeight: "500", color: "#555" }}>
+                    {invoice.businessAddress}
+                  </div>
+                  {invoice.phone && <div style={{ fontSize: "0.8rem", color: "#555" }}><b>Phone:</b> {invoice.phone}</div>}
+                  {invoice.gstin && <div style={{ fontSize: "0.8rem", color: "#555" }}><b>GSTIN:</b> {invoice.gstin}</div>}
                 </div>
-                <div style={{ fontWeight: "bold", fontSize: "1.1rem" }}>{customer.name}</div>
-                {Object.entries(customer.fields || {}).map(([label, value]) => (
-                  <div key={label}>
-                    <span style={{ fontWeight: "bold", textTransform: "capitalize" }}>{label}:</span> {value}
-                  </div>
-                ))}
-                <div style={{ whiteSpace: "pre-line" }}>{customer.address}</div>
+                <div style={{ textAlign: "right", flex: 1 }}>
+                  <h1 style={{ margin: 0, fontSize: "1.8rem", color: "#333", textTransform: "uppercase" }}>
+                    {meta.type === "invoice" ? "TAX INVOICE" : "PRICE QUOTE"}
+                  </h1>
+                </div>
               </div>
-              <div style={{ flex: 1, textAlign: "right" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "5px", fontSize: "0.9rem" }}>
-                  <div style={{ fontWeight: "bold", color: "#777" }}>Date:</div>
-                  <div>{meta.date}</div>
-                  <div style={{ fontWeight: "bold", color: "#777" }}>
-                    {meta.type === "invoice" ? "Invoice #:" : "Quotation #:"}
+
+              {/* Customer and Document Meta */}
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", padding: "8px", border: "1px solid #333", backgroundColor: "#fdfdfd" }}>
+                <div style={{ flex: 1, borderRight: "1px solid #ccc", paddingRight: "15px" }}>
+                  <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "0.75rem", color: "#777", marginBottom: "4px" }}>
+                    Customer Details
                   </div>
-                  <div>{meta.invoiceNumber}</div>
-                  {/* {meta.type === "quote" && (
-                    <>
-                      <div style={{ fontWeight: "bold", color: "#777" }}>Valid Until:</div>
-                      <div>
-                        {new Date(new Date(meta.date || Date.now()).getTime() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString()}
-                      </div>
-                    </>
-                  )} */}
+                  <div style={{ fontWeight: "bold", fontSize: "1.1rem", color: "#000" }}>{customer.name}</div>
+                  <div style={{ whiteSpace: "pre-line", fontSize: "0.9rem", marginTop: "2px" }}>{customer.address}</div>
+                  {Object.entries(customer.fields || {}).map(([label, value]) => (
+                    <div key={label} style={{ fontSize: "0.9rem", marginTop: "2px" }}>
+                      <span style={{ fontWeight: "bold", textTransform: "capitalize" }}>{label}:</span> {String(value)}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ flex: 0.8, paddingLeft: "15px", alignSelf: "center" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", fontSize: "0.9rem" }}>
+                    <div style={{ fontWeight: "bold", color: "#555" }}>{meta.type === "invoice" ? "Invoice No:" : "Quote No:"}</div>
+                    <div style={{ fontWeight: "bold" }}>{meta.invoiceNumber}</div>
+                    <div style={{ fontWeight: "bold", color: "#555" }}>Date:</div>
+                    <div style={{ fontWeight: "bold" }}>{meta.date}</div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Items Table */}
-            <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
-              <thead>
-                <tr style={{ backgroundColor: "#f9f9f9", borderBottom: "2px solid #333" }}>
-                  <th style={{ ...cellStyle, textAlign: "left", width: "50%" }}>Item Description</th>
-                  <th style={{ ...cellStyle, textAlign: "center" }}>Quantity</th>
-                  <th style={{ ...cellStyle, textAlign: "right" }}>Unit Price</th>
-                  <th style={{ ...cellStyle, textAlign: "right" }}>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedItems.map((item) => (
-                  <tr key={item.id} style={rowStyle}>
-                    <td style={cellStyle}>{item.description}</td>
-                    <td style={{ ...cellStyle, textAlign: "center" }}>{item.quantity}</td>
-                    <td style={{ ...cellStyle, textAlign: "right" }}>{formatINR(item.unitPrice)}</td>
-                    <td style={{ ...cellStyle, textAlign: "right" }}>{formatINR(item.total)}</td>
+            {/* 2. Items Table Section */}
+            <div style={{ display: "flex", flexDirection: "column", flexShrink: 0 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #333" }}>
+                <thead>
+                  <tr>
+                    <th style={{ ...headerCellStyle, textAlign: "left", width: "45%" }}>Item Description</th>
+                    <th style={{ ...headerCellStyle, textAlign: "center", width: "12%" }}>Quantity</th>
+                    <th style={{ ...headerCellStyle, textAlign: "right", width: "18%" }}>Unit Price</th>
+                    <th style={{ ...headerCellStyle, textAlign: "right", width: "25%" }}>Total</th>
                   </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td colSpan={2} rowSpan={4} style={{ border: "none" }}></td>
-                  <td style={{ ...cellStyle, textAlign: "right", fontWeight: "bold" }}>Sub Total</td>
-                  <td style={{ ...cellStyle, textAlign: "right" }}>{formatINR(totals.subTotal)}</td>
-                </tr>
-                <tr>
-                  <td style={{ ...cellStyle, textAlign: "right" }}>SGST {(invoice.taxPercent ?? 18) / 2}%</td>
-                  <td style={{ ...cellStyle, textAlign: "right" }}>{formatINR(totals.sgst)}</td>
-                </tr>
-                <tr>
-                  <td style={{ ...cellStyle, textAlign: "right" }}>CGST {(invoice.taxPercent ?? 18) / 2}%</td>
-                  <td style={{ ...cellStyle, textAlign: "right" }}>{formatINR(totals.cgst)}</td>
-                </tr>
-                <tr style={{ backgroundColor: "#f2f2f2" }}>
-                  <td style={{ ...cellStyle, textAlign: "right", fontWeight: "bold", fontSize: "1.1rem" }}>Grand Total</td>
-                  <td style={{ ...cellStyle, textAlign: "right", fontWeight: "bold", fontSize: "1.1rem" }}>{formatINR(totals.grandTotal)}</td>
-                </tr>
-              </tfoot>
-            </table>
-
-            {/* Amount in Words */}
-            <div style={{ marginBottom: "30px", fontSize: "0.9rem" }}>
-              <span style={{ fontWeight: "bold" }}>Amount in words:</span> {amountWords}
+                </thead>
+                <tbody style={{ verticalAlign: "top" }}>
+                    {sortedItems.map((item, index) => (
+                      <tr key={item.id} style={{ height: 12}}>
+                        <td style={{ ...cellStyle, borderBottom: index === sortedItems.length - 1 ? "none" : "1px solid #ccc", fontSize: "0.85rem", padding: "6px 8px" }}>
+                          <div style={{ fontWeight: "bold" }}>{item.description}</div>
+                        </td>
+                        <td style={{ ...cellStyle, borderBottom: index === sortedItems.length - 1 ? "none" : "1px solid #ccc", textAlign: "center", fontSize: "0.85rem", padding: "6px 8px" }}>{item.quantity}</td>
+                        <td style={{ ...cellStyle, borderBottom: index === sortedItems.length - 1 ? "none" : "1px solid #ccc", textAlign: "right", fontSize: "0.85rem", padding: "6px 8px" }}>{formatINR(item.unitPrice)}</td>
+                        <td style={{ ...cellStyle, borderBottom: index === sortedItems.length - 1 ? "none" : "1px solid #ccc", textAlign: "right", fontSize: "0.85rem", padding: "6px 8px", fontWeight: "500" }}>{formatINR(item.total)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+              
+              <TotalsSection totals={totals} taxPercent={invoice.taxPercent} amountWords={amountWords} />
             </div>
 
-            {/* Bank Details */}
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "40px" }}>
-              <div style={{ fontSize: "0.85rem", border: "1px solid #eee", padding: "10px", borderRadius: "4px", flex: "0 1 300px" }}>
-                <div style={{ fontWeight: "bold", marginBottom: "5px", borderBottom: "1px solid #eee" }}>Bank Details</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "2px" }}>
-                  <div style={{ color: "#777" }}>Bank Name:</div>
-                  <div style={{ fontWeight: "500" }}>{bank.bankName}</div>
-                  <div style={{ color: "#777" }}>Account Name:</div>
-                  <div style={{ fontWeight: "500" }}>{bank.accountName}</div>
-                  <div style={{ color: "#777" }}>Account Number:</div>
-                  <div style={{ fontWeight: "500" }}>{bank.accountNumber}</div>
-                  <div style={{ color: "#777" }}>IFSC:</div>
-                  <div style={{ fontWeight: "500" }}>{bank.ifsc}</div>
-                </div>
-              </div>
-              <div style={{ textAlign: "center", alignSelf: "flex-end" }}>
-                {invoice.signature && (
-                  <img
-                    src={invoice.signature}
-                    alt="Signature"
-                    style={{ height: "60px", marginBottom: "5px", display: "block", margin: "0 auto" }}
-                  />
-                )}
-                <div style={{ borderTop: "1px solid #333", paddingTop: "5px", width: "150px", fontSize: "0.9rem" }}>
-                  Authorized Signatory
-                </div>
-              </div>
-            </div>
+            {/* spacer to push footer to bottom */}
+            <div style={{ flexGrow: 1, minHeight: "10px" }}></div>
 
-             {/* Terms and Conditions */}
-            <div style={{ fontSize: "0.75rem", color: "#888" }}>
-              <div style={{ fontWeight: "bold", marginBottom: "3px" }}>Terms and Conditions:</div>
-              {meta.type === "invoice" ? (
-                <>
-                  <div>1. Customer will be billed after indicating acceptance of this bill.</div>
-                  <div>2. Payment will be due prior to delivery of service and goods.</div>
-                </>
-              ) : (
-                <>
-                  <div>1. This quotation is for informational purposes and is not a binding contract.</div>
-                  <div>2. Prices are subject to change based on market conditions and availability.</div>
-                  <div>3. Validity is 15 days from the date of issue.</div>
-                </>
-              )}
+            {/* 3. Footer Section (Pinned at Bottom) */}
+            <div style={{ flexShrink: 0, marginTop: "10px" }}>
+               {/* Bank Details & Terms & Signature */}
+              <div style={{ borderTop: "2px solid #333", paddingTop: "10px", display: "flex", justifyContent: "space-between" }}>
+                <div style={{ flex: 1.5, paddingRight: "30px" }}>
+                   {bank.bankName && (
+                     <div style={{ marginBottom: "10px", fontSize: "0.8rem" }}>
+                       <div style={{ fontWeight: "bold", marginBottom: "2px", fontSize: "0.85rem", color: "#333" }}>Bank Details</div>
+                       <div style={{ display: "grid", gridTemplateColumns: "100px auto", gap: "1px", color: "#444" }}>
+                         <div style={{ fontWeight: "600" }}>Bank Name:</div><div>{bank.bankName}</div>
+                         <div style={{ fontWeight: "600" }}>Account Name:</div><div>{bank.accountName}</div>
+                         <div style={{ fontWeight: "600" }}>Account No:</div><div>{bank.accountNumber}</div>
+                         <div style={{ fontWeight: "600" }}>IFSC Code:</div><div>{bank.ifsc}</div>
+                       </div>
+                     </div>
+                   )}
+                   <div style={{ fontSize: "0.75rem", color: "#555" }}>
+                    <div style={{ fontWeight: "bold", marginBottom: "2px", color: "#333" }}>Terms & Conditions:</div>
+                    {meta.type === "invoice" ? (
+                      <>
+                        <div>1. Goods once sold will not be taken back.</div>
+                        <div>2. Interest @ 18% p.a. will be charged if payment is delayed.</div>
+                        <div>3. Subject to local jurisdiction.</div>
+                      </>
+                    ) : (
+                      <>
+                        <div>1. Quotation valid for 15 days from issue date.</div>
+                        <div>2. Prices subject to change based on market conditions.</div>
+                        <div>3. This is not a tax invoice.</div>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center" }}>
+
+                  <div style={{ width: "100%", textAlign: "center" }}>
+                    {invoice.signature ? (
+                      <img
+                        src={invoice.signature}
+                        alt="Signature"
+                        style={{ maxHeight: "60px", maxWidth: "100%", objectFit: "contain" }}
+                      />
+                    ) : (
+                      <div style={{ color: "#aaa", fontStyle: "italic", fontSize: "0.8rem" }}></div>
+                    )}
+                    <div style={{ borderTop: "1px solid #333", paddingTop: "5px", fontSize: "0.85rem", fontWeight: "bold" }}>
+                       Authorized Signature
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Thank you message */}
+              <div style={{ textAlign: "center", marginTop: "15px", fontSize: "0.9rem", fontWeight: "bold", color: "#b30000", fontStyle: "italic" }}>
+                Thank you for your business!
+              </div>
+
             </div>
           </div>
         </div>
@@ -207,9 +251,11 @@ export default function InvoiceTemplate() {
             border: "none",
             borderRadius: "5px",
             cursor: "pointer",
+            fontWeight: "bold",
+            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
           }}
         >
-          Download PDF
+          Download PDF Document
         </button>
       </div>
     </div>
