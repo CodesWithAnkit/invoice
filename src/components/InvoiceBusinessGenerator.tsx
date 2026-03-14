@@ -1,9 +1,8 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { commonInputStyle } from "../constants/styles";
 import { InvoiceData, InvoiceItem } from "@/modules/invoice/invoice.types";
-import { businessTemplates } from "@/lib/businessTemplates";
+
+const TEMPLATES_URL = "/api/templates/list";
 
 interface InvoiceBusinessGeneratorProps {
   onGenerate: (data: Partial<InvoiceData>, taxPercent: number) => void;
@@ -15,10 +14,11 @@ export default function InvoiceBusinessGenerator({ onGenerate }: InvoiceBusiness
   const [activeTab, setActiveTab] = useState<Tab>("FORM");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [persistentTemplates, setPersistentTemplates] = useState<any[]>([]);
 
   // Form State
   const [form, setForm] = useState({
-    industryType: "atta_chakki_mill",
+    industryType: "",
     businessName: "",
     budget: 1000000,
     gstPercent: 18,
@@ -28,6 +28,26 @@ export default function InvoiceBusinessGenerator({ onGenerate }: InvoiceBusiness
 
   // Prompt State
   const [prompt, setPrompt] = useState("");
+
+  useEffect(() => {
+    fetchTemplates();
+  }, []);
+
+  const fetchTemplates = async () => {
+    try {
+      const response = await fetch(TEMPLATES_URL);
+      if (response.ok) {
+        const data = await response.json();
+        const templates = data.templates || [];
+        setPersistentTemplates(templates);
+        if (templates.length > 0 && !form.industryType) {
+          setForm(prev => ({ ...prev, industryType: templates[0].id }));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch persistent templates:", err);
+    }
+  };
 
   const handleGenerate = async () => {
     setLoading(true);
@@ -69,7 +89,11 @@ export default function InvoiceBusinessGenerator({ onGenerate }: InvoiceBusiness
         data.taxPercent || 18
       );
       
-      if (activeTab === "PROMPT") setPrompt("");
+      if (activeTab === "PROMPT") {
+        setPrompt("");
+        // Give a small delay for GitHub to reflect changes, then refresh
+        setTimeout(fetchTemplates, 2000);
+      }
     } catch (err: any) {
       setError(err.message || "Could not generate invoice. Please try again.");
     } finally {
@@ -126,15 +150,31 @@ export default function InvoiceBusinessGenerator({ onGenerate }: InvoiceBusiness
         {activeTab === "FORM" ? (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <label style={{ fontSize: "0.875rem", fontWeight: 600, color: "#475569" }}>Industry Type</label>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <label style={{ fontSize: "0.875rem", fontWeight: 600, color: "#475569" }}>Industry Type</label>
+                <button 
+                  onClick={fetchTemplates}
+                  title="Refresh Templates"
+                  style={{ 
+                    border: "none", 
+                    background: "none", 
+                    cursor: "pointer", 
+                    fontSize: "0.8rem",
+                    color: "#2563eb"
+                  }}
+                >
+                  Refresh 🔄
+                </button>
+              </div>
               <select 
                 style={commonInputStyle}
                 value={form.industryType}
                 onChange={(e) => setForm({ ...form, industryType: e.target.value })}
               >
-                {Object.entries(businessTemplates).map(([key, template]) => (
-                  <option key={key} value={key}>
-                    {template.industryName}
+                {persistentTemplates.length === 0 && <option value="">Loading templates...</option>}
+                {persistentTemplates.map((template) => (
+                  <option key={template.id} value={template.id}>
+                    {template.name}
                   </option>
                 ))}
               </select>

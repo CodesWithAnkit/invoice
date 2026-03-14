@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
-import { getBusinessTemplate } from "@/lib/businessTemplates";
+import fs from "fs";
+import path from "path";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
@@ -37,12 +38,23 @@ export async function POST(req: Request) {
     const preTaxBudget = Math.floor(rawBudget / (1 + gstPercent / 100));
 
     // 3. Load Business Template
-    const templateItems = getBusinessTemplate(businessType);
-    if (!templateItems) {
-      throw new Error("Business template not found.");
+    // 3. Load Business Template (Local JSON)
+    const jsonPath = path.join(process.cwd(), "data/invoiceTemplates.json");
+    let itemsList: string[] = [];
+    
+    if (fs.existsSync(jsonPath)) {
+      const jsonData = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+      const template = jsonData.templates?.find((t: any) => t.id === businessType || t.industry === businessType);
+      if (template) {
+        itemsList = template.items.map((item: any) => item.description);
+      }
     }
 
-    const itemsList = templateItems.map(item => item.name);
+    if (itemsList.length === 0) {
+      // Fallback if template files missing or business type unknown in JSON
+      // We could try to detect or just error
+      throw new Error("Business template not found.");
+    }
 
     // 4. Call Gemini AI for budget distribution
     const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getBusinessTemplate, BusinessItem, businessTemplates, BusinessTemplate } from "@/lib/businessTemplates";
+import { BusinessItem, BusinessTemplate } from "@/lib/businessTemplates";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
 import path from "path";
@@ -33,8 +33,22 @@ export async function POST(req: Request) {
 
     const { businessType, budget, gstPercent, budgetIncludesGST } = normalizedRequest;
 
-    // 1. Template Loader
-    let templateItems = getBusinessTemplate(businessType);
+    // 1. Template Loader (Local JSON)
+    const jsonPath = path.join(process.cwd(), "data/invoiceTemplates.json");
+    let templateItems: BusinessItem[] | null = null;
+    
+    if (fs.existsSync(jsonPath)) {
+      const jsonData = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+      const template = jsonData.templates?.find((t: any) => t.id === businessType || t.industry === businessType);
+      if (template) {
+        templateItems = template.items.map((item: any) => ({
+          name: item.description,
+          category: item.category || "machine",
+          quantity: item.quantity || 1,
+          weight: item.weight || 10
+        }));
+      }
+    }
     
     // If template not found, generate it using AI
     if (!templateItems) {
@@ -42,8 +56,37 @@ export async function POST(req: Request) {
       const aiTemplate = await generateAITemplate(businessType);
       if (aiTemplate) {
         templateItems = aiTemplate.items;
-        // Persist it for next time
-        await saveNewTemplate(businessType, aiTemplate);
+        // Persist it for next time using the new GitHub API
+        try {
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (req.url.includes("localhost") ? "http://localhost:3000" : "");
+          // We can't easily call our own API with fetch in some serverless envs depending on config, 
+          // but we can just import the logic or just perform the fetch if the URL is known.
+          // For simplicity and to follow the requirement "Backend API route", we'll use fetch if possible or just note it.
+          // Better: The requirement says "Read the existing invoiceTemplates.json... Commit...".
+          // I will call the save API internally or just trigger it.
+          if (baseUrl) {
+            await fetch(`${baseUrl}/api/templates/save`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                template: {
+                  id: businessType,
+                  name: aiTemplate.industryName,
+                  industry: businessType,
+                  items: aiTemplate.items.map(item => ({
+                    description: item.name,
+                    category: item.category,
+                    price: 0, 
+                    quantity: item.quantity,
+                    weight: item.weight
+                  }))
+                }
+              })
+            });
+          }
+        } catch (e) {
+          console.error("Failed to trigger template save:", e);
+        }
       } else {
         return NextResponse.json({ error: "Unsupported business type and AI generation failed" }, { status: 400 });
       }
@@ -119,35 +162,7 @@ async function generateAITemplate(businessType: string): Promise<BusinessTemplat
   return null;
 }
 
-async function saveNewTemplate(businessType: string, template: BusinessTemplate) {
-  try {
-    const templatePath = path.join(process.cwd(), "src/lib/businessTemplates.ts");
 
-    if (!fs.existsSync(templatePath)) {
-      console.error("Template file not found path:", templatePath);
-      return;
-    }
-
-    let content = fs.readFileSync(templatePath, "utf-8");
-    const key = businessType.toLowerCase().replace(/\s+/g, "_");
-    
-    // Check if key already exists
-    if (content.includes(`  ${key}:`)) {
-      return;
-    }
-
-    const recordEndIndex = content.lastIndexOf("};");
-    if (recordEndIndex === -1) return;
-
-    const newEntry = `  ${key}: ${JSON.stringify(template, null, 2)},\n`;
-    const updatedContent = content.slice(0, recordEndIndex) + newEntry + content.slice(recordEndIndex);
-    
-    fs.writeFileSync(templatePath, updatedContent);
-    console.log(`Successfully persisted new template: ${key}`);
-  } catch (error: any) {
-    console.error("Failed to save new template:", error.message);
-  }
-}
 
 function normalizePrompt(prompt: string) {
   // Extract budget with suffixes: 15 Lakhs, 5k, etc.

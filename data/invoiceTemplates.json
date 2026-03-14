@@ -1,0 +1,557 @@
+{
+  "templates": [
+    {
+      "id": "atta_chakki_mill",
+      "name": "Atta Chakki Mill",
+      "industry": "atta_chakki_mill",
+      "items": [
+        {
+          "description": "Flour mill grinder machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 50,
+          "category": "machine"
+        },
+        {
+          "description": "Stone chakki grinder",
+          "quantity": 1,
+          "price": 0,
+          "weight": 30,
+          "category": "machine"
+        },
+        {
+          "description": "Grain cleaning machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 20,
+          "category": "machine"
+        },
+        {
+          "description": "Wheat storage bins",
+          "quantity": 4,
+          "price": 0,
+          "weight": 10,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Flour packaging machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 15,
+          "category": "machine"
+        },
+        {
+          "description": "Industrial weighing scale",
+          "quantity": 1,
+          "price": 0,
+          "weight": 5,
+          "category": "equipment"
+        },
+        {
+          "description": "Electrical installation",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Packaging materials",
+          "quantity": 1,
+          "price": 0,
+          "weight": 5,
+          "category": "material"
+        }
+      ]
+    },
+    {
+      "id": "general_store",
+      "name": "General Store",
+      "industry": "general_store",
+      "items": [
+        {
+          "description": "Display racks",
+          "quantity": 10,
+          "price": 0,
+          "weight": 30,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Billing counter",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "infrastructure"
+        },
+        {
+          "description": "POS system",
+          "quantity": 1,
+          "price": 0,
+          "weight": 15,
+          "category": "equipment"
+        },
+        {
+          "description": "Refrigerator",
+          "quantity": 1,
+          "price": 0,
+          "weight": 20,
+          "category": "equipment"
+        },
+        {
+          "description": "Storage shelves",
+          "quantity": 5,
+          "price": 0,
+          "weight": 15,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Security cameras",
+          "quantity": 4,
+          "price": 0,
+          "weight": 10,
+          "category": "equipment"
+        },
+        {
+          "description": "Lighting fixtures",
+          "quantity": 1,
+          "price": 0,
+          "weight": 5,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Inventory software",
+          "quantity": 1,
+          "price": 0,
+          "weight": 5,
+          "category": "equipment"
+        }
+      ]
+    },
+    {
+      "id": "cafe",
+      "name": "Cafe",
+      "industry": "cafe",
+      "items": [
+        {
+          "description": "Espresso machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 40,
+          "category": "machine"
+        },
+        {
+          "description": "Coffee grinder",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "machine"
+        },
+        {
+          "description": "Commercial blender",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "machine"
+        },
+        {
+          "description": "Cake display fridge",
+          "quantity": 1,
+          "price": 0,
+          "weight": 20,
+          "category": "equipment"
+        },
+        {
+          "description": "Dining tables",
+          "quantity": 5,
+          "price": 0,
+          "weight": 15,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Chairs",
+          "quantity": 20,
+          "price": 0,
+          "weight": 15,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Kitchen stove",
+          "quantity": 1,
+          "price": 0,
+          "weight": 15,
+          "category": "machine"
+        },
+        {
+          "description": "Deep fryer",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "machine"
+        }
+      ]
+    },
+    {
+      "id": "paper_plate_business",
+      "name": "Paper Plate Business",
+      "industry": "paper_plate_business",
+      "items": [
+        {
+          "description": "Paper plate making machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 40,
+          "category": "machine"
+        },
+        {
+          "description": "Semi automatic paper plate machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 20,
+          "category": "machine"
+        },
+        {
+          "description": "Automatic paper plate machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 25,
+          "category": "machine"
+        },
+        {
+          "description": "Paper plate die",
+          "quantity": 2,
+          "price": 0,
+          "weight": 10,
+          "category": "equipment"
+        },
+        {
+          "description": "Paper plate raw material",
+          "quantity": 1,
+          "price": 0,
+          "weight": 15,
+          "category": "material"
+        },
+        {
+          "description": "Paper plate packaging machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "machine"
+        },
+        {
+          "description": "Paper plate weighing scale",
+          "quantity": 1,
+          "price": 0,
+          "weight": 5,
+          "category": "equipment"
+        },
+        {
+          "description": "Paper plate electrical installation",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Paper plate packaging materials",
+          "quantity": 1,
+          "price": 0,
+          "weight": 5,
+          "category": "material"
+        }
+      ]
+    },
+    {
+      "id": "paper_cup_business",
+      "name": "Paper Cup Business",
+      "industry": "paper_cup_business",
+      "items": [
+        {
+          "description": "Paper cup making machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 40,
+          "category": "machine"
+        },
+        {
+          "description": "Semi automatic paper cup machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 20,
+          "category": "machine"
+        },
+        {
+          "description": "Automatic paper cup machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 25,
+          "category": "machine"
+        },
+        {
+          "description": "Paper cup die",
+          "quantity": 2,
+          "price": 0,
+          "weight": 10,
+          "category": "equipment"
+        },
+        {
+          "description": "Paper cup raw material",
+          "quantity": 1,
+          "price": 0,
+          "weight": 15,
+          "category": "material"
+        },
+        {
+          "description": "Paper cup packaging machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "machine"
+        },
+        {
+          "description": "Paper cup weighing scale",
+          "quantity": 1,
+          "price": 0,
+          "weight": 5,
+          "category": "equipment"
+        },
+        {
+          "description": "Paper cup electrical installation",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Paper cup packaging materials",
+          "quantity": 1,
+          "price": 0,
+          "weight": 5,
+          "category": "material"
+        }
+      ]
+    },
+    {
+      "id": "paper_napkin_business",
+      "name": "Paper Napkin Business",
+      "industry": "paper_napkin_business",
+      "items": [
+        {
+          "description": "Paper napkin making machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 40,
+          "category": "machine"
+        },
+        {
+          "description": "Semi automatic paper napkin machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 20,
+          "category": "machine"
+        },
+        {
+          "description": "Automatic paper napkin machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 25,
+          "category": "machine"
+        },
+        {
+          "description": "Paper napkin die",
+          "quantity": 2,
+          "price": 0,
+          "weight": 10,
+          "category": "equipment"
+        },
+        {
+          "description": "Paper napkin raw material",
+          "quantity": 1,
+          "price": 0,
+          "weight": 15,
+          "category": "material"
+        },
+        {
+          "description": "Paper napkin packaging machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "machine"
+        },
+        {
+          "description": "Paper napkin weighing scale",
+          "quantity": 1,
+          "price": 0,
+          "weight": 5,
+          "category": "equipment"
+        },
+        {
+          "description": "Paper napkin electrical installation",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Paper napkin packaging materials",
+          "quantity": 1,
+          "price": 0,
+          "weight": 5,
+          "category": "material"
+        }
+      ]
+    },
+    {
+      "id": "paper_glass_business",
+      "name": "Paper Glass Business",
+      "industry": "paper_glass_business",
+      "items": [
+        {
+          "description": "Paper glass making machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 40,
+          "category": "machine"
+        },
+        {
+          "description": "Semi automatic paper glass machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 20,
+          "category": "machine"
+        },
+        {
+          "description": "Automatic paper glass machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 25,
+          "category": "machine"
+        },
+        {
+          "description": "Paper glass die",
+          "quantity": 2,
+          "price": 0,
+          "weight": 10,
+          "category": "equipment"
+        },
+        {
+          "description": "Paper glass raw material",
+          "quantity": 1,
+          "price": 0,
+          "weight": 15,
+          "category": "material"
+        },
+        {
+          "description": "Paper glass packaging machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "machine"
+        },
+        {
+          "description": "Paper glass weighing scale",
+          "quantity": 1,
+          "price": 0,
+          "weight": 5,
+          "category": "equipment"
+        },
+        {
+          "description": "Paper glass electrical installation",
+          "quantity": 1,
+          "price": 0,
+          "weight": 10,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Paper glass packaging materials",
+          "quantity": 1,
+          "price": 0,
+          "weight": 5,
+          "category": "material"
+        }
+      ]
+    },
+    {
+      "id": "textile",
+      "name": "Textile",
+      "industry": "textile",
+      "items": [
+        {
+          "description": "Industrial Single Needle Sewing Machine",
+          "quantity": 6,
+          "price": 0,
+          "weight": 45,
+          "category": "machine"
+        },
+        {
+          "description": "Four-Thread Overlock Machine",
+          "quantity": 2,
+          "price": 0,
+          "weight": 38,
+          "category": "machine"
+        },
+        {
+          "description": "Vertical Fabric Cutting Machine",
+          "quantity": 1,
+          "price": 0,
+          "weight": 30,
+          "category": "machine"
+        },
+        {
+          "description": "Industrial Steam Iron with Boiler",
+          "quantity": 2,
+          "price": 0,
+          "weight": 25,
+          "category": "equipment"
+        },
+        {
+          "description": "Professional Pattern Making Plotter",
+          "quantity": 1,
+          "price": 0,
+          "weight": 35,
+          "category": "machine"
+        },
+        {
+          "description": "Large Scale Fabric Cutting Table",
+          "quantity": 2,
+          "price": 0,
+          "weight": 40,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Heavy Duty Fabric Storage Racks",
+          "quantity": 4,
+          "price": 0,
+          "weight": 20,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Raw Cotton and Synthetic Fabric Rolls",
+          "quantity": 25,
+          "price": 0,
+          "weight": 50,
+          "category": "material"
+        },
+        {
+          "description": "Industrial Grade Sewing Thread Sets",
+          "quantity": 150,
+          "price": 0,
+          "weight": 12,
+          "category": "material"
+        },
+        {
+          "description": "LED Factory Task Lighting",
+          "quantity": 1,
+          "price": 0,
+          "weight": 15,
+          "category": "infrastructure"
+        },
+        {
+          "description": "Quality Control Inspection Station",
+          "quantity": 1,
+          "price": 0,
+          "weight": 18,
+          "category": "equipment"
+        }
+      ]
+    }
+  ]
+}
