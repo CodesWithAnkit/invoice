@@ -31,7 +31,7 @@ export default function Home() {
         fontFamily: "sans-serif",
       }}
     >
-      <header style={{ marginBottom: "2rem", borderBottom: "1px solid #eee", paddingBottom: "1rem" }}>
+      <header style={{ marginBottom: "2rem", borderBottom: "1px solid #eee", paddingBottom: "1rem" }} className="no-print">
         <h1 style={{ margin: 0, color: "#333" }}>Invoice Editor & Preview</h1>
       </header>
 
@@ -49,6 +49,7 @@ export default function Home() {
             flex: "1 1 450px",
             minWidth: "320px",
           }}
+          className="no-print"
         >
           <InvoiceForm />
         </div>
@@ -61,6 +62,7 @@ export default function Home() {
             position: "sticky",
             top: "20px",
           }}
+          className="invoice-container"
         >
           <InvoiceTemplate />
         </div>

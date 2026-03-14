@@ -46,32 +46,6 @@ const TotalsSection = ({ totals, taxPercent, amountWords }: { totals: any, taxPe
   </div>
 );
 
-const PrintStyles = () => (
-  <style>{`
-    @media print {
-      @page {
-        size: A4;
-        margin: 0;
-      }
-      body {
-        margin: 0;
-        -webkit-print-color-adjust: exact;
-      }
-      .no-print {
-        display: none !important;
-      }
-      #invoice-root {
-        margin: 0 !important;
-        padding: 10mm !important;
-        width: 210mm !important;
-        height: 297mm !important;
-        box-shadow: none !important;
-        transform: scale(1) !important;
-      }
-    }
-  `}</style>
-);
-
 export default function InvoiceTemplate() {
   const { invoice } = useInvoice();
   const invoiceRef = useRef<HTMLDivElement>(null);
@@ -103,16 +77,15 @@ export default function InvoiceTemplate() {
   };
 
   return (
-    <div style={{ padding: "20px", backgroundColor: "#f0f0f0" }}>
-      <PrintStyles />
+    <div style={{ padding: "10px", backgroundColor: "#f0f0f0" }}>
       <div style={{ width: "100%", overflowX: "auto", display: "flex", justifyContent: "center" }}>
-        <div style={{ minWidth: "210mm", display: "flex", justifyContent: "center", padding: "20px 0" }}>
+        <div style={{ minWidth: "210mm", display: "flex", justifyContent: "center", padding: "10px 0" }}>
           <div
             ref={invoiceRef}
             id="invoice-root"
             style={{
               width: "210mm",
-              height: "297mm",
+              minHeight: "297mm",
               padding: "10mm",
               backgroundColor: "white",
               color: "#333",
