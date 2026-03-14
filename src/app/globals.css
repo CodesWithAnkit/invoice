@@ -3,29 +3,6 @@
   margin: 0;
 }
 
-@media print {
-  body {
-    margin: 0;
-    padding: 0;
-    overflow: visible !important;
-  }
-
-  .no-print {
-    display: none !important;
-  }
-
-  .invoice-container {
-    width: 210mm;
-    min-height: 297mm;
-    padding: 20mm;
-    margin: 0 auto;
-    box-sizing: border-box;
-    page-break-after: always;
-    background-color: white !important;
-    box-shadow: none !important;
-  }
-}
-
 .desktop-items {
   display: block;
 }

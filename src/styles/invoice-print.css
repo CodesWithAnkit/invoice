@@ -1,0 +1,60 @@
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    background: white !important;
+  }
+
+  /* Remove all visibility and positioning hacks */
+  .no-print {
+    display: none !important;
+  }
+
+  #invoice-print-root {
+    display: block !important;
+    width: 210mm; /* Full A4 width */
+    max-height: 297mm; /* Full A4 height */
+    padding: 10mm; /* Content margin */
+    margin: 0 auto;
+    overflow: hidden;
+    page-break-inside: avoid;
+    background: white !important;
+    box-sizing: border-box;
+  }
+
+  .invoice-print-page {
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+    background: white;
+  }
+
+  table {
+    page-break-inside: avoid;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+
+  .invoice-items-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .invoice-footer {
+    page-break-inside: avoid;
+  }
+}
+
+/* Screen view behavior */
+@media screen {
+  #invoice-print-root {
+    display: none;
+  }
+}

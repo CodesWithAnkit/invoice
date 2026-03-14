@@ -226,28 +226,6 @@ export default function InvoiceTemplate() {
           </div>
         </div>
       </div>
-
-      <div style={{ marginTop: "20px", textAlign: "center" }} className="no-print">
-        <button
-          onClick={() => {
-            handlePrint();
-          }}
-          style={{
-            padding: "12px 24px",
-            fontSize: "1rem",
-            margin: "0px auto 50px",
-            backgroundColor: "#0070f3",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          }}
-        >
-          Download PDF Document
-        </button>
-      </div>
     </div>
   );
 }
