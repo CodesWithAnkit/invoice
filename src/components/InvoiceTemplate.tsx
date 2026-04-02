@@ -84,7 +84,7 @@ export default function InvoiceTemplate() {
             ref={invoiceRef}
             id="invoice-root"
             style={{
-              width: "210mm",
+              // width: "210mm",
               minHeight: "297mm",
               padding: "10mm",
               backgroundColor: "white",
