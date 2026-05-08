@@ -134,7 +134,7 @@ export default function InvoicePrintLayout() {
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center" }}>
             <div style={{ textAlign: "center", width: "100%" }}>
               {invoice.signature && (
-                <img src={invoice.signature} alt="Signature" style={{ maxHeight: "40px", maxWidth: "150px", marginBottom: "2px" }} />
+                <img src={invoice.signature} alt="Signature" style={{ maxHeight: "80px", maxWidth: "200px", marginBottom: "2px", objectFit: "contain" }} />
               )}
               <div style={{ borderTop: "2px solid #333", paddingTop: "3px", fontWeight: "bold", fontSize: "0.8rem" }}>Authorized Signatory</div>
             </div>

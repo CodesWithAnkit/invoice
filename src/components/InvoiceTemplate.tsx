@@ -205,10 +205,10 @@ export default function InvoiceTemplate() {
                       <img
                         src={invoice.signature}
                         alt="Signature"
-                        style={{ height: "45px", maxWidth: "150px", objectFit: "contain", marginBottom: "-8px" }}
+                        style={{ height: "80px", maxWidth: "200px", objectFit: "contain", marginBottom: "-8px" }}
                       />
                     ) : (
-                      <div style={{ height: "45px" }}></div>
+                      <div style={{ height: "80px" }}></div>
                     )}
                     <div style={{ borderTop: "1px solid #333", paddingTop: "4px", fontSize: "0.8rem", fontWeight: "bold" }}>
                        Authorized Signature
