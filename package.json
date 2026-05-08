@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.105.3",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^1.14.0",
     "next": "16.1.6",
     "pdf-parse-new": "^2.0.0",
     "pdfjs-dist": "^5.5.207",

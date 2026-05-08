@@ -1,7 +1,7 @@
 import { formatINR } from "../../utils/formatCurrency";
 import { commonInputStyle } from "../../constants/styles";
 import { InvoiceItem } from "@/modules/invoice/invoice.types";
-
+import ProductSearchDropdown from "./ProductSearchDropdown";
 interface InvoiceItemsProps {
   items: InvoiceItem[];
   totals: {
@@ -50,12 +50,16 @@ export default function InvoiceItems({
             {items.map((item, index) => (
               <tr key={item.id} style={{ borderBottom: "1px solid #eee" }}>
                 <td style={{ padding: "8px" }}>
-                  <input
-                    type="text"
-                    placeholder="Item description"
-                    style={{ ...commonInputStyle, minWidth: "200px" }}
+                  <ProductSearchDropdown
                     value={item.description}
-                    onChange={(e) => onUpdateItem(index, "description", e.target.value)}
+                    placeholder="Item description"
+                    style={{ minWidth: "200px" }}
+                    onSelect={(name, price) => {
+                      onUpdateItem(index, "description", name);
+                      if (price != null) {
+                        onUpdateItem(index, "unitPrice", price);
+                      }
+                    }}
                   />
                 </td>
                 <td style={{ padding: "8px" }}>
@@ -96,11 +100,14 @@ export default function InvoiceItems({
           <div key={item.id} className="item-card">
             <div style={{ marginBottom: "8px" }}>
               <label style={{ fontSize: "12px", color: "#666" }}>Description</label>
-              <input
-                type="text"
-                style={commonInputStyle}
+              <ProductSearchDropdown
                 value={item.description}
-                onChange={(e) => onUpdateItem(index, "description", e.target.value)}
+                onSelect={(name, price) => {
+                  onUpdateItem(index, "description", name);
+                  if (price != null) {
+                    onUpdateItem(index, "unitPrice", price);
+                  }
+                }}
               />
             </div>
             <div className="row">
