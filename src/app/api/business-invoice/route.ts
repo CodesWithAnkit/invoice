@@ -166,7 +166,10 @@ async function generateAITemplate(businessType: string): Promise<BusinessTemplat
 
 function normalizePrompt(prompt: string) {
   // Extract budget with suffixes: 15 Lakhs, 5k, etc.
-  const budgetStrMatch = prompt.match(/(?:budget|amount|cost)(?:\s+is)?\s*(?:rs\.?|inr|₹)?\s*([\d,.]+)\s*(lakhs?|lacs?|k|cr|crores?)?/i);
+  let budgetStrMatch = prompt.match(/(?:budget|amount|cost|for|of)\s*(?:is\s*)?(?:rs\.?|inr|₹)?\s*([\d,.]+)\s*(lakhs?|lacs?|k|cr|crores?)?/i);
+  if (!budgetStrMatch) {
+    budgetStrMatch = prompt.match(/(?:rs\.?|inr|₹)\s*([\d,.]+)\s*(lakhs?|lacs?|k|cr|crores?)?/i) || prompt.match(/([\d,.]+)\s*(lakhs?|lacs?|k|cr|crores?)/i);
+  }
   let budget = 0;
   if (budgetStrMatch) {
     const num = parseFloat(budgetStrMatch[1].replace(/,/g, ""));

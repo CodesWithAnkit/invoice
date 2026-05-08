@@ -21,11 +21,6 @@ export async function POST(req: Request) {
     const budgetMatch = prompt.match(/(?:budget|amount|cost)(?:\s+is)?\s*(?:rs\.?|inr|₹)?\s*([\d,]+)/i);
     const gstMatch = prompt.match(/(\d+)\s*%\s*gst/i);
     
-    // Determine business type (simplified detection)
-    let businessType = "atta_chakki_mill";
-    if (prompt.toLowerCase().includes("cafe")) businessType = "cafe";
-    else if (prompt.toLowerCase().includes("store")) businessType = "general_store";
-
     const rawBudget = budgetMatch ? parseInt(budgetMatch[1].replace(/,/g, "")) : 0;
     const gstPercent = gstMatch ? parseInt(gstMatch[1]) : 18;
 
@@ -37,48 +32,30 @@ export async function POST(req: Request) {
     // preTaxBudget = budget / (1 + gst/100)
     const preTaxBudget = Math.floor(rawBudget / (1 + gstPercent / 100));
 
-    // 3. Load Business Template
-    // 3. Load Business Template (Local JSON)
-    const jsonPath = path.join(process.cwd(), "data/invoiceTemplates.json");
-    let itemsList: string[] = [];
-    
-    if (fs.existsSync(jsonPath)) {
-      const jsonData = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
-      const template = jsonData.templates?.find((t: any) => t.id === businessType || t.industry === businessType);
-      if (template) {
-        itemsList = template.items.map((item: any) => item.description);
-      }
-    }
-
-    if (itemsList.length === 0) {
-      // Fallback if template files missing or business type unknown in JSON
-      // We could try to detect or just error
-      throw new Error("Business template not found.");
-    }
-
-    // 4. Call Gemini AI for budget distribution
+    // 3. Call Gemini AI to identify business, items, and budget distribution
     const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
-    const systemPrompt = `You are a pricing distribution engine.
-Distribute the provided budget across the following items.
+    const systemPrompt = `You are an expert business consultant and pricing distribution engine.
+Based on the user's prompt, identify the type of business they are starting.
+Then, generate a list of 5-10 realistic items (machinery, equipment, infrastructure, materials) needed to start this business.
+Finally, distribute the provided pre-tax budget across these items.
 
 Rules:
-- Total price must not exceed the budget
-- Larger machinery gets higher price
-- Smaller equipment gets lower price
-- Return JSON only.
+- Total price of all items combined must be exactly or very close to the pre-tax budget.
+- Larger machinery gets higher prices.
+- Smaller equipment gets lower prices.
+- Return valid JSON only. Do not include markdown formatting.
 
 Schema:
 {
+  "businessType": string, // E.g., "Oil Mill", "Cafe", "Atta Chakki Mill"
   "items": [
     { "name": string, "quantity": number, "price": number }
   ]
 }`;
 
-    const userMessage = `Distribute a total budget of ${preTaxBudget} across these items:
-${itemsList.join("\n")}
-
-Ensure the sum of (quantity * price) for all items is exactly or very close to ${preTaxBudget}.`;
+    const userMessage = `User Prompt: "${prompt}"
+Total Pre-tax Budget to distribute: ${preTaxBudget}`;
 
     const result = await model.generateContent([systemPrompt, userMessage]);
     const response = await result.response;
@@ -93,7 +70,7 @@ Ensure the sum of (quantity * price) for all items is exactly or very close to $
 
     return NextResponse.json({
       customerName: null,
-      businessType: businessType.replace("_", " "),
+      businessType: distributionData.businessType || "Business",
       taxPercent: gstPercent,
       items: distributionData.items,
     });

@@ -27,20 +27,15 @@ Rules:
 4. Quantities must be numbers.
 5. Always return an array of items.
 
-Special rule for "Atta Chakki Mill":
-If the business type is or seems to be an "atta chakki mill" based on the prompt or provided context, generate common mill items if they are not specified.
-Common items include:
-- Wheat grinding charges
-- Wheat flour (atta)
-- Bran (chokar)
-- Multigrain flour
-- Packaging charges
-- Transport charges
+Based on the prompt, detect the business type. 
+If the user just mentions the business type without items, invent common, realistic items for that business. 
+For example, for an "Oil Mill" add oil extraction, oil cakes, packaging. For an "Atta Chakki Mill" add wheat grinding, flour, etc.
+If the user specifies particular items, use those.
 
 Schema to return:
 {
   "customerName": string | null, // This is the recipient of the invoice.
-  "businessType": "atta chakki mill" | null,
+  "businessType": string | null, // The identified business type
   "taxPercent": number | null,
   "items": [
     { "name": string, "quantity": number, "price": number }
