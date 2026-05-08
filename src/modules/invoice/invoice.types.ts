@@ -33,6 +33,7 @@ export interface InvoiceTotals {
 }
 
 export interface InvoiceData {
+  id?: string;
   businessName: string;
   businessAddress: string;
   phone: string;

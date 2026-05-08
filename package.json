@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@radix-ui/react-select": "^2.2.6",
+    "@supabase/supabase-js": "^2.105.3",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^1.14.0",
     "next": "16.1.6",
     "pdf-parse-new": "^2.0.0",
     "pdfjs-dist": "^5.5.207",
@@ -21,13 +25,25 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@tailwindcss/postcss": "^4.2.4",
     "@types/node": "^20",
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-signature-canvas": "^1.0.7",
+    "autoprefixer": "^10.5.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "postcss": "^8.5.14",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.2.4",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"
   }
 }
