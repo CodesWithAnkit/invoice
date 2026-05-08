@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function usePdfParser(setInvoiceField: (field: string, value: any) => void, recalculateTotals: () => void) {
   const [loading, setLoading] = useState(false);
@@ -26,11 +27,11 @@ export function usePdfParser(setInvoiceField: (field: string, value: any) => voi
       
       if (data && !data.error) {
         mapPdfDataToState(data);
-        alert(`Extracted ${data.items?.length || 0} items and structured fields from PDF!`);
+        toast.success(`Extracted ${data.items?.length || 0} items and structured fields from PDF!`);
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to parse PDF. Please check the console.");
+      toast.error("Failed to parse PDF. Please check the console.");
     } finally {
       setLoading(false);
     }

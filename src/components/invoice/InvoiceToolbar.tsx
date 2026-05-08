@@ -3,6 +3,7 @@
 import { useInvoicePrint } from "@/hooks/useInvoicePrint";
 import { useInvoice } from "@/hooks/useInvoice";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function InvoiceToolbar() {
   const { printInvoice } = useInvoicePrint();
@@ -59,10 +60,10 @@ export default function InvoiceToolbar() {
         throw new Error("Failed to save invoice");
       }
 
-      alert("Invoice saved to dashboard successfully!");
+      toast.success("Invoice saved to dashboard successfully!");
     } catch (error) {
       console.error(error);
-      alert("Error saving invoice");
+      toast.error("Error saving invoice");
     } finally {
       setSaving(false);
     }

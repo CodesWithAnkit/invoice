@@ -1,5 +1,6 @@
 import { Sidebar } from "./Sidebar";
 import { TopNavbar } from "./TopNavbar";
+import { Toaster } from "sonner";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +12,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+      <Toaster position="top-right" richColors />
     </div>
   );
 }

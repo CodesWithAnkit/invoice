@@ -11,6 +11,7 @@ import InvoiceToolbar from "@/components/invoice/InvoiceToolbar";
 import InvoicePrintLayout from "@/components/invoice/InvoicePrintLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function EditInvoicePage() {
   const params = useParams();
@@ -83,7 +84,7 @@ export default function EditInvoicePage() {
 
     } catch (error) {
       console.error("Error loading invoice:", error);
-      alert("Failed to load invoice data.");
+      toast.error("Failed to load invoice data.");
       router.push("/dashboard/invoices");
     } finally {
       setLoading(false);

@@ -11,6 +11,7 @@ import InvoiceToolbar from "@/components/invoice/InvoiceToolbar";
 import InvoicePrintLayout from "@/components/invoice/InvoicePrintLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function CopyInvoicePage() {
   const params = useParams();
@@ -83,7 +84,7 @@ export default function CopyInvoicePage() {
 
     } catch (error) {
       console.error("Error loading invoice:", error);
-      alert("Failed to copy invoice data.");
+      toast.error("Failed to copy invoice data.");
       router.push("/dashboard/invoices");
     } finally {
       setLoading(false);

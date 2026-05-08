@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,7 +17,7 @@ export default function LoginPage() {
       localStorage.setItem("invoice_auth", "true");
       router.push("/");
     } else {
-      alert("Invalid credentials");
+      toast.error("Invalid credentials");
     }
   };
 

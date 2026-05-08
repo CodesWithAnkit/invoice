@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import SignaturePad from "../SignaturePad";
 
 interface SignatureSectionProps {
@@ -14,7 +15,7 @@ export default function SignatureSection({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("Please upload an image file.");
+      toast.warning("Please upload an image file.");
       return;
     }
 
