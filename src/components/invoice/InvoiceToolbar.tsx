@@ -16,20 +16,26 @@ export default function InvoiceToolbar() {
       formData.append(
         "customer",
         JSON.stringify({
-          name: invoice.customer.name || invoice.businessName,
+          name: invoice.customer.name,
           address: invoice.customer.address,
-          phone: invoice.phone,
+          phone: invoice.customer.fields?.phone || "",
+          aadhaar: invoice.customer.fields?.aadhaar || "",
         })
       );
       formData.append(
         "invoice",
         JSON.stringify({
+          id: invoice.id,
           invoice_number: invoice.meta.invoiceNumber,
           invoice_type: invoice.meta.type,
           subtotal: invoice.totals.subTotal,
           sgst: invoice.totals.sgst,
           cgst: invoice.totals.cgst,
           total: invoice.totals.grandTotal,
+          business_name: invoice.businessName,
+          business_address: invoice.businessAddress,
+          business_phone: invoice.phone,
+          business_gstin: invoice.gstin,
         })
       );
       formData.append(

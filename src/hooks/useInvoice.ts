@@ -9,6 +9,7 @@ import { amountToWords } from "@/utils/amountToWords";
 const STORAGE_KEY = "invoice_draft";
 
 const INITIAL_STATE: InvoiceData = {
+  id: undefined,
   businessName: "",
   businessAddress: "",
   phone: "",
@@ -168,6 +169,10 @@ export const useInvoice = () => {
     });
   }, []);
 
+  const resetInvoice = useCallback(() => {
+    setGlobalState(INITIAL_STATE);
+  }, []);
+
   return {
     invoice: state,
     setInvoiceField,
@@ -177,5 +182,6 @@ export const useInvoice = () => {
     recalculateTotals,
     generateInvoice,
     setInvoiceData,
+    resetInvoice,
   };
 };

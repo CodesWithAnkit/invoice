@@ -72,28 +72,42 @@ export async function POST(request: Request) {
       pdfUrl = publicUrlData.publicUrl;
     }
 
-    // 3. Save Invoice
-    const { data: newInvoice, error: invoiceError } = await supabase
+    // 3. Save or Update Invoice
+    const invoicePayload: any = {
+      invoice_number: invoiceData.invoice_number,
+      customer_id: customerId,
+      customer_name: customerData.name,
+      invoice_type: invoiceData.invoice_type || "Standard",
+      subtotal: invoiceData.subtotal || 0,
+      sgst: invoiceData.sgst || 0,
+      cgst: invoiceData.cgst || 0,
+      total: invoiceData.total || 0,
+      pdf_url: pdfUrl,
+      business_name: invoiceData.business_name,
+      business_address: invoiceData.business_address,
+      business_phone: invoiceData.business_phone,
+      business_gstin: invoiceData.business_gstin,
+    };
+
+    if (invoiceData.id) {
+      invoicePayload.id = invoiceData.id;
+    }
+
+    const { data: savedInvoice, error: invoiceError } = await supabase
       .from("invoices")
-      .insert({
-        invoice_number: invoiceData.invoice_number,
-        customer_id: customerId,
-        customer_name: customerData.name,
-        invoice_type: invoiceData.invoice_type || "Standard",
-        subtotal: invoiceData.subtotal || 0,
-        sgst: invoiceData.sgst || 0,
-        cgst: invoiceData.cgst || 0,
-        total: invoiceData.total || 0,
-        pdf_url: pdfUrl,
-      })
+      .upsert(invoicePayload)
       .select()
       .single();
 
     if (invoiceError) throw invoiceError;
 
-    // 4. Save Invoice Items
+    // 4. Save Invoice Items (Delete old ones if updating)
+    if (invoiceData.id) {
+      await supabase.from("invoice_items").delete().eq("invoice_id", invoiceData.id);
+    }
+
     const itemsToInsert = itemsData.map((item: any) => ({
-      invoice_id: newInvoice.id,
+      invoice_id: savedInvoice.id,
       product_name: item.name,
       quantity: item.quantity,
       unit_price: item.price,
@@ -106,7 +120,7 @@ export async function POST(request: Request) {
 
     if (itemsError) throw itemsError;
 
-    return NextResponse.json({ success: true, invoice: newInvoice });
+    return NextResponse.json({ success: true, invoice: savedInvoice });
   } catch (error: any) {
     console.error("Error saving invoice:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
