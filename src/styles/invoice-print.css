@@ -15,14 +15,26 @@
     display: none !important;
   }
 
+  /* Reset tailwind wrapper constraints that cause squishing and blank spaces */
+  body, main, div {
+    /* Only apply this aggressively to wrappers outside the print root if possible, but since we can't easily select ancestors, we'll reset structural classes */
+  }
+
+  /* Let's reset the specific Tailwind layout classes used in AppLayout and page.tsx during print */
+  .p-4, .sm\:p-6, .sm\:py-4, .sm\:pl-64, .md\:gap-8, .max-w-\[1400px\], .mx-auto, .flex-col, .gap-8 {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    gap: 0 !important;
+  }
+
   #invoice-print-root {
     display: block !important;
-    width: 210mm; /* Full A4 width */
-    max-height: 297mm; /* Full A4 height */
-    padding: 10mm; /* Content margin */
-    margin: 0 auto;
-    overflow: hidden;
-    page-break-inside: avoid;
+    width: 100% !important; /* Fill the page width */
+    max-height: none !important; 
+    padding: 10mm !important; /* Small padding inside */
+    margin: 0 !important;
+    overflow: visible !important;
     background: white !important;
     box-sizing: border-box;
   }

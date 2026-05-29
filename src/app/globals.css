@@ -95,3 +95,24 @@
     margin-top: 8px;
   }
 }
+
+/* Restore print layout defaults stripped by Tailwind preflight */
+#invoice-print-root {
+  background-color: white;
+  color: black;
+}
+#invoice-print-root h1, 
+#invoice-print-root h2, 
+#invoice-print-root h3, 
+#invoice-print-root h4, 
+#invoice-print-root h5, 
+#invoice-print-root h6, 
+#invoice-print-root th {
+  font-weight: bold;
+}
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+}

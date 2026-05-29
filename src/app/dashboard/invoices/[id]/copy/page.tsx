@@ -80,6 +80,12 @@ export default function CopyInvoicePage() {
           unitPrice: item.unit_price,
           total: item.total,
         })) || [],
+        bank: {
+          bankName: invoiceData.bank_name || "",
+          accountName: invoiceData.account_name || "",
+          accountNumber: invoiceData.account_number || "",
+          ifsc: invoiceData.ifsc || "",
+        },
       });
 
     } catch (error) {

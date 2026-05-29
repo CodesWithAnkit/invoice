@@ -37,6 +37,7 @@ export default function InvoiceToolbar() {
           business_address: invoice.businessAddress,
           business_phone: invoice.phone,
           business_gstin: invoice.gstin,
+          bank: invoice.bank,
         })
       );
       formData.append(

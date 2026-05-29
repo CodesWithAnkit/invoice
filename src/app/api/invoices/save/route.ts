@@ -87,6 +87,10 @@ export async function POST(request: Request) {
       business_address: invoiceData.business_address,
       business_phone: invoiceData.business_phone,
       business_gstin: invoiceData.business_gstin,
+      bank_name: invoiceData.bank?.bankName || "",
+      account_name: invoiceData.bank?.accountName || "",
+      account_number: invoiceData.bank?.accountNumber || "",
+      ifsc: invoiceData.bank?.ifsc || "",
     };
 
     if (invoiceData.id) {

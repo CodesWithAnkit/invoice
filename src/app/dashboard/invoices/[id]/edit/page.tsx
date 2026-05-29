@@ -80,6 +80,12 @@ export default function EditInvoicePage() {
           unitPrice: item.unit_price,
           total: item.total,
         })) || [],
+        bank: {
+          bankName: invoiceData.bank_name || "",
+          accountName: invoiceData.account_name || "",
+          accountNumber: invoiceData.account_number || "",
+          ifsc: invoiceData.ifsc || "",
+        },
       });
 
     } catch (error) {
@@ -103,10 +109,10 @@ export default function EditInvoicePage() {
     <div className="p-4 sm:p-6 max-w-[1400px] mx-auto w-full">
       <InvoicePrintLayout />
 
-      <PageHeader
+      {/* <PageHeader
         title="Edit Invoice"
         description="Update invoice details and save changes."
-      />
+      /> */}
 
       <InvoiceToolbar />
 
