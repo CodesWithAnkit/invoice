@@ -22,6 +22,15 @@ export default function CustomerDetails({
       <h2>Customer Details</h2>
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         <div>
+          <label>Company Name</label>
+          <input
+            type="text"
+            style={commonInputStyle}
+            value={fields?.companyName || ""}
+            onChange={(e) => onUpdate("customer.fields.companyName", e.target.value)}
+          />
+        </div>
+        <div>
           <label>Customer Name</label>
           <input
             type="text"

@@ -21,6 +21,7 @@ export default function InvoiceToolbar() {
           address: invoice.customer.address,
           phone: invoice.customer.fields?.phone || "",
           aadhaar: invoice.customer.fields?.aadhaar || "",
+          companyName: invoice.customer.fields?.companyName || "",
         })
       );
       formData.append(

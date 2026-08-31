@@ -34,13 +34,25 @@ export default function InvoicePrintLayout() {
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "12px", border: "1px solid #333", padding: "8px", backgroundColor: "#fafafa" }}>
           <div style={{ flex: 1.2, borderRight: "1px solid #ddd", paddingRight: "10px" }}>
             <div style={{ fontSize: "0.7rem", color: "#777", textTransform: "uppercase", fontWeight: "bold", marginBottom: "2px" }}>Billed To</div>
-            <div style={{ fontWeight: "bold", fontSize: "1rem" }}>{customer.name}</div>
+            <div style={{ fontWeight: "bold", fontSize: "1rem", textTransform: "uppercase" }}>
+              {customer.fields?.companyName && customer.name ? (
+                <>
+                  {customer.fields.companyName}{" "}
+                  <span style={{ fontWeight: "normal", textTransform: "lowercase" }}>prop.</span>{" "}
+                  {customer.name}
+                </>
+              ) : (
+                customer.fields?.companyName || customer.name
+              )}
+            </div>
             <div style={{ whiteSpace: "pre-line", fontSize: "0.8rem", marginTop: "2px" }}>{customer.address}</div>
-            {Object.entries(customer.fields || {}).map(([label, value]) => (
-              <div key={label} style={{ fontSize: "0.8rem" }}>
-                <b>{label}:</b> {String(value)}
-              </div>
-            ))}
+            {Object.entries(customer.fields || {})
+              .filter(([label]) => label.toLowerCase() !== "companyname")
+              .map(([label, value]) => (
+                <div key={label} style={{ fontSize: "0.8rem" }}>
+                  <b style={{ textTransform: "capitalize" }}>{label}:</b> {String(value)}
+                </div>
+              ))}
           </div>
           <div style={{ flex: 0.8, paddingLeft: "10px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", fontSize: "0.8rem" }}>
@@ -91,13 +103,13 @@ export default function InvoicePrintLayout() {
                 </tr>
                 {(totals.sgst > 0) && (
                   <tr>
-                    <td style={{ padding: "4px 8px", borderBottom: "1px solid #ddd", fontSize: "0.75rem" }}>SGST ({(invoice.taxPercent || 18)/2}%)</td>
+                    <td style={{ padding: "4px 8px", borderBottom: "1px solid #ddd", fontSize: "0.75rem" }}>SGST ({(invoice.taxPercent || 18) / 2}%)</td>
                     <td style={{ padding: "4px 8px", borderBottom: "1px solid #ddd", textAlign: "right", fontSize: "0.75rem" }}>{formatINR(totals.sgst)}</td>
                   </tr>
                 )}
                 {(totals.cgst > 0) && (
                   <tr>
-                    <td style={{ padding: "4px 8px", borderBottom: "1px solid #ddd", fontSize: "0.75rem" }}>CGST ({(invoice.taxPercent || 18)/2}%)</td>
+                    <td style={{ padding: "4px 8px", borderBottom: "1px solid #ddd", fontSize: "0.75rem" }}>CGST ({(invoice.taxPercent || 18) / 2}%)</td>
                     <td style={{ padding: "4px 8px", borderBottom: "1px solid #ddd", textAlign: "right", fontSize: "0.75rem" }}>{formatINR(totals.cgst)}</td>
                   </tr>
                 )}
@@ -133,10 +145,11 @@ export default function InvoicePrintLayout() {
           </div>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center" }}>
             <div style={{ textAlign: "center", width: "100%" }}>
+              <div style={{ fontWeight: "bold", fontSize: "0.85rem", color: "#333", marginBottom: invoice.signature ? "5px" : "40px" }}>For {invoice.businessName}</div>
               {invoice.signature && (
-                <img src={invoice.signature} alt="Signature" style={{ maxHeight: "80px", maxWidth: "200px", marginBottom: "2px", objectFit: "contain", margin: "0 auto" }} />
+                <img src={invoice.signature} alt="Signature" style={{ maxHeight: "80px", maxWidth: "200px", marginBottom: "5px", objectFit: "contain", margin: "0 auto" }} />
               )}
-              <div style={{ borderTop: "2px solid #333", paddingTop: "3px", fontWeight: "bold", fontSize: "0.8rem" }}>Authorized Signatory</div>
+              <div style={{ borderTop: "2px solid #333", paddingTop: "3px", fontWeight: "bold", fontSize: "0.8rem", marginTop: invoice.signature ? "0" : "10px" }}>Proprietor / Authorized Signatory</div>
             </div>
           </div>
         </div>

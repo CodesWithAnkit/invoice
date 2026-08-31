@@ -124,9 +124,21 @@ export default function InvoiceTemplate() {
                   <div style={{ fontWeight: "bold", textTransform: "uppercase", fontSize: "0.7rem", color: "#777", marginBottom: "2px" }}>
                     Customer Details
                   </div>
-                  <div style={{ fontWeight: "bold", fontSize: "1rem", color: "#000" }}>{customer.name}</div>
+                  <div style={{ fontWeight: "bold", fontSize: "1rem", color: "#000", textTransform: "uppercase" }}>
+                    {customer.fields?.companyName && customer.name ? (
+                      <>
+                        {customer.fields.companyName}{" "}
+                        <span style={{ fontWeight: "normal", textTransform: "lowercase" }}>prop.</span>{" "}
+                        {customer.name}
+                      </>
+                    ) : (
+                      customer.fields?.companyName || customer.name
+                    )}
+                  </div>
                   <div style={{ whiteSpace: "pre-line", fontSize: "0.85rem", marginTop: "1px", lineHeight: "1.2" }}>{customer.address}</div>
-                  {Object.entries(customer.fields || {}).map(([label, value]) => (
+                  {Object.entries(customer.fields || {})
+                    .filter(([label]) => label.toLowerCase() !== "companyname")
+                    .map(([label, value]) => (
                     <div key={label} style={{ fontSize: "0.85rem", marginTop: "1px" }}>
                       <span style={{ fontWeight: "bold", textTransform: "capitalize" }}>{label}:</span> {String(value)}
                     </div>
@@ -201,17 +213,18 @@ export default function InvoiceTemplate() {
 
                 <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center" }}>
                   <div style={{ width: "100%", textAlign: "center", position: "relative" }}>
+                    <div style={{ fontWeight: "bold", fontSize: "0.85rem", color: "#333", marginBottom: invoice.signature ? "5px" : "40px" }}>For {invoice.businessName}</div>
                     {invoice.signature ? (
                       <img
                         src={invoice.signature}
                         alt="Signature"
-                        style={{ height: "80px", maxWidth: "200px", objectFit: "contain", marginBottom: "-8px" }}
+                        style={{ height: "80px", maxWidth: "200px", objectFit: "contain", marginBottom: "5px" }}
                       />
                     ) : (
-                      <div style={{ height: "80px" }}></div>
+                      <div style={{ height: "80px", display: "none" }}></div>
                     )}
-                    <div style={{ borderTop: "1px solid #333", paddingTop: "4px", fontSize: "0.8rem", fontWeight: "bold" }}>
-                       Authorized Signature
+                    <div style={{ borderTop: "1px solid #333", paddingTop: "4px", fontSize: "0.8rem", fontWeight: "bold", marginTop: invoice.signature ? "0" : "10px" }}>
+                       Proprietor / Authorized Signatory
                     </div>
                   </div>
                 </div>

@@ -71,6 +71,7 @@ export default function CopyInvoicePage() {
           fields: {
             phone: customerData?.phone || "",
             aadhaar: customerData?.aadhaar || "",
+            companyName: customerData?.company_name || "",
           },
         },
         items: itemsData?.map((item: any) => ({

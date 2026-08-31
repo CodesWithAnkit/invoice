@@ -37,6 +37,7 @@ export async function POST(request: Request) {
           phone: customerData.phone,
           address: customerData.address,
           aadhaar: customerData.aadhaar,
+          company_name: customerData.companyName,
         })
         .select()
         .single();

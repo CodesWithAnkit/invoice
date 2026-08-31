@@ -21,11 +21,12 @@
   }
 
   /* Let's reset the specific Tailwind layout classes used in AppLayout and page.tsx during print */
-  .p-4, .sm\:p-6, .sm\:py-4, .sm\:pl-64, .md\:gap-8, .max-w-\[1400px\], .mx-auto, .flex-col, .gap-8 {
+  .p-4, .sm\:p-6, .sm\:py-4, .sm\:pl-64, .md\:gap-8, .max-w-\[1400px\], .mx-auto, .flex-col, .gap-8, .min-h-screen {
     padding: 0 !important;
     margin: 0 !important;
     max-width: none !important;
     gap: 0 !important;
+    min-height: 0 !important;
   }
 
   #invoice-print-root {
@@ -44,6 +45,9 @@
     height: auto;
     box-sizing: border-box;
     background: white;
+    page-break-inside: avoid;
+    page-break-after: avoid;
+    zoom: 0.85; /* Scale down to fit more items on a single page */
   }
 
   table {
