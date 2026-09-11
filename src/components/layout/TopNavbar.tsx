@@ -20,7 +20,7 @@ export function TopNavbar() {
   const pathname = usePathname();
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-40 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 no-print">
+    <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-40 bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60 no-print">
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden">
