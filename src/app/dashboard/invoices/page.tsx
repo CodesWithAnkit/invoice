@@ -103,14 +103,14 @@ export default function InvoiceDashboard() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search customer or invoice #..."
-            className="pl-8 bg-white"
+            className="pl-8 bg-background"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <div className="flex gap-4 sm:w-auto w-full">
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[140px] bg-white">
+            <SelectTrigger className="w-35 bg-background">
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
             <SelectContent>
@@ -122,7 +122,7 @@ export default function InvoiceDashboard() {
           </Select>
 
           <Select value={sortOrder} onValueChange={setSortOrder}>
-            <SelectTrigger className="w-[160px] bg-white">
+            <SelectTrigger className="w-40 bg-background">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -135,16 +135,16 @@ export default function InvoiceDashboard() {
         </div>
       </div>
 
-      <div className="rounded-md border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-md border bg-card text-card-foreground shadow-sm overflow-hidden">
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead className="w-[120px]">Invoice #</TableHead>
+              <TableHead className="w-30">Invoice #</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
+              <TableHead className="w-30 text-right">Amount</TableHead>
               <TableHead className="text-right">Date</TableHead>
-              <TableHead className="w-[70px]"></TableHead>
+              <TableHead className="w-17.5 text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

@@ -63,29 +63,17 @@ export default function InvoiceAIGenerator({ onGenerate }: InvoiceAIGeneratorPro
   };
 
   return (
-    <section style={{ 
-      marginBottom: "2rem", 
-      padding: "1.5rem", 
-      backgroundColor: "#f9fafb", 
-      borderRadius: "12px", 
-      border: "1px solid #e5e7eb",
-      boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1)"
-    }}>
-      <h3 style={{ marginTop: 0, marginBottom: "0.5rem", fontSize: "1.1rem", fontWeight: 600 }}>
+    <section className="mb-8 p-6 bg-card border rounded-xl shadow-sm text-card-foreground">
+      <h3 className="mb-2 mt-0 text-lg font-bold">
         Generate Invoice From Text (AI)
       </h3>
-      <p style={{ color: "#6b7280", fontSize: "0.875rem", marginBottom: "1rem" }}>
+      <p className="text-sm text-muted-foreground mb-4">
         Describe your invoice details below and let AI populate the form for you.
       </p>
       
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <div className="flex flex-col gap-4">
         <textarea
-          style={{ 
-            ...commonInputStyle, 
-            height: "100px", 
-            resize: "vertical",
-            fontFamily: "inherit"
-          }}
+          className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y font-inherit"
           placeholder="Example: Create invoice for Rahul, 2 MacBook chargers ₹2000 each, GST 18%, due in 15 days"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -95,23 +83,17 @@ export default function InvoiceAIGenerator({ onGenerate }: InvoiceAIGeneratorPro
         <button
           onClick={handleGenerate}
           disabled={loading || !prompt.trim()}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: loading ? "#9ca3af" : "#2563eb",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            fontWeight: 600,
-            cursor: loading ? "not-allowed" : "pointer",
-            transition: "background-color 0.2s",
-            alignSelf: "flex-start"
-          }}
+          className={`self-start px-5 py-2.5 rounded-md font-semibold transition-colors ${
+            loading || !prompt.trim() 
+              ? "bg-muted text-muted-foreground cursor-not-allowed" 
+              : "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
+          }`}
         >
           {loading ? "AI is processing..." : "Generate Invoice"}
         </button>
         
         {error && (
-          <p style={{ color: "#dc2626", fontSize: "0.875rem", marginTop: "0.5rem" }}>
+          <p className="text-destructive text-sm mt-2">
             {error}
           </p>
         )}

@@ -60,7 +60,7 @@ export default function InvoiceDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -68,7 +68,7 @@ export default function InvoiceDetail() {
 
   if (!invoice) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-gray-900">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
         <h2 className="text-2xl font-bold mb-4">Invoice Not Found</h2>
         <button onClick={() => router.back()} className="text-blue-600 hover:underline">
           Go Back
@@ -78,12 +78,12 @@ export default function InvoiceDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8 text-gray-900">
+    <div className="min-h-screen bg-background p-8 text-foreground">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
           <Link
             href="/dashboard/invoices"
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition"
+            className="inline-flex items-center text-muted-foreground hover:text-foreground transition"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Back to Invoices
@@ -94,7 +94,7 @@ export default function InvoiceDetail() {
                 href={invoice.pdf_url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center px-4 py-2 bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition shadow-sm"
+                className="inline-flex items-center px-4 py-2 bg-card border border-border rounded-lg text-foreground hover:bg-muted transition shadow-sm"
               >
                 <Printer className="w-4 h-4 mr-2" />
                 View PDF
@@ -104,7 +104,7 @@ export default function InvoiceDetail() {
               <a
                 href={invoice.pdf_url}
                 download
-                className="inline-flex items-center px-4 py-2 bg-blue-600 rounded-lg text-white hover:bg-blue-700 transition shadow-md"
+                className="inline-flex items-center px-4 py-2 bg-primary rounded-lg text-primary-foreground hover:bg-primary/90 transition shadow-md"
               >
                 <Download className="w-4 h-4 mr-2" />
                 Download PDF
@@ -113,47 +113,47 @@ export default function InvoiceDetail() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-8 border-b border-gray-100 flex justify-between items-start">
+        <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
+          <div className="p-8 border-b border-border flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl font-bold text-foreground mb-2">
                 Invoice #{invoice.invoice_number}
               </h1>
               <span className="inline-block px-3 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full">
                 {invoice.invoice_type || "Standard"}
               </span>
             </div>
-            <div className="text-right text-gray-500">
+            <div className="text-right text-muted-foreground">
               <p>Date: {format(new Date(invoice.created_at), "MMMM dd, yyyy")}</p>
             </div>
           </div>
 
-          <div className="p-8 grid grid-cols-2 gap-8 border-b border-gray-100">
+          <div className="p-8 grid grid-cols-2 gap-8 border-b border-border">
             <div>
-              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
                 Billed To
               </h3>
               {customer ? (
                 <div className="space-y-1">
-                  <p className="font-medium text-gray-900 text-lg">{customer.name}</p>
-                  {customer.phone && <p className="text-gray-600">{customer.phone}</p>}
-                  {customer.address && <p className="text-gray-600">{customer.address}</p>}
-                  {customer.aadhaar && <p className="text-gray-600">Aadhaar: {customer.aadhaar}</p>}
+                  <p className="font-medium text-foreground text-lg">{customer.name}</p>
+                  {customer.phone && <p className="text-muted-foreground">{customer.phone}</p>}
+                  {customer.address && <p className="text-muted-foreground">{customer.address}</p>}
+                  {customer.aadhaar && <p className="text-muted-foreground">Aadhaar: {customer.aadhaar}</p>}
                 </div>
               ) : (
-                <p className="text-gray-600">{invoice.customer_name}</p>
+                <p className="text-muted-foreground">{invoice.customer_name}</p>
               )}
             </div>
             {/* Add 'From' section here if needed */}
           </div>
 
           <div className="p-8">
-            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4">
               Order Details
             </h3>
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-gray-100 text-gray-500">
+                <tr className="border-b border-border text-muted-foreground">
                   <th className="py-3 font-medium">Item</th>
                   <th className="py-3 font-medium text-center">Qty</th>
                   <th className="py-3 font-medium text-right">Price</th>
@@ -163,12 +163,12 @@ export default function InvoiceDetail() {
               <tbody className="divide-y divide-gray-50">
                 {items.map((item) => (
                   <tr key={item.id}>
-                    <td className="py-4 text-gray-900">{item.product_name}</td>
-                    <td className="py-4 text-center text-gray-600">{item.quantity}</td>
-                    <td className="py-4 text-right text-gray-600">
+                    <td className="py-4 text-foreground">{item.product_name}</td>
+                    <td className="py-4 text-center text-muted-foreground">{item.quantity}</td>
+                    <td className="py-4 text-right text-muted-foreground">
                       ₹{item.unit_price?.toLocaleString()}
                     </td>
-                    <td className="py-4 text-right font-medium text-gray-900">
+                    <td className="py-4 text-right font-medium text-foreground">
                       ₹{item.total?.toLocaleString()}
                     </td>
                   </tr>
@@ -176,25 +176,25 @@ export default function InvoiceDetail() {
               </tbody>
             </table>
 
-            <div className="mt-8 pt-8 border-t border-gray-100 flex justify-end">
+            <div className="mt-8 pt-8 border-t border-border flex justify-end">
               <div className="w-64 space-y-3">
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
                   <span>₹{invoice.subtotal?.toLocaleString() || "0.00"}</span>
                 </div>
                 {(invoice.cgst > 0 || invoice.sgst > 0) && (
                   <>
-                    <div className="flex justify-between text-gray-600">
+                    <div className="flex justify-between text-muted-foreground">
                       <span>CGST</span>
                       <span>₹{invoice.cgst?.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-gray-600">
+                    <div className="flex justify-between text-muted-foreground">
                       <span>SGST</span>
                       <span>₹{invoice.sgst?.toLocaleString()}</span>
                     </div>
                   </>
                 )}
-                <div className="flex justify-between text-xl font-bold text-gray-900 pt-3 border-t border-gray-100">
+                <div className="flex justify-between text-xl font-bold text-foreground pt-3 border-t border-border">
                   <span>Total</span>
                   <span>₹{invoice.total?.toLocaleString() || "0.00"}</span>
                 </div>

@@ -17,8 +17,8 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="hidden md:flex h-screen w-64 flex-col fixed inset-y-0 z-50 bg-white border-r border-border no-print">
-      <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+    <div className="hidden md:flex h-screen w-64 flex-col fixed inset-y-0 z-50 bg-background border-r border-border no-print">
+      <div className="flex h-14 items-center border-b px-4 lg:h-15 lg:px-6">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <FileText className="h-6 w-6 text-primary" />
           <span className="">InvoiceApp</span>
@@ -36,7 +36,7 @@ export function Sidebar() {
                   "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary",
                   isActive
                     ? "bg-muted text-primary"
-                    : "text-muted-foreground"
+                    : "text-muted-foreground hover:bg-muted/50"
                 )}
               >
                 <item.icon className="h-4 w-4" />
