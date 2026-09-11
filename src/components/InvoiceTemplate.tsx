@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { useInvoice } from "@/hooks/useInvoice";
 import { formatINR } from "@/utils/formatCurrency";
+import { getDocumentTitle, getDocumentNumberLabel } from "@/utils/documentType";
 
 const TotalsSection = ({ totals, taxPercent, amountWords }: { totals: any, taxPercent?: number, amountWords?: string }) => (
   <div style={{ display: "flex", border: "1px solid #333", borderTop: "none" }}>
@@ -103,8 +104,13 @@ export default function InvoiceTemplate() {
               </div>
               <div style={{ textAlign: "right", flex: 1 }}>
                 <h1 style={{ margin: 0, fontSize: "1.6rem", color: "#333", textTransform: "uppercase" }}>
-                  {meta.type === "invoice" ? "TAX INVOICE" : "PRICE QUOTE"}
+                  {getDocumentTitle(meta.type)}
                 </h1>
+                {meta.type === "proforma" && meta.invoiceNumber && (
+                  <div style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#555", marginTop: "2px" }}>
+                    Based on Price Quote #{meta.invoiceNumber}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -134,14 +140,16 @@ export default function InvoiceTemplate() {
                   </div>
                 ))}
               </div>
-              <div style={{ flex: 0.8, paddingLeft: "12px", alignSelf: "center" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "4px", fontSize: "0.85rem" }}>
-                  <div style={{ fontWeight: "bold", color: "#555" }}>{meta.type === "invoice" ? "Invoice No:" : "Quote No:"}</div>
-                  <div style={{ fontWeight: "bold" }}>{meta.invoiceNumber}</div>
-                  <div style={{ fontWeight: "bold", color: "#555" }}>Date:</div>
-                  <div style={{ fontWeight: "bold" }}>{meta.date}</div>
+              {meta.type !== "proforma" && (
+                <div style={{ flex: 0.8, paddingLeft: "12px", alignSelf: "center" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: "4px", fontSize: "0.85rem" }}>
+                    <div style={{ fontWeight: "bold", color: "#555" }}>{getDocumentNumberLabel(meta.type)}</div>
+                    <div style={{ fontWeight: "bold" }}>{meta.invoiceNumber}</div>
+                    <div style={{ fontWeight: "bold", color: "#555" }}>Date:</div>
+                    <div style={{ fontWeight: "bold" }}>{meta.date}</div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -192,13 +200,15 @@ export default function InvoiceTemplate() {
                      </div>
                    </div>
                  )}
-                 <div style={{ fontSize: "0.75rem", color: "#555" }}>
-                  <div style={{ fontWeight: "bold", marginBottom: "2px", color: "#333" }}>Terms & Conditions:</div>
-                    <>
-                      <div>1.Customer will be billed after indicating acceptance of this quote.</div>
-                      <div>2. Payment will be due prior to delivery of service and goods.</div>
-                     </>
-                </div>
+                 {meta.type !== "proforma" && (
+                   <div style={{ fontSize: "0.75rem", color: "#555" }}>
+                    <div style={{ fontWeight: "bold", marginBottom: "2px", color: "#333" }}>Terms & Conditions:</div>
+                      <>
+                        <div>1.Customer will be billed after indicating acceptance of this quote.</div>
+                        <div>2. Payment will be due prior to delivery of service and goods.</div>
+                       </>
+                  </div>
+                 )}
               </div>
 
               <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center" }}>
@@ -224,6 +234,12 @@ export default function InvoiceTemplate() {
             <div style={{ textAlign: "center", marginTop: "15px", fontSize: "0.9rem", fontWeight: "bold", color: "#b30000", fontStyle: "italic" }}>
               Thank you for your business!
             </div>
+
+            {meta.type === "proforma" && (
+              <div style={{ textAlign: "center", marginTop: "6px", fontStyle: "italic", color: "#666", fontSize: "0.75rem" }}>
+                This document is a Proforma Invoice prepared from the uploaded Price Quote #{meta.invoiceNumber} and is not a Tax Invoice.
+              </div>
+            )}
 
           </div>
         </div>

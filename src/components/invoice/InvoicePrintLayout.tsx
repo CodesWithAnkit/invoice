@@ -3,6 +3,7 @@
 import React from "react";
 import { useInvoice } from "@/hooks/useInvoice";
 import { formatINR } from "@/utils/formatCurrency";
+import { getDocumentTitle } from "@/utils/documentType";
 
 export default function InvoicePrintLayout() {
   const { invoice } = useInvoice();
@@ -38,8 +39,13 @@ export default function InvoicePrintLayout() {
           <div style={{ textAlign: "right", flex: 1 }}>
             {meta.type && (
               <h1 style={{ margin: 0, fontSize: "1.5rem", color: "#333", textTransform: "uppercase" }}>
-                {meta.type === "invoice" ? "TAX INVOICE" : "PRICE QUOTE"}
+                {getDocumentTitle(meta.type)}
               </h1>
+            )}
+            {meta.type === "proforma" && meta.invoiceNumber && (
+              <div style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#555", marginTop: "2px" }}>
+                Based on Price Quote #{meta.invoiceNumber}
+              </div>
             )}
           </div>
         </div>
@@ -70,13 +76,15 @@ export default function InvoicePrintLayout() {
           </div>
           <div style={{ flex: 0.8, paddingLeft: "10px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", fontSize: "0.8rem" }}>
-              {meta.invoiceNumber && (
+              {meta.invoiceNumber && meta.type !== "proforma" && (
                 <>
-                  <div style={{ color: "#666", fontWeight: "600" }}>{meta.type === "invoice" ? "Invoice #" : "Quote #"}</div>
+                  <div style={{ color: "#666", fontWeight: "600" }}>
+                    {meta.type === "invoice" ? "Invoice #" : "Quote #"}
+                  </div>
                   <div style={{ fontWeight: "bold" }}>{meta.invoiceNumber}</div>
                 </>
               )}
-              {meta.date && (
+              {meta.date && meta.type !== "proforma" && (
                 <>
                   <div style={{ color: "#666", fontWeight: "600" }}>Date:</div>
                   <div style={{ fontWeight: "bold" }}>{meta.date}</div>
@@ -175,12 +183,14 @@ export default function InvoicePrintLayout() {
                 </div>
               </div>
             )}
-            <div style={{ fontSize: "0.7rem", color: "#666", lineHeight: "1.3" }}>
-              <div style={{ fontWeight: "bold", textTransform: "uppercase", color: "#444" }}>Terms & Conditions</div>
-              <div>1. Goods once sold will not be taken back.</div>
-              <div>2. Subject to local jurisdiction.</div>
-              <div>3. Finance charges applicable for delayed payments.</div>
-            </div>
+            {meta.type !== "proforma" && (
+              <div style={{ fontSize: "0.7rem", color: "#666", lineHeight: "1.3" }}>
+                <div style={{ fontWeight: "bold", textTransform: "uppercase", color: "#444" }}>Terms & Conditions</div>
+                <div>1. Goods once sold will not be taken back.</div>
+                <div>2. Subject to local jurisdiction.</div>
+                <div>3. Finance charges applicable for delayed payments.</div>
+              </div>
+            )}
           </div>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center" }}>
             <div style={{ textAlign: "center", width: "100%" }}>
@@ -196,6 +206,12 @@ export default function InvoicePrintLayout() {
         <div style={{ textAlign: "center", marginTop: "20px", fontStyle: "italic", color: "#b30000", fontWeight: "bold", fontSize: "0.85rem" }}>
           Thank you for choosing {invoice.businessName || "us"}!
         </div>
+
+        {meta.type === "proforma" && (
+          <div style={{ textAlign: "center", marginTop: "6px", fontStyle: "italic", color: "#666", fontSize: "0.7rem" }}>
+            This document is a Proforma Invoice prepared from the uploaded Price Quote #{meta.invoiceNumber} and is not a Tax Invoice.
+          </div>
+        )}
       </div>
     </div>
   );

@@ -69,6 +69,7 @@ export default function InvoiceMeta({
             >
               <option value="invoice">Invoice</option>
               <option value="quote">Quote</option>
+              <option value="proforma">Proforma Invoice</option>
             </select>
           </div>
         </div>

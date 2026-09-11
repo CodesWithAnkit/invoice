@@ -107,9 +107,9 @@ export default function InvoiceDashboard() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="Standard">Standard</SelectItem>
-              <SelectItem value="Proforma">Proforma</SelectItem>
-              <SelectItem value="Tax">Tax</SelectItem>
+              <SelectItem value="invoice">Invoice</SelectItem>
+              <SelectItem value="quote">Quote</SelectItem>
+              <SelectItem value="proforma">Proforma</SelectItem>
             </SelectContent>
           </Select>
 
