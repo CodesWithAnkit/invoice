@@ -4,10 +4,15 @@ import { useInvoicePrint } from "@/hooks/useInvoicePrint";
 import { useInvoice } from "@/hooks/useInvoice";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "../ui/button";
 
-export default function InvoiceToolbar() {
+interface InvoiceToolbarProps {
+  onOpenPreview: () => void;
+}
+
+export default function InvoiceToolbar({ onOpenPreview }: InvoiceToolbarProps) {
   const { printInvoice } = useInvoicePrint();
-  const { invoice } = useInvoice();
+  const { invoice, generateInvoice } = useInvoice();
   const [saving, setSaving] = useState(false);
 
   const handleSaveToDashboard = async () => {
@@ -72,74 +77,36 @@ export default function InvoiceToolbar() {
   };
 
   return (
-    <div className="no-print" style={{ 
-      display: "flex", 
-      gap: "12px", 
-      padding: "16px", 
-      backgroundColor: "#1e293b", 
-      borderRadius: "12px", 
-      marginBottom: "20px",
-      alignItems: "center",
-      justifyContent: "space-between",
-      color: "white"
-    }}>
-      <div style={{ fontWeight: "600", fontSize: "0.95rem" }}>Actions</div>
-      <div style={{ display: "flex", gap: "10px" }}>
-        <button 
+    <div className="no-print sticky top-0 z-50 flex items-center justify-between gap-3 p-4 bg-slate-900 shadow-md mb-5 text-white">
+      <div className="font-semibold text-sm">Actions</div>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          onClick={generateInvoice}
+          variant="secondary"
+          className="text-sm bg-slate-700 text-white hover:bg-slate-600 border-none"
+        >
+          Force Recalculate
+        </Button>
+        <Button
+          onClick={onOpenPreview}
+          variant="outline"
+          className="text-sm bg-slate-100 text-slate-900 hover:bg-white border-none"
+        >
+          Preview
+        </Button>
+        <Button
           onClick={handleSaveToDashboard}
           disabled={saving}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: saving ? "#64748b" : "#f59e0b",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            fontWeight: "600",
-            cursor: saving ? "not-allowed" : "pointer",
-            fontSize: "0.9rem",
-            transition: "background 0.2s"
-          }}
-          onMouseOver={(e) => !saving && (e.currentTarget.style.backgroundColor = "#d97706")}
-          onMouseOut={(e) => !saving && (e.currentTarget.style.backgroundColor = "#f59e0b")}
+          className="text-sm bg-amber-500 hover:bg-amber-600 text-white"
         >
           {saving ? "Saving..." : "Save to DB"}
-        </button>
-        <button 
+        </Button>
+        <Button
           onClick={printInvoice}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#3b82f6",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            fontWeight: "600",
-            cursor: "pointer",
-            fontSize: "0.9rem",
-            transition: "background 0.2s"
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#2563eb"}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#3b82f6"}
+          className="text-sm bg-blue-500 hover:bg-blue-600 text-white"
         >
-          Print Invoice (A4)
-        </button>
-        <button 
-          onClick={printInvoice} // For now, print handles PDF via browser
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#10b981",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
-            fontWeight: "600",
-            cursor: "pointer",
-            fontSize: "0.9rem",
-            transition: "background 0.2s"
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#059669"}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#10b981"}
-        >
-          Export PDF
-        </button>
+          Print / PDF
+        </Button>
       </div>
     </div>
   );

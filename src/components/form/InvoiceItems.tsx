@@ -1,7 +1,11 @@
 import { formatINR } from "../../utils/formatCurrency";
-import { commonInputStyle } from "../../constants/styles";
 import { InvoiceItem } from "@/modules/invoice/invoice.types";
 import ProductSearchDropdown from "./ProductSearchDropdown";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+
 interface InvoiceItemsProps {
   items: InvoiceItem[];
   totals: {
@@ -39,18 +43,15 @@ export default function InvoiceItems({
 
     const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
     
-    // Check if it looks like a markdown table or tab-separated data
     if (lines.some(l => l.includes("|") || l.includes("\t"))) {
       const newItems: InvoiceItem[] = [];
       
       for (const line of lines) {
-        // Skip header separators and total rows
         if (line.includes("---") || 
             line.toLowerCase().match(/subtotal|gst|कुल|total|मशीन\/उपकरण|price/)) {
           continue;
         }
 
-        // Parse markdown table or tab-separated
         const parts = line.includes("|") 
           ? line.split("|").map(p => p.trim()).filter(Boolean)
           : line.split("\t").map(p => p.trim()).filter(Boolean);
@@ -80,34 +81,33 @@ export default function InvoiceItems({
   };
 
   return (
-    <section onPaste={handlePaste}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2>Items</h2>
-        <span style={{ fontSize: "12px", color: "#666", fontStyle: "italic" }}>
+    <Card onPaste={handlePaste} className="overflow-hidden">
+      <CardHeader className="flex flex-row justify-between items-center bg-muted/30 pb-4">
+        <CardTitle className="text-xl">Items</CardTitle>
+        <span className="text-xs text-muted-foreground italic">
           💡 Tip: You can paste a Markdown table or Excel rows here to auto-fill items.
         </span>
-      </div>
+      </CardHeader>
       
       {/* Desktop Table View */}
-      <div className="desktop-items">
-        <table style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid #ccc" }}>
-              <th style={{ padding: "8px" }}>Description</th>
-              <th style={{ padding: "8px" }}>Qty</th>
-              <th style={{ padding: "8px" }}>Price</th>
-              <th style={{ padding: "8px" }}>Total</th>
-              <th style={{ padding: "8px" }}>Action</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[40%]">Description</TableHead>
+              <TableHead className="w-[15%]">Qty</TableHead>
+              <TableHead className="w-[20%]">Price</TableHead>
+              <TableHead className="w-[15%]">Total</TableHead>
+              <TableHead className="w-[10%] text-right">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {items.map((item, index) => (
-              <tr key={item.id} style={{ borderBottom: "1px solid #eee" }}>
-                <td style={{ padding: "8px" }}>
+              <TableRow key={item.id}>
+                <TableCell>
                   <ProductSearchDropdown
                     value={item.description}
                     placeholder="Item description"
-                    style={{ minWidth: "200px" }}
                     onSelect={(name, price) => {
                       onUpdateItem(index, "description", name);
                       if (price != null) {
@@ -115,143 +115,121 @@ export default function InvoiceItems({
                       }
                     }}
                   />
-                </td>
-                <td style={{ padding: "8px" }}>
-                  <input
+                </TableCell>
+                <TableCell>
+                  <Input
                     type="number"
-                    style={{ ...commonInputStyle, width: "70px" }}
                     value={item.quantity}
                     onChange={(e) => handleNumberChange(index, "quantity", e.target.value)}
                   />
-                </td>
-                <td style={{ padding: "8px" }}>
-                  <input
+                </TableCell>
+                <TableCell>
+                  <Input
                     type="number"
-                    style={{ ...commonInputStyle, width: "100px" }}
                     value={item.unitPrice}
                     onChange={(e) => handleNumberChange(index, "unitPrice", e.target.value)}
                   />
-                </td>
-                <td style={{ padding: "8px" }}>{formatINR(item.total)}</td>
-                <td style={{ padding: "8px" }}>
-                  <button 
+                </TableCell>
+                <TableCell className="font-medium">{formatINR(item.total)}</TableCell>
+                <TableCell className="text-right">
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
                     onClick={() => onRemoveItem(index)} 
                     disabled={items.length <= 1}
-                    style={{ color: "red", border: "none", background: "none", cursor: "pointer" }}
                   >
                     Remove
-                  </button>
-                </td>
-              </tr>
+                  </Button>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       {/* Mobile Card View */}
-      <div className="mobile-items">
+      <div className="md:hidden flex flex-col gap-4 p-4">
         {items.map((item, index) => (
-          <div key={item.id} className="item-card">
-            <div style={{ marginBottom: "8px" }}>
-              <label style={{ fontSize: "12px", color: "#666" }}>Description</label>
-              <ProductSearchDropdown
-                value={item.description}
-                onSelect={(name, price) => {
-                  onUpdateItem(index, "description", name);
-                  if (price != null) {
-                    onUpdateItem(index, "unitPrice", price);
-                  }
-                }}
-              />
-            </div>
-            <div className="row">
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: "12px", color: "#666" }}>Qty</label>
-                <input
-                  type="number"
-                  style={commonInputStyle}
-                  value={item.quantity}
-                  onChange={(e) => handleNumberChange(index, "quantity", e.target.value)}
+          <Card key={item.id} className="border bg-card shadow-sm">
+            <CardContent className="p-4 flex flex-col gap-4">
+              <div className="space-y-2">
+                <label className="text-xs text-muted-foreground">Description</label>
+                <ProductSearchDropdown
+                  value={item.description}
+                  onSelect={(name, price) => {
+                    onUpdateItem(index, "description", name);
+                    if (price != null) {
+                      onUpdateItem(index, "unitPrice", price);
+                    }
+                  }}
                 />
               </div>
-              <div style={{ flex: 2 }}>
-                <label style={{ fontSize: "12px", color: "#666" }}>Price</label>
-                <input
-                  type="number"
-                  style={commonInputStyle}
-                  value={item.unitPrice}
-                  onChange={(e) => handleNumberChange(index, "unitPrice", e.target.value)}
-                />
+              <div className="flex gap-4">
+                <div className="flex-1 space-y-2">
+                  <label className="text-xs text-muted-foreground">Qty</label>
+                  <Input
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => handleNumberChange(index, "quantity", e.target.value)}
+                  />
+                </div>
+                <div className="flex-[2] space-y-2">
+                  <label className="text-xs text-muted-foreground">Price</label>
+                  <Input
+                    type="number"
+                    value={item.unitPrice}
+                    onChange={(e) => handleNumberChange(index, "unitPrice", e.target.value)}
+                  />
+                </div>
               </div>
-            </div>
-            <div style={{ marginTop: "12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ fontWeight: "bold", color: "#333" }}>
-                Total: {formatINR(item.total)}
+              <div className="flex justify-between items-center pt-2">
+                <div className="font-bold text-foreground">
+                  Total: {formatINR(item.total)}
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="text-destructive border-destructive"
+                  onClick={() => onRemoveItem(index)} 
+                  disabled={items.length <= 1}
+                >
+                  Remove
+                </Button>
               </div>
-              <button 
-                onClick={() => onRemoveItem(index)} 
-                disabled={items.length <= 1}
-                style={{ color: "red", border: "1px solid red", borderRadius: "4px", padding: "4px 8px", background: "white" }}
-              >
-                Remove
-              </button>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      <div style={{ 
-        marginTop: "1rem", 
-        position: "sticky", 
-        bottom: "20px",
-        display: "flex",
-        justifyContent: "flex-start",
-        zIndex: 10
-      }}>
-        <button 
+      <div className="p-4 border-t sticky bottom-0 bg-background/95 backdrop-blur z-10">
+        <Button 
           onClick={onAddItem} 
           disabled={items.length >= 15}
-          style={{ 
-            padding: "10px 20px", 
-            borderRadius: "8px", 
-            backgroundColor: "#444", 
-            color: "white", 
-            border: "none", 
-            cursor: "pointer",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)"
-          }}
+          className="w-full md:w-auto"
         >
           + Add Item {items.length >= 15 ? "(Limit Reached)" : ""}
-        </button>
+        </Button>
       </div>
 
       {/* Totals Section */}
-      <div style={{ 
-        marginTop: "20px", 
-        padding: "20px", 
-        backgroundColor: "#fefefe", 
-        border: "1px solid #eee", 
-        borderRadius: "8px",
-        display: "flex", 
-        flexDirection: "column", 
-        alignItems: "flex-end", 
-        gap: "0.5rem" 
-      }}>
-        <div style={{ fontSize: "14px", color: "#666" }}>Subtotal: {formatINR(totals.subTotal)}</div>
-        <div style={{ fontSize: "14px", color: "#666" }}>SGST ({halfTax}%): {formatINR(totals.sgst)}</div>
-        <div style={{ fontSize: "14px", color: "#666" }}>CGST ({halfTax}%): {formatINR(totals.cgst)}</div>
-        <div style={{ 
-          fontWeight: "bold", 
-          fontSize: "18px", 
-          marginTop: "10px", 
-          paddingTop: "10px", 
-          borderTop: "1px solid #ccc",
-          width: "100%",
-          textAlign: "right"
-        }}>
-          Grand Total: {formatINR(totals.grandTotal)}
+      <CardFooter className="bg-muted/10 flex flex-col items-end gap-2 p-6 border-t">
+        <div className="text-sm text-muted-foreground flex justify-between w-full md:w-64">
+          <span>Subtotal:</span>
+          <span>{formatINR(totals.subTotal)}</span>
         </div>
-      </div>
-    </section>
+        <div className="text-sm text-muted-foreground flex justify-between w-full md:w-64">
+          <span>SGST ({halfTax}%):</span>
+          <span>{formatINR(totals.sgst)}</span>
+        </div>
+        <div className="text-sm text-muted-foreground flex justify-between w-full md:w-64">
+          <span>CGST ({halfTax}%):</span>
+          <span>{formatINR(totals.cgst)}</span>
+        </div>
+        <div className="font-bold text-xl mt-4 pt-4 border-t w-full flex justify-between md:justify-end md:gap-8">
+          <span>Grand Total:</span>
+          <span>{formatINR(totals.grandTotal)}</span>
+        </div>
+      </CardFooter>
+    </Card>
   );
 }

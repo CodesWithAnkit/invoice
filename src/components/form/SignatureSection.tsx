@@ -1,5 +1,7 @@
 import { toast } from "sonner";
 import SignaturePad from "../SignaturePad";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../ui/card";
+import { Input } from "../ui/input";
 
 interface SignatureSectionProps {
   signature: string;
@@ -28,31 +30,37 @@ export default function SignatureSection({
   };
 
   return (
-    <section style={{ marginTop: "2rem", borderTop: "1px solid #eee", paddingTop: "2rem" }}>
-      <h2 style={{ marginBottom: "1rem" }}>Authorized Signatory</h2>
-      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-        <div>
-          <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>Method 1: Draw Signature</label>
-          <SignaturePad 
-            initialValue={signature}
-            onSave={(dataURL) => onUpdate(dataURL)}
-            onClear={() => onUpdate("")}
-          />
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">Authorized Signatory</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col gap-8">
+          <div className="space-y-4">
+            <label className="text-sm font-semibold text-foreground">Method 1: Draw Signature</label>
+            <SignaturePad 
+              initialValue={signature}
+              onSave={(dataURL) => onUpdate(dataURL)}
+              onClear={() => onUpdate("")}
+            />
+          </div>
+          
+          <Card className="border-dashed bg-muted/30">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold">Method 2: Upload Signature Image</CardTitle>
+              <CardDescription>Upload a clear PNG/JPG with a white or transparent background.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleSignatureUpload}
+                className="max-w-md cursor-pointer"
+              />
+            </CardContent>
+          </Card>
         </div>
-        
-        <div style={{ padding: "1rem", border: "1px dashed #ccc", borderRadius: "8px", backgroundColor: "#fafafa" }}>
-          <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold" }}>Method 2: Upload Signature Image</label>
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={handleSignatureUpload}
-            style={{ fontSize: "14px" }}
-          />
-          <p style={{ fontSize: "0.75rem", color: "#888", marginTop: "4px" }}>
-            Upload a clear PNG/JPG with a white or transparent background.
-          </p>
-        </div>
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   );
 }

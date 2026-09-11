@@ -17,12 +17,14 @@ export interface BankDetails {
   accountName: string;
   accountNumber: string;
   ifsc: string;
+  fields?: Record<string, string>;
 }
 
 export interface InvoiceMeta {
   invoiceNumber: string;
   date: string;
   type: "invoice" | "quote";
+  fields?: Record<string, string>;
 }
 
 export interface InvoiceTotals {
@@ -38,6 +40,7 @@ export interface InvoiceData {
   businessAddress: string;
   phone: string;
   gstin: string;
+  fields?: Record<string, string>;
   meta: InvoiceMeta;
   customer: CustomerData;
   items: InvoiceItem[];

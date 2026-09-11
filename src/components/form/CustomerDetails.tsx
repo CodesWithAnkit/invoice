@@ -1,4 +1,7 @@
-import { commonInputStyle } from "../../constants/styles";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Input } from "../ui/input";
+import { X } from "lucide-react";
+import DynamicFieldManager from "./DynamicFieldManager";
 
 interface CustomerDetailsProps {
   name: string;
@@ -6,71 +9,140 @@ interface CustomerDetailsProps {
   fields?: {
     phone?: string;
     aadhaar?: string;
+    companyName?: string;
     [key: string]: string | undefined;
   };
-  onUpdate: (field: string, value: string) => void;
+  onUpdate: (field: string, value: any) => void;
 }
 
 export default function CustomerDetails({
   name,
   address,
-  fields,
+  fields = {},
   onUpdate,
 }: CustomerDetailsProps) {
-  return (
-    <section>
-      <h2>Customer Details</h2>
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-        <div>
-          <label>Company Name</label>
-          <input
-            type="text"
-            style={commonInputStyle}
-            value={fields?.companyName || ""}
-            onChange={(e) => onUpdate("customer.fields.companyName", e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Customer Name</label>
-          <input
-            type="text"
-            style={commonInputStyle}
-            value={name}
-            onChange={(e) => onUpdate("customer.name", e.target.value)}
-          />
-        </div>
-        
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
-          <div>
-            <label>Mobile</label>
-            <input
-              type="text"
-              style={commonInputStyle}
-              value={fields?.phone || ""}
-              onChange={(e) => onUpdate("customer.fields.phone", e.target.value)}
-            />
-          </div>
-          <div>
-            <label>Aadhaar</label>
-            <input
-              type="text"
-              style={commonInputStyle}
-              value={fields?.aadhaar || ""}
-              onChange={(e) => onUpdate("customer.fields.aadhaar", e.target.value)}
-            />
-          </div>
-        </div>
 
-        <div>
-          <label>Customer Address</label>
-          <textarea
-            style={commonInputStyle}
-            rows={3}
-            value={address}
-            onChange={(e) => onUpdate("customer.address", e.target.value)}
+  const customFields = Object.keys(fields).reduce((acc, key) => {
+    if (!["companyName", "phone", "aadhaar"].includes(key)) {
+      acc[key] = fields[key] as string;
+    }
+    return acc;
+  }, {} as Record<string, string>);
+
+  const handleCustomFieldUpdate = (newCustomFields: Record<string, string>) => {
+    const updatedFields = { ...fields };
+    
+    // Remove custom fields that were deleted
+    Object.keys(updatedFields).forEach((k) => {
+      if (!["companyName", "phone", "aadhaar"].includes(k) && !(k in newCustomFields)) {
+        delete updatedFields[k];
+      }
+    });
+
+    // Add/Update new custom fields
+    Object.entries(newCustomFields).forEach(([k, v]) => {
+      updatedFields[k] = v;
+    });
+
+    onUpdate("customer.fields", updatedFields);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl">Customer Details</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2 relative">
+              <label className="text-sm font-medium leading-none flex justify-between items-center">
+                <span>Company Name</span>
+                {fields?.companyName && (
+                  <button onClick={() => onUpdate("customer.fields.companyName", "")} className="text-muted-foreground hover:text-destructive">
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </label>
+              <Input
+                type="text"
+                value={fields?.companyName || ""}
+                onChange={(e) => onUpdate("customer.fields.companyName", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2 relative">
+              <label className="text-sm font-medium leading-none flex justify-between items-center">
+                <span>Customer Name</span>
+                {name && (
+                  <button onClick={() => onUpdate("customer.name", "")} className="text-muted-foreground hover:text-destructive">
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </label>
+              <Input
+                type="text"
+                value={name}
+                onChange={(e) => onUpdate("customer.name", e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2 relative">
+              <label className="text-sm font-medium leading-none flex justify-between items-center">
+                <span>Mobile</span>
+                {fields?.phone && (
+                  <button onClick={() => onUpdate("customer.fields.phone", "")} className="text-muted-foreground hover:text-destructive">
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </label>
+              <Input
+                type="text"
+                value={fields?.phone || ""}
+                onChange={(e) => onUpdate("customer.fields.phone", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2 relative">
+              <label className="text-sm font-medium leading-none flex justify-between items-center">
+                <span>Aadhaar</span>
+                {fields?.aadhaar && (
+                  <button onClick={() => onUpdate("customer.fields.aadhaar", "")} className="text-muted-foreground hover:text-destructive">
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </label>
+              <Input
+                type="text"
+                value={fields?.aadhaar || ""}
+                onChange={(e) => onUpdate("customer.fields.aadhaar", e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2 relative">
+            <label className="text-sm font-medium leading-none flex justify-between items-center">
+              <span>Customer Address</span>
+              {address && (
+                <button onClick={() => onUpdate("customer.address", "")} className="text-muted-foreground hover:text-destructive">
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </label>
+            <textarea
+              className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+              rows={3}
+              value={address}
+              onChange={(e) => onUpdate("customer.address", e.target.value)}
+            />
+          </div>
+
+          <DynamicFieldManager 
+            fields={customFields}
+            onUpdate={handleCustomFieldUpdate}
           />
         </div>
-      </div>
-    </section>
+      </CardContent>
+    </Card>
   );
 }

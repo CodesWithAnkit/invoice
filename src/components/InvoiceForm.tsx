@@ -3,6 +3,10 @@
 import { useInvoice } from "@/hooks/useInvoice";
 import { usePdfParser } from "@/hooks/usePdfParser";
 
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
+import { Input } from "./ui/input";
+
 // Sub-components
 import BusinessDetails from "./form/BusinessDetails";
 import InvoiceMeta from "./form/InvoiceMeta";
@@ -10,7 +14,6 @@ import CustomerDetails from "./form/CustomerDetails";
 import InvoiceItems from "./form/InvoiceItems";
 import BankDetails from "./form/BankDetails";
 import SignatureSection from "./form/SignatureSection";
-// import InvoiceAIGenerator from "./InvoiceAIGenerator";
 import InvoiceBusinessGenerator from "./InvoiceBusinessGenerator";
 import { useInvoicePrint } from "@/hooks/useInvoicePrint";
 
@@ -30,22 +33,29 @@ export default function InvoiceForm() {
   const { printInvoice } = useInvoicePrint();
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "2rem", padding: "1rem" }}>
+    <div className="flex flex-col gap-6 p-4">
       {/* Business Setup Generator */}
-      <InvoiceBusinessGenerator onGenerate={setInvoiceData} />
-
-      {/* AI Generator */}
-      {/* <InvoiceAIGenerator onGenerate={setInvoiceData} /> */}
+      <div className="no-print">
+        <InvoiceBusinessGenerator onGenerate={setInvoiceData} />
+      </div>
 
       {/* 0. PDF Uploader */}
-      <section style={{ backgroundColor: "#f9f9f9", padding: "1rem", borderRadius: "8px", border: "1px dashed #ccc" }}>
-        <h3>Auto-populate from PDF</h3>
-        <input type="file" accept="application/pdf" onChange={handleFileUpload} disabled={loading} />
-        {loading && <p style={{ fontSize: "0.8rem", color: "#0070f3" }}>Parsing PDF...</p>}
-        <p style={{ fontSize: "0.8rem", color: "#666", marginTop: "0.5rem" }}>
-          Upload a previous invoice PDF to extract metadata.
-        </p>
-      </section>
+      <Card className="border-dashed no-print">
+        <CardHeader>
+          <CardTitle>Auto-populate from PDF</CardTitle>
+          <CardDescription>Upload a previous invoice PDF to extract metadata.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Input 
+            type="file" 
+            accept="application/pdf" 
+            onChange={handleFileUpload} 
+            disabled={loading} 
+            className="max-w-md"
+          />
+          {loading && <p className="text-sm text-blue-600 mt-2">Parsing PDF...</p>}
+        </CardContent>
+      </Card>
 
       {/* 1. Business Details */}
       <BusinessDetails 
@@ -53,20 +63,18 @@ export default function InvoiceForm() {
         businessAddress={invoice.businessAddress}
         phone={invoice.phone}
         gstin={invoice.gstin}
+        fields={invoice.fields}
         onUpdate={setInvoiceField}
       />
-
-      <hr />
 
       {/* 2. Invoice Meta */}
       <InvoiceMeta 
         invoiceNumber={invoice.meta.invoiceNumber}
         date={invoice.meta.date}
         type={invoice.meta.type}
+        fields={invoice.meta.fields}
         onUpdate={setInvoiceField}
       />
-
-      <hr />
 
       {/* 3. Customer Details */}
       <CustomerDetails 
@@ -75,8 +83,6 @@ export default function InvoiceForm() {
         fields={invoice.customer.fields}
         onUpdate={setInvoiceField}
       />
-
-      <hr />
 
       {/* 4. Items List */}
       <InvoiceItems 
@@ -89,14 +95,13 @@ export default function InvoiceForm() {
         onReplaceItems={(newItems) => setInvoiceData({ items: newItems })}
       />
 
-      <hr />
-
       {/* 5. Bank Details */}
       <BankDetails 
         bankName={invoice.bank.bankName}
         accountName={invoice.bank.accountName}
         accountNumber={invoice.bank.accountNumber}
         ifsc={invoice.bank.ifsc}
+        fields={invoice.bank.fields}
         onUpdate={setInvoiceField}
       />
 
@@ -106,47 +111,12 @@ export default function InvoiceForm() {
         onUpdate={(dataURL) => setInvoiceField("signature", dataURL)}
       />
 
-      {/* Actions */}
-      <div style={{ marginTop: "2rem", display: "flex", gap: "1rem" }}>
-        <button 
-            onClick={generateInvoice}
-            style={{ 
-              padding: "1rem", 
-              fontSize: "1rem", 
-              cursor: "pointer",
-              backgroundColor: "#1e293b",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              fontWeight: "bold",
-              flex: 1
-            }}
-        >
-          Force Recalculate
-        </button>
-        <button 
-            onClick={printInvoice}
-            style={{ 
-              padding: "1rem", 
-              fontSize: "1rem", 
-              cursor: "pointer",
-              backgroundColor: "#0070f3",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              fontWeight: "bold",
-              flex: 1
-            }}
-        >
-          Print / PDF
-        </button>
-      </div>
-      
       {invoice.amountWords && (
-        <div style={{ fontStyle: "italic", color: "#555", textAlign: "center", marginBottom: "2rem" }}>
+        <div className="italic text-muted-foreground text-center mt-8">
           Amount in words: {invoice.amountWords}
         </div>
       )}
     </div>
   );
 }
+
