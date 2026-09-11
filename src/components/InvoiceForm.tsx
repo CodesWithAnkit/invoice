@@ -53,7 +53,7 @@ export default function InvoiceForm() {
             disabled={loading} 
             className="max-w-md"
           />
-          {loading && <p className="text-sm text-blue-600 mt-2">Parsing PDF...</p>}
+          {loading && <p className="text-sm text-primary mt-2">Parsing PDF...</p>}
         </CardContent>
       </Card>
 

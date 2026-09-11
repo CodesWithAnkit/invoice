@@ -77,37 +77,34 @@ export default function InvoiceToolbar({ onOpenPreview }: InvoiceToolbarProps) {
   };
 
   return (
-    <div className="no-print sticky top-0 z-50 flex items-center justify-between gap-3 p-4 bg-card border shadow-sm mb-5 text-card-foreground rounded-lg">
-      <div className="font-semibold text-sm">Actions</div>
-      <div className="flex flex-wrap gap-2">
-        <Button
-          onClick={generateInvoice}
-          variant="secondary"
-          className="text-sm"
-        >
-          Force Recalculate
-        </Button>
-        <Button
-          onClick={onOpenPreview}
-          variant="outline"
-          className="text-sm"
-        >
-          Preview
-        </Button>
-        <Button
-          onClick={handleSaveToDashboard}
-          disabled={saving}
-          className="text-sm bg-amber-500 hover:bg-amber-600 text-primary-foreground"
-        >
-          {saving ? "Saving..." : "Save to DB"}
-        </Button>
-        <Button
-          onClick={printInvoice}
-          className="text-sm bg-blue-500 hover:bg-blue-600 text-primary-foreground"
-        >
-          Print / PDF
-        </Button>
-      </div>
+    <div className="no-print flex flex-wrap gap-2">
+      <Button
+        onClick={generateInvoice}
+        variant="secondary"
+        className="text-sm"
+      >
+        Force Recalculate
+      </Button>
+      <Button
+        onClick={onOpenPreview}
+        variant="outline"
+        className="text-sm"
+      >
+        Preview
+      </Button>
+      <Button
+        onClick={handleSaveToDashboard}
+        disabled={saving}
+        className="text-sm bg-success hover:bg-success/90 text-success-foreground"
+      >
+        {saving ? "Saving..." : "Save to DB"}
+      </Button>
+      <Button
+        onClick={printInvoice}
+        className="text-sm"
+      >
+        Print / PDF
+      </Button>
     </div>
   );
 }

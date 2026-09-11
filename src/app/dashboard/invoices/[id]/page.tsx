@@ -3,11 +3,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/../lib/supabase";
-import { ArrowLeft, Download, FileEdit, Send, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Download, FileEdit, Send, CheckCircle2, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { cn } from "@/lib/utils";
 
 export default function InvoiceDetail() {
   const params = useParams();
@@ -85,14 +87,16 @@ export default function InvoiceDetail() {
       timestamp: invoice.created_at,
       description: "PDF generated and stored for this invoice.",
       icon: Send,
+      tone: "primary" as const,
     },
     {
       title: "Invoice Recorded",
       timestamp: invoice.created_at,
       description: "Invoice and line items saved to the ledger.",
       icon: CheckCircle2,
+      tone: "muted" as const,
     },
-  ].filter(Boolean) as { title: string; timestamp: string; description: string; icon: typeof Send }[];
+  ].filter(Boolean) as { title: string; timestamp: string; description: string; icon: typeof Send; tone: "primary" | "muted" }[];
 
   const status = invoice.pdf_url ? "RECONCILED" : "DRAFT";
 
@@ -107,17 +111,24 @@ export default function InvoiceDetail() {
       </Link>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        <div className="xl:col-span-2 space-y-4">
-          <div className="rounded-xl border border-border bg-card p-5">
+        <div className="xl:col-span-2 space-y-4 min-w-0">
+          <div className="no-print sticky top-14 lg:top-15 z-30 rounded-xl border border-border bg-card p-5 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div>
+              <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-xl font-bold text-foreground">{invoice.customer_name}</h1>
-                <p className="text-sm text-muted-foreground font-mono">
-                  {invoice.invoice_number} (Issued {format(new Date(invoice.created_at), "MMM dd, yyyy")})
-                </p>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
                 <StatusBadge status={status} />
+              </div>
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <Button asChild variant="outline">
+                  <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
+                    <FileEdit className="mr-2 h-4 w-4" />
+                    Edit
+                  </Link>
+                </Button>
+                <Button variant="outline" onClick={() => toast.info("Sending invoices is coming soon.")}>
+                  <Send className="mr-2 h-4 w-4" />
+                  Send
+                </Button>
                 {invoice.pdf_url && (
                   <Button asChild variant="outline">
                     <a href={invoice.pdf_url} target="_blank" rel="noreferrer">
@@ -126,70 +137,73 @@ export default function InvoiceDetail() {
                     </a>
                   </Button>
                 )}
-                <Button asChild variant="outline">
-                  <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
-                    <FileEdit className="mr-2 h-4 w-4" />
-                    Edit
-                  </Link>
+                <Button onClick={() => toast.info("Recording payments is coming soon.")}>
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Record Payment
                 </Button>
               </div>
             </div>
+            <p className="text-sm text-muted-foreground font-mono mt-2">
+              Invoice ID: {invoice.invoice_number} &middot; Issued on {format(new Date(invoice.created_at), "MMM dd, yyyy")}
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="rounded-xl border border-border bg-card p-5">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                Issuer Profile
+                Issuer / From
               </p>
               <p className="font-semibold text-foreground">{invoice.business_name || "—"}</p>
               {invoice.business_phone && (
                 <p className="text-sm text-muted-foreground mt-1">{invoice.business_phone}</p>
               )}
-              {invoice.business_gstin && (
-                <p className="text-sm text-muted-foreground font-mono mt-1">GSTIN: {invoice.business_gstin}</p>
-              )}
               {invoice.business_address && (
                 <p className="text-sm text-muted-foreground mt-1">{invoice.business_address}</p>
+              )}
+              {invoice.business_gstin && (
+                <p className="text-sm text-primary font-mono mt-2">GSTIN: {invoice.business_gstin}</p>
               )}
             </div>
             <div className="rounded-xl border border-border bg-card p-5">
               <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                Client Profile
+                Recipient / To
               </p>
               <p className="font-semibold text-foreground">{customer?.name || invoice.customer_name}</p>
               {customer?.phone && <p className="text-sm text-muted-foreground mt-1">{customer.phone}</p>}
-              {customer?.aadhaar && (
-                <p className="text-sm text-muted-foreground font-mono mt-1">Aadhaar: {customer.aadhaar}</p>
-              )}
               {customer?.address && <p className="text-sm text-muted-foreground mt-1">{customer.address}</p>}
+              {customer?.aadhaar && (
+                <p className="text-sm text-primary font-mono mt-2">Aadhaar: {customer.aadhaar}</p>
+              )}
             </div>
           </div>
 
           <div className="rounded-xl border border-border bg-card overflow-hidden">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-muted/50">
-                <tr className="text-muted-foreground">
-                  <th className="py-3 px-5 font-medium">Itemised description</th>
-                  <th className="py-3 px-5 font-medium text-right">Qty</th>
-                  <th className="py-3 px-5 font-medium text-right">Rate</th>
-                  <th className="py-3 px-5 font-medium text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {items.map((item) => (
-                  <tr key={item.id}>
-                    <td className="py-3 px-5 text-foreground">{item.product_name}</td>
-                    <td className="py-3 px-5 text-right font-mono text-muted-foreground">{item.quantity}</td>
-                    <td className="py-3 px-5 text-right font-mono text-muted-foreground">
-                      ₹{item.unit_price?.toLocaleString()}
-                    </td>
-                    <td className="py-3 px-5 text-right font-mono font-semibold text-foreground">
-                      ₹{item.total?.toLocaleString()}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm min-w-130">
+                <thead className="bg-muted/50">
+                  <tr className="text-muted-foreground">
+                    <th className="py-3 px-5 font-medium text-[11px] uppercase tracking-wider">Item Description</th>
+                    <th className="py-3 px-5 font-medium text-[11px] uppercase tracking-wider text-right">Qty</th>
+                    <th className="py-3 px-5 font-medium text-[11px] uppercase tracking-wider text-right">Rate</th>
+                    <th className="py-3 px-5 font-medium text-[11px] uppercase tracking-wider text-right">Total Amount</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {items.map((item) => (
+                    <tr key={item.id}>
+                      <td className="py-3 px-5 text-foreground font-medium">{item.product_name}</td>
+                      <td className="py-3 px-5 text-right font-mono text-muted-foreground">{item.quantity}</td>
+                      <td className="py-3 px-5 text-right font-mono text-muted-foreground">
+                        ₹{item.unit_price?.toLocaleString()}
+                      </td>
+                      <td className="py-3 px-5 text-right font-mono font-semibold text-foreground">
+                        ₹{item.total?.toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           <div className="flex justify-end">
@@ -220,11 +234,16 @@ export default function InvoiceDetail() {
 
         <div className="rounded-xl border border-border bg-card p-5 h-fit">
           <p className="font-semibold text-foreground">Audit Log &amp; Timeline</p>
-          <p className="text-xs text-muted-foreground mb-4">Events recorded for this invoice</p>
+          <p className="text-xs text-muted-foreground mb-4">Automated event checks for {invoice.invoice_number}</p>
           <div className="space-y-4">
             {auditEvents.map((event, i) => (
               <div key={i} className="flex gap-3">
-                <event.icon className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span
+                  className={cn(
+                    "mt-1.5 h-2 w-2 rounded-full shrink-0",
+                    event.tone === "primary" ? "bg-primary" : "bg-muted-foreground/40"
+                  )}
+                />
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-foreground">{event.title}</p>
                   <p className="text-xs text-muted-foreground font-mono">

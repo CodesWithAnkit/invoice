@@ -9,6 +9,7 @@ import InvoiceEditor from "@/components/invoice/InvoiceEditor";
 import InvoiceToolbar from "@/components/invoice/InvoiceToolbar";
 import InvoicePrintLayout from "@/components/invoice/InvoicePrintLayout";
 import InvoicePreviewModal from "@/components/invoice/InvoicePreviewModal";
+import InvoiceLiveSummary from "@/components/invoice/InvoiceLiveSummary";
 import { PageHeader } from "@/components/PageHeader";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -108,13 +109,24 @@ export default function EditInvoicePage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto w-full">
+    <div className="w-full">
       <InvoicePrintLayout />
 
-      <InvoiceToolbar onOpenPreview={() => setIsPreviewOpen(true)} />
+      <div className="no-print sticky top-14 lg:top-15 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 bg-background/95 backdrop-blur border-b border-border py-4 [&>div]:mb-0">
+        <PageHeader
+          title="Edit Invoice"
+          description="Update the invoice details and save your changes."
+          action={<InvoiceToolbar onOpenPreview={() => setIsPreviewOpen(true)} />}
+        />
+      </div>
 
-      <div className="no-print">
-        <InvoiceEditor />
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start pt-4">
+        <div className="xl:col-span-2 no-print min-w-0">
+          <InvoiceEditor />
+        </div>
+        <div className="xl:sticky xl:top-40">
+          <InvoiceLiveSummary />
+        </div>
       </div>
 
       <InvoicePreviewModal

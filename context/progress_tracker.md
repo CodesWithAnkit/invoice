@@ -18,6 +18,7 @@
 - `[x]` Redesign Phase 6: `/dashboard/products` — fully static/mock (`/api/products` exists server-side but isn't wired up yet).
 - `[x]` Redesign Phase 7: `/dashboard/settings` — sub-nav shell; only Visual Appearance is real (wired to `next-themes`), other sections are static placeholders.
 - Verified via Playwright screenshots (light + dark) that the redesign matches the reference boards, and that print-media output of the invoice PDF template is pixel-identical to pre-redesign (font/layout isolated by design).
+- `[x]` Redesign Phase 8 (new reference boards `invoice_design/new/15-16`): reskinned the Invoice View page (Issuer/From, Recipient/To cards, 4-button header incl. static Send/Record Payment stubs, timeline dots) and the invoice Editor/Edit/Copy workspace pages (title+actions header, sticky "Realtime Calculation Audit" live-totals sidebar) to match. `InvoiceToolbar` was destyled into a plain button group (same handlers) so it can sit in the new header — no field, handler, or schema logic changed. Verified responsive at desktop/tablet/mobile and re-confirmed print/PDF output is still pixel-identical.
 
 ---
 
