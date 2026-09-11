@@ -177,7 +177,7 @@ export default function InvoiceItems({
                     onChange={(e) => handleNumberChange(index, "quantity", e.target.value)}
                   />
                 </div>
-                <div className="flex-[2] space-y-2">
+                <div className="flex-2 space-y-2">
                   <label className="text-xs text-muted-foreground">Price</label>
                   <Input
                     type="number"

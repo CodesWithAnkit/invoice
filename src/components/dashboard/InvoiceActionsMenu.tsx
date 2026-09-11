@@ -25,7 +25,7 @@ export function InvoiceActionsMenu({ invoiceId, pdfUrl, onDelete }: InvoiceActio
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={8} className="w-[200px] bg-white border shadow-lg z-50">
+      <DropdownMenuContent align="end" sideOffset={8} className="w-50 bg-white border shadow-lg z-50">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>

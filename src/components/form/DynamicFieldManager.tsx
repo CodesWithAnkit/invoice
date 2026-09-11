@@ -70,14 +70,14 @@ export default function DynamicFieldManager({
           placeholder="Field Name (e.g. PAN)"
           value={newKey}
           onChange={(e) => setNewKey(e.target.value)}
-          className="flex-1 bg-background h-8 text-sm min-w-[120px]"
+          className="flex-1 bg-background h-8 text-sm min-w-30"
         />
         <Input
           placeholder="Value"
           value={newValue}
           onChange={(e) => setNewValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleAddField()}
-          className="flex-[2] bg-background h-8 text-sm min-w-[150px]"
+          className="flex-2 bg-background h-8 text-sm min-w-37.5"
         />
         <Button onClick={handleAddField} size="sm" variant="secondary" className="h-8">
           <Plus className="h-4 w-4 mr-1" /> Add

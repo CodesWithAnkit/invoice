@@ -20,7 +20,7 @@ export function TopNavbar() {
   const pathname = usePathname();
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-40 bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60 no-print">
+    <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-15 lg:px-6 sticky top-0 z-40 bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60 no-print">
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon" className="shrink-0 md:hidden">
@@ -28,9 +28,9 @@ export function TopNavbar() {
             <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="flex flex-col w-[280px] bg-white dark:bg-black dark:text-white">
+        <SheetContent side="left" className="flex flex-col w-70 bg-white dark:bg-black dark:text-white">
           <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-          <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+          <div className="flex h-14 items-center border-b px-4 lg:h-15 lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
               <FileText className="h-6 w-6 text-primary" />
               <span className="">InvoiceApp</span>
