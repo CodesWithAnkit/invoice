@@ -3,15 +3,16 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import InvoiceEditor from "@/components/invoice/InvoiceEditor";
-import InvoicePreview from "@/components/invoice/InvoicePreview";
 import InvoiceToolbar from "@/components/invoice/InvoiceToolbar";
 import InvoicePrintLayout from "@/components/invoice/InvoicePrintLayout";
+import InvoicePreviewModal from "@/components/invoice/InvoicePreviewModal";
 import { useInvoice } from "@/hooks/useInvoice";
 
 export default function Home() {
   const router = useRouter();
   const { resetInvoice } = useInvoice();
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   useEffect(() => {
     const auth = localStorage.getItem("invoice_auth");
@@ -28,7 +29,7 @@ export default function Home() {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1400px] mx-auto w-full">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto w-full">
       {/* 1. Global Print Layout (Hidden on screen via styles/invoice-print.css) */}
       <InvoicePrintLayout />
 
@@ -38,19 +39,18 @@ export default function Home() {
       </header>
 
       {/* 3. Global Toolbar (Screen only) */}
-      <InvoiceToolbar />
+      <InvoiceToolbar onOpenPreview={() => setIsPreviewOpen(true)} />
 
-      <div className="flex flex-wrap items-start gap-8">
-        {/* Editor Column (Screen only) */}
-        <div className="no-print flex-1 min-w-[350px]">
-          <InvoiceEditor />
-        </div>
-
-        {/* Preview Column (Screen only) */}
-        <div className="no-print flex-1 min-w-[350px] sticky top-24">
-          <InvoicePreview />
-        </div>
+      {/* Editor Column (Screen only) */}
+      <div className="no-print">
+        <InvoiceEditor />
       </div>
+
+      {/* Preview Modal */}
+      <InvoicePreviewModal 
+        isOpen={isPreviewOpen} 
+        onOpenChange={setIsPreviewOpen} 
+      />
     </div>
   );
 }

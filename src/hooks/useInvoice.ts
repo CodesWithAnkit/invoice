@@ -14,10 +14,12 @@ const INITIAL_STATE: InvoiceData = {
   businessAddress: "",
   phone: "",
   gstin: "",
+  fields: {},
   meta: {
     invoiceNumber: "",
     date: new Date().toISOString().split("T")[0],
     type: "invoice",
+    fields: {},
   },
   customer: {
     name: "",
@@ -39,6 +41,7 @@ const INITIAL_STATE: InvoiceData = {
     accountName: "",
     accountNumber: "",
     ifsc: "",
+    fields: {},
   },
   amountWords: "",
   signature: "",

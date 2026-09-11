@@ -1,11 +1,12 @@
 "use client";
 
+import React from "react";
 import { useInvoice } from "@/hooks/useInvoice";
 import { formatINR } from "@/utils/formatCurrency";
 
 export default function InvoicePrintLayout() {
   const { invoice } = useInvoice();
-  const { meta, customer, items, totals, bank, amountWords } = invoice;
+  const { meta, customer, items, totals, bank, amountWords, fields } = invoice;
   const sortedItems = [...items].sort((a, b) => b.total - a.total);
 
   return (
@@ -14,19 +15,32 @@ export default function InvoicePrintLayout() {
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#b30000", marginBottom: "2px" }}>
-              {invoice.businessName}
-            </div>
-            <div style={{ whiteSpace: "pre-line", fontSize: "0.8rem", color: "#444", lineHeight: "1.2" }}>
-              {invoice.businessAddress}
-            </div>
+            {invoice.businessName && (
+              <div style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#b30000", marginBottom: "2px" }}>
+                {invoice.businessName}
+              </div>
+            )}
+            {invoice.businessAddress && (
+              <div style={{ whiteSpace: "pre-line", fontSize: "0.8rem", color: "#444", lineHeight: "1.2" }}>
+                {invoice.businessAddress}
+              </div>
+            )}
             {invoice.phone && <div style={{ fontSize: "0.8rem", marginTop: "2px" }}><b>Phone:</b> {invoice.phone}</div>}
             {invoice.gstin && <div style={{ fontSize: "0.8rem" }}><b>GSTIN:</b> {invoice.gstin}</div>}
+            
+            {/* Business Dynamic Fields */}
+            {Object.entries(fields || {}).map(([label, value]) => (
+              <div key={label} style={{ fontSize: "0.8rem" }}>
+                <b style={{ textTransform: "capitalize" }}>{label}:</b> {String(value)}
+              </div>
+            ))}
           </div>
           <div style={{ textAlign: "right", flex: 1 }}>
-            <h1 style={{ margin: 0, fontSize: "1.5rem", color: "#333", textTransform: "uppercase" }}>
-              {meta.type === "invoice" ? "TAX INVOICE" : "PRICE QUOTE"}
-            </h1>
+            {meta.type && (
+              <h1 style={{ margin: 0, fontSize: "1.5rem", color: "#333", textTransform: "uppercase" }}>
+                {meta.type === "invoice" ? "TAX INVOICE" : "PRICE QUOTE"}
+              </h1>
+            )}
           </div>
         </div>
 
@@ -45,7 +59,7 @@ export default function InvoicePrintLayout() {
                 customer.fields?.companyName || customer.name
               )}
             </div>
-            <div style={{ whiteSpace: "pre-line", fontSize: "0.8rem", marginTop: "2px" }}>{customer.address}</div>
+            {customer.address && <div style={{ whiteSpace: "pre-line", fontSize: "0.8rem", marginTop: "2px" }}>{customer.address}</div>}
             {Object.entries(customer.fields || {})
               .filter(([label]) => label.toLowerCase() !== "companyname")
               .map(([label, value]) => (
@@ -56,10 +70,26 @@ export default function InvoicePrintLayout() {
           </div>
           <div style={{ flex: 0.8, paddingLeft: "10px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px", fontSize: "0.8rem" }}>
-              <div style={{ color: "#666", fontWeight: "600" }}>{meta.type === "invoice" ? "Invoice #" : "Quote #"}</div>
-              <div style={{ fontWeight: "bold" }}>{meta.invoiceNumber}</div>
-              <div style={{ color: "#666", fontWeight: "600" }}>Date:</div>
-              <div style={{ fontWeight: "bold" }}>{meta.date}</div>
+              {meta.invoiceNumber && (
+                <>
+                  <div style={{ color: "#666", fontWeight: "600" }}>{meta.type === "invoice" ? "Invoice #" : "Quote #"}</div>
+                  <div style={{ fontWeight: "bold" }}>{meta.invoiceNumber}</div>
+                </>
+              )}
+              {meta.date && (
+                <>
+                  <div style={{ color: "#666", fontWeight: "600" }}>Date:</div>
+                  <div style={{ fontWeight: "bold" }}>{meta.date}</div>
+                </>
+              )}
+              
+              {/* Meta Dynamic Fields */}
+              {Object.entries(meta.fields || {}).map(([label, value]) => (
+                <React.Fragment key={label}>
+                  <div style={{ color: "#666", fontWeight: "600", textTransform: "capitalize" }}>{label}:</div>
+                  <div style={{ fontWeight: "bold" }}>{String(value)}</div>
+                </React.Fragment>
+              ))}
             </div>
           </div>
         </div>
@@ -125,14 +155,23 @@ export default function InvoicePrintLayout() {
         {/* Final Footer */}
         <div style={{ marginTop: "15px", display: "flex", justifyContent: "space-between" }} className="invoice-footer">
           <div style={{ flex: 1.5 }}>
-            {bank.bankName && (
+            {/* Only show Bank Details section if at least one field exists */}
+            {(bank.bankName || bank.accountName || bank.accountNumber || bank.ifsc || Object.keys(bank.fields || {}).length > 0) && (
               <div style={{ marginBottom: "8px" }}>
                 <div style={{ fontWeight: "bold", fontSize: "0.75rem", color: "#555", textTransform: "uppercase", marginBottom: "2px" }}>Bank Details</div>
                 <div style={{ display: "grid", gridTemplateColumns: "100px auto", gap: "1px", fontSize: "0.75rem" }}>
-                  <span>Bank:</span> <b>{bank.bankName}</b>
-                  <span>A/C Name:</span> <b>{bank.accountName}</b>
-                  <span>A/C No:</span> <b>{bank.accountNumber}</b>
-                  <span>IFSC:</span> <b>{bank.ifsc}</b>
+                  {bank.bankName && <><span style={{ color: "#666" }}>Bank:</span> <b>{bank.bankName}</b></>}
+                  {bank.accountName && <><span style={{ color: "#666" }}>A/C Name:</span> <b>{bank.accountName}</b></>}
+                  {bank.accountNumber && <><span style={{ color: "#666" }}>A/C No:</span> <b>{bank.accountNumber}</b></>}
+                  {bank.ifsc && <><span style={{ color: "#666" }}>IFSC:</span> <b>{bank.ifsc}</b></>}
+                  
+                  {/* Bank Dynamic Fields */}
+                  {Object.entries(bank.fields || {}).map(([label, value]) => (
+                    <React.Fragment key={label}>
+                      <span style={{ color: "#666", textTransform: "capitalize" }}>{label}:</span>
+                      <b>{String(value)}</b>
+                    </React.Fragment>
+                  ))}
                 </div>
               </div>
             )}
@@ -145,7 +184,7 @@ export default function InvoicePrintLayout() {
           </div>
           <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center" }}>
             <div style={{ textAlign: "center", width: "100%" }}>
-              <div style={{ fontWeight: "bold", fontSize: "0.85rem", color: "#333", marginBottom: invoice.signature ? "5px" : "40px" }}>For {invoice.businessName}</div>
+              {invoice.businessName && <div style={{ fontWeight: "bold", fontSize: "0.85rem", color: "#333", marginBottom: invoice.signature ? "5px" : "40px" }}>For {invoice.businessName}</div>}
               {invoice.signature && (
                 <img src={invoice.signature} alt="Signature" style={{ maxHeight: "80px", maxWidth: "200px", marginBottom: "5px", objectFit: "contain", margin: "0 auto" }} />
               )}
@@ -155,7 +194,7 @@ export default function InvoicePrintLayout() {
         </div>
 
         <div style={{ textAlign: "center", marginTop: "20px", fontStyle: "italic", color: "#b30000", fontWeight: "bold", fontSize: "0.85rem" }}>
-          Thank you for choosing {invoice.businessName}!
+          Thank you for choosing {invoice.businessName || "us"}!
         </div>
       </div>
     </div>

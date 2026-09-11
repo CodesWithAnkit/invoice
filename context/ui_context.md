@@ -43,3 +43,12 @@ Colors are mapped to global custom properties to enable instant system-wide adju
 - **Paper Constraints**: The print output is styled precisely to fit standard **A4 portrait page** dimensions (`size: A4`, `margin: 0`).
 - **Media Controls**: Every screen control, button bar, dashboard link, and editor form wrapper must be enclosed or marked with the `.no-print` helper class.
 - **Maximum Item Rule**: The A4 preview holds up to 15 standard line items comfortably on a single page before overflow. Restrict item counts or handle pagination gracefully.
+
+---
+
+## AI UI Implementation Rules
+AI is not the designer in this workflow.
+- **Visual References**: When there is a reference image, it is the source of truth. Reproduce the reference exactly including layout, spacing, typography, color, and states.
+- **Critiques**: Do not say "Make it better." If something feels wrong, critique the design (e.g., "The hero is taking too much space. Bring the interface higher.") and keep the good parts.
+- **Mobile Behavior**: If there is no mobile reference, make the page responsive sensibly while keeping the desktop reference exact.
+- **Component Reuse**: Use the existing Tailwind and component patterns before adding new ones. Keep the app consistent across pages.

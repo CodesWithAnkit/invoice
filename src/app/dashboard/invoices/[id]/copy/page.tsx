@@ -6,9 +6,9 @@ import { supabase } from "@/../lib/supabase";
 import { useInvoice } from "@/hooks/useInvoice";
 
 import InvoiceEditor from "@/components/invoice/InvoiceEditor";
-import InvoicePreview from "@/components/invoice/InvoicePreview";
 import InvoiceToolbar from "@/components/invoice/InvoiceToolbar";
 import InvoicePrintLayout from "@/components/invoice/InvoicePrintLayout";
+import InvoicePreviewModal from "@/components/invoice/InvoicePreviewModal";
 import { PageHeader } from "@/components/PageHeader";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -18,6 +18,7 @@ export default function CopyInvoicePage() {
   const router = useRouter();
   const { setInvoiceData } = useInvoice();
   const [loading, setLoading] = useState(true);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   useEffect(() => {
     if (params?.id) {
@@ -107,7 +108,7 @@ export default function CopyInvoicePage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1400px] mx-auto w-full">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto w-full">
       <InvoicePrintLayout />
 
       <PageHeader
@@ -115,16 +116,16 @@ export default function CopyInvoicePage() {
         description="A new copy of the invoice. Change details as needed and save."
       />
 
-      <InvoiceToolbar />
+      <InvoiceToolbar onOpenPreview={() => setIsPreviewOpen(true)} />
 
-      <div className="flex flex-wrap items-start gap-8">
-        <div className="no-print flex-1 min-w-[350px]">
-          <InvoiceEditor />
-        </div>
-        <div className="no-print flex-1 min-w-[350px] sticky top-24">
-          <InvoicePreview />
-        </div>
+      <div className="no-print">
+        <InvoiceEditor />
       </div>
+
+      <InvoicePreviewModal 
+        isOpen={isPreviewOpen} 
+        onOpenChange={setIsPreviewOpen} 
+      />
     </div>
   );
 }
