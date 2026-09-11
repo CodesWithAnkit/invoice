@@ -158,6 +158,7 @@ export default function InvoiceItems({
                 <label className="text-xs text-muted-foreground">Description</label>
                 <ProductSearchDropdown
                   value={item.description}
+                  placeholder="Item description"
                   onSelect={(name, price) => {
                     onUpdateItem(index, "description", name);
                     if (price != null) {

@@ -17,9 +17,9 @@ test.describe('Invoice Editor', () => {
     // 3. Add an Item
     // Find the item description input. It might not have an explicit label, so we use a placeholder or role if available.
     // Assuming the table structure:
-    await page.getByPlaceholder('Item description').first().fill('Widget');
-    await page.getByPlaceholder('Qty').first().fill('5');
-    await page.getByPlaceholder('Price').first().fill('100');
+    await page.getByPlaceholder('Item description').locator('visible=true').first().fill('Widget');
+    await page.getByPlaceholder('Qty').locator('visible=true').first().fill('5');
+    await page.getByPlaceholder('Price').locator('visible=true').first().fill('100');
     
     // Check if the total calculates automatically
     // The total for this row should be 500.00
