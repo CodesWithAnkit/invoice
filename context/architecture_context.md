@@ -100,3 +100,21 @@ All code changes must adhere to the following rules:
 3. **No Direct Database Access in Components**: All mutations must go through API route handlers (`src/app/api/...`) or React Server Actions. The client must never call `supabase.from('invoices').insert(...)` directly.
 4. **Preserve PDF Printing System**: The user explicitly requested **no changes** to the high-fidelity A4 browser printing and layout engine. Do not alter `.no-print` and `@page { size: A4 }` settings in `src/app/globals.css` or dedicated print sheets unless requested.
 5. **No Database schema drift**: When making database queries, ensure they are compatible with the table structures above and leverage Supabase Postgres best practices.
+
+---
+
+## App Responsibilities & Boundaries
+- The browser only shows UI and calls safe app routes. Private data access and AI calls happen on the server.
+- The browser should not hold private tokens (e.g., Supabase service roles, Gemini keys).
+- The browser should not call the LLM directly.
+- The AI parsing pipeline runs via backend route handlers.
+
+## Decisions Already Made
+- **UI Framework**: Tailwind CSS + Shadcn UI patterns.
+- **State**: Singleton `useInvoice.ts` combined with `localStorage` draft.
+- **Printing**: Native browser print window triggered via `window.print()` and `@page` rules.
+
+## Common Traps
+- **Printing Overflow**: Adding too many items on an invoice can break A4 pagination.
+- **Client/Server Mismatches**: Be careful not to expose `process.env.GEMINI_API_KEY` to client components.
+- **Math precision**: Floating point multiplication (like tax calculation) must be rounded correctly to avoid UI display errors.
