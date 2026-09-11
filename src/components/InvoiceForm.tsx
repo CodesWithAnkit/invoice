@@ -86,6 +86,7 @@ export default function InvoiceForm() {
         onAddItem={addItem}
         onRemoveItem={removeItem}
         onUpdateItem={updateItem}
+        onReplaceItems={(newItems) => setInvoiceData({ items: newItems })}
       />
 
       <hr />

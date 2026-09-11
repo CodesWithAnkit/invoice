@@ -13,6 +13,7 @@ interface InvoiceItemsProps {
   onAddItem: () => void;
   onRemoveItem: (index: number) => void;
   onUpdateItem: (index: number, field: keyof InvoiceItem, value: any) => void;
+  onReplaceItems?: (items: InvoiceItem[]) => void;
   taxPercent?: number;
 }
 
@@ -22,6 +23,7 @@ export default function InvoiceItems({
   onAddItem,
   onRemoveItem,
   onUpdateItem,
+  onReplaceItems,
   taxPercent = 18,
 }: InvoiceItemsProps) {
   const halfTax = taxPercent / 2;
@@ -30,9 +32,61 @@ export default function InvoiceItems({
     onUpdateItem(index, field, isNaN(parsed) ? 0 : parsed);
   };
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    if (!onReplaceItems) return;
+    const text = e.clipboardData.getData("text");
+    if (!text) return;
+
+    const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+    
+    // Check if it looks like a markdown table or tab-separated data
+    if (lines.some(l => l.includes("|") || l.includes("\t"))) {
+      const newItems: InvoiceItem[] = [];
+      
+      for (const line of lines) {
+        // Skip header separators and total rows
+        if (line.includes("---") || 
+            line.toLowerCase().match(/subtotal|gst|कुल|total|मशीन\/उपकरण|price/)) {
+          continue;
+        }
+
+        // Parse markdown table or tab-separated
+        const parts = line.includes("|") 
+          ? line.split("|").map(p => p.trim()).filter(Boolean)
+          : line.split("\t").map(p => p.trim()).filter(Boolean);
+
+        if (parts.length >= 2) {
+          let desc = parts[0].replace(/\*\*/g, "").trim();
+          let priceStr = parts[parts.length - 1].replace(/[^0-9.]/g, "");
+          const price = parseFloat(priceStr);
+
+          if (desc && !isNaN(price)) {
+            newItems.push({
+              id: crypto.randomUUID(),
+              description: desc,
+              quantity: 1,
+              unitPrice: price,
+              total: price
+            });
+          }
+        }
+      }
+
+      if (newItems.length > 0) {
+        e.preventDefault();
+        onReplaceItems(newItems);
+      }
+    }
+  };
+
   return (
-    <section>
-      <h2>Items</h2>
+    <section onPaste={handlePaste}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2>Items</h2>
+        <span style={{ fontSize: "12px", color: "#666", fontStyle: "italic" }}>
+          💡 Tip: You can paste a Markdown table or Excel rows here to auto-fill items.
+        </span>
+      </div>
       
       {/* Desktop Table View */}
       <div className="desktop-items">
