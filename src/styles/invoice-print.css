@@ -21,7 +21,7 @@
   }
 
   /* Let's reset the specific Tailwind layout classes used in AppLayout and page.tsx during print */
-  .p-4, .sm\:p-6, .sm\:py-4, .sm\:pl-64, .md\:gap-8, .max-w-\[1400px\], .mx-auto, .flex-col, .gap-8, .min-h-screen {
+  .p-4, .sm\:p-6, .sm\:py-4, .sm\:pl-64, .md\:gap-8, .max-w-\[1400px\], .mx-auto, .flex-col, .gap-8, .min-h-screen, .pb-20, .md\:pb-4 {
     padding: 0 !important;
     margin: 0 !important;
     max-width: none !important;

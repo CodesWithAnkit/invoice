@@ -1,7 +1,7 @@
 # Progress Tracker: Invoice System
 
 ## Current Phase
-- **Phase 1**: Establishing Architectural Context & Foundation Setup
+- **Phase 2**: Northstar Redesign — see `context/redesign_implementation_plan.md`. Phase 0 (design tokens/fonts) and Phase 1 (app shell + Dashboard Overview) of that plan are complete.
 
 ---
 
@@ -9,6 +9,15 @@
 - `[x]` Initialize Six-File Context System to enforce structural discipline and prevent AI drift.
 - `[ ]` Integrate Gemini AI parser on the frontend to allow dragging and dropping invoice PDFs for auto-filling inputs.
 - `[ ]` Connect dashboard views (`invoices`, `customers`, `products`) to dynamically query Supabase tables instead of static tables.
+- `[x]` Redesign Phase 0: Northstar color tokens (`globals.css`, `tailwind.config.ts`) + Geist Sans/Mono fonts wired in without altering the print/PDF font stack.
+- `[x]` Redesign Phase 1: Sidebar/TopNavbar rebuilt to Northstar shell (Primary Operating Register + static/disabled Automated Modules), mobile bottom tab nav added.
+- `[x]` Redesign Phase 2: `/dashboard/overview` built — fully static/mock KPI cards, inline-SVG trend chart, resolution status, recent invoices list.
+- `[x]` Redesign Phase 3: Invoices list reskin (Supabase logic untouched; status is a placeholder derived from `pdf_url` until a real lifecycle field exists).
+- `[x]` Redesign Phase 4: Invoice Detail reskin (Issuer/Client profile cards, itemised table, totals); Audit Log panel derived from real timestamps, not fabricated events.
+- `[x]` Redesign Phase 5: `/dashboard/customers` + `/dashboard/customers/[id]` — fully static/mock (a real `customers` Supabase table exists but isn't wired up yet).
+- `[x]` Redesign Phase 6: `/dashboard/products` — fully static/mock (`/api/products` exists server-side but isn't wired up yet).
+- `[x]` Redesign Phase 7: `/dashboard/settings` — sub-nav shell; only Visual Appearance is real (wired to `next-themes`), other sections are static placeholders.
+- Verified via Playwright screenshots (light + dark) that the redesign matches the reference boards, and that print-media output of the invoice PDF template is pixel-identical to pre-redesign (font/layout isolated by design).
 
 ---
 

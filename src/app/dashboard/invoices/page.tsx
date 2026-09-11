@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/../lib/supabase";
 import { format } from "date-fns";
 import Link from "next/link";
-import { Plus, Search, FileText } from "lucide-react";
+import { Plus, Search, FileText, SlidersHorizontal, Download } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,10 +24,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { PageHeader } from "@/components/PageHeader";
 import { EmptyState } from "@/components/EmptyState";
 import { InvoiceActionsMenu } from "@/components/dashboard/InvoiceActionsMenu";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 export default function InvoiceDashboard() {
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -83,32 +83,24 @@ export default function InvoiceDashboard() {
     }
   };
 
+  // No lifecycle/status column exists in the schema yet — derive a simple,
+  // real-data-backed placeholder (see context/redesign_implementation_plan.md
+  // Phase 3) rather than inventing a fake status field.
+  const statusForInvoice = (invoice: any) => (invoice.pdf_url ? "RECONCILED" : "DRAFT");
+
   return (
     <div className="w-full">
-      <PageHeader
-        title="Invoice Management"
-        description="Manage, search, and organize your invoices."
-        action={
-          <Button asChild>
-            <Link href="/">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Invoice
-            </Link>
-          </Button>
-        }
-      />
-
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search customer or invoice #..."
+            placeholder="Ref, customer, invoice #..."
             className="pl-8 bg-background"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="flex gap-4 sm:w-auto w-full">
+        <div className="flex flex-wrap gap-3">
           <Select value={filterType} onValueChange={setFilterType}>
             <SelectTrigger className="w-35 bg-background">
               <SelectValue placeholder="All Types" />
@@ -132,34 +124,56 @@ export default function InvoiceDashboard() {
               <SelectItem value="lowest">Lowest Amount</SelectItem>
             </SelectContent>
           </Select>
+
+          <Button
+            variant="outline"
+            className="bg-background"
+            onClick={() => toast.info("Advanced filters are coming soon.")}
+          >
+            <SlidersHorizontal className="mr-2 h-4 w-4" />
+            Filters
+          </Button>
+          <Button
+            variant="outline"
+            className="bg-background"
+            onClick={() => toast.info("Export is coming soon.")}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Export list
+          </Button>
+          <Button asChild>
+            <Link href="/">
+              <Plus className="mr-2 h-4 w-4" />
+              Create Invoice
+            </Link>
+          </Button>
         </div>
       </div>
 
-      <div className="rounded-md border bg-card text-card-foreground shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <Table>
           <TableHeader className="bg-muted/50">
             <TableRow>
-              <TableHead className="w-30">Invoice #</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead className="w-30 text-right">Amount</TableHead>
+              <TableHead>Client Ref / ID</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-right">Date</TableHead>
-              <TableHead className="w-17.5 text-right">Actions</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+              <TableHead className="text-right w-35">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                   Loading invoices...
                 </TableCell>
               </TableRow>
             ) : invoices.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-64 text-center p-0">
+                <TableCell colSpan={5} className="h-64 text-center p-0">
                   <EmptyState
-                    title="No invoices found"
-                    description="You don't have any invoices matching your current filters."
+                    title="No matching active invoices"
+                    description="Adjust your search filters or create a new invoice."
                     icon={<FileText className="h-6 w-6" />}
                     action={
                       <Button asChild variant="outline" className="mt-4">
@@ -172,24 +186,24 @@ export default function InvoiceDashboard() {
             ) : (
               invoices.map((invoice) => (
                 <TableRow key={invoice.id} className="group transition-colors hover:bg-muted/50">
-                  <TableCell className="font-medium">{invoice.invoice_number}</TableCell>
-                  <TableCell>{invoice.customer_name}</TableCell>
                   <TableCell>
-                    <Badge variant="secondary" className="font-normal">
-                      {invoice.invoice_type || "Standard"}
-                    </Badge>
+                    <p className="font-semibold text-foreground">{invoice.customer_name}</p>
+                    <p className="text-xs font-mono text-muted-foreground">{invoice.invoice_number}</p>
                   </TableCell>
-                  <TableCell className="text-right font-medium">
-                    ₹{invoice.total?.toLocaleString() || "0.00"}
+                  <TableCell>
+                    <StatusBadge status={statusForInvoice(invoice)} />
                   </TableCell>
                   <TableCell className="text-right text-muted-foreground">
                     {format(new Date(invoice.created_at), "MMM dd, yyyy")}
                   </TableCell>
-                  <TableCell>
-                    <InvoiceActionsMenu 
-                      invoiceId={invoice.id} 
-                      pdfUrl={invoice.pdf_url} 
-                      onDelete={handleDelete} 
+                  <TableCell className="text-right font-mono font-semibold">
+                    ₹{invoice.total?.toLocaleString() || "0.00"}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <InvoiceActionsMenu
+                      invoiceId={invoice.id}
+                      pdfUrl={invoice.pdf_url}
+                      onDelete={handleDelete}
                     />
                   </TableCell>
                 </TableRow>
