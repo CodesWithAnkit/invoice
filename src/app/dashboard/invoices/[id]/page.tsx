@@ -112,7 +112,7 @@ export default function InvoiceDetail() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <div className="xl:col-span-2 space-y-4 min-w-0">
-          <div className="no-print sticky top-14 lg:top-15 z-30 rounded-xl border border-border bg-card p-5 shadow-sm">
+          <div className="no-print sticky top-14 sm:top-18 lg:top-19 z-30 rounded-xl border border-border bg-card p-5 shadow-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3 flex-wrap">
                 <h1 className="text-xl font-bold text-foreground">{invoice.customer_name}</h1>

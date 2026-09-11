@@ -5,12 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/../lib/supabase";
 import { useInvoice } from "@/hooks/useInvoice";
 
-import InvoiceEditor from "@/components/invoice/InvoiceEditor";
-import InvoiceToolbar from "@/components/invoice/InvoiceToolbar";
 import InvoicePrintLayout from "@/components/invoice/InvoicePrintLayout";
 import InvoicePreviewModal from "@/components/invoice/InvoicePreviewModal";
-import InvoiceLiveSummary from "@/components/invoice/InvoiceLiveSummary";
-import { PageHeader } from "@/components/PageHeader";
+import InvoiceWorkspaceShell from "@/components/invoice/InvoiceWorkspaceShell";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -112,22 +109,11 @@ export default function CopyInvoicePage() {
     <div className="w-full">
       <InvoicePrintLayout />
 
-      <div className="no-print sticky top-14 lg:top-15 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 bg-background/95 backdrop-blur border-b border-border py-4 [&>div]:mb-0">
-        <PageHeader
-          title="Duplicate Invoice"
-          description="A new copy of the invoice. Change details as needed and save."
-          action={<InvoiceToolbar onOpenPreview={() => setIsPreviewOpen(true)} />}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start pt-4">
-        <div className="xl:col-span-2 no-print min-w-0">
-          <InvoiceEditor />
-        </div>
-        <div className="xl:sticky xl:top-40">
-          <InvoiceLiveSummary />
-        </div>
-      </div>
+      <InvoiceWorkspaceShell
+        title="Duplicate Invoice"
+        description="A new copy of the invoice. Change details as needed and save."
+        onOpenPreview={() => setIsPreviewOpen(true)}
+      />
 
       <InvoicePreviewModal
         isOpen={isPreviewOpen}
