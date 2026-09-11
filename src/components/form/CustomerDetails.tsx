@@ -56,7 +56,7 @@ export default function CustomerDetails({
         <div className="flex flex-col gap-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2 relative">
-              <label className="text-sm font-medium leading-none flex justify-between items-center">
+              <label htmlFor="companyName" className="text-sm font-medium leading-none flex justify-between items-center">
                 <span>Company Name</span>
                 {fields?.companyName && (
                   <button onClick={() => onUpdate("customer.fields.companyName", "")} className="text-muted-foreground hover:text-destructive">
@@ -65,13 +65,14 @@ export default function CustomerDetails({
                 )}
               </label>
               <Input
+                id="companyName"
                 type="text"
                 value={fields?.companyName || ""}
                 onChange={(e) => onUpdate("customer.fields.companyName", e.target.value)}
               />
             </div>
             <div className="space-y-2 relative">
-              <label className="text-sm font-medium leading-none flex justify-between items-center">
+              <label htmlFor="customerName" className="text-sm font-medium leading-none flex justify-between items-center">
                 <span>Customer Name</span>
                 {name && (
                   <button onClick={() => onUpdate("customer.name", "")} className="text-muted-foreground hover:text-destructive">
@@ -80,6 +81,7 @@ export default function CustomerDetails({
                 )}
               </label>
               <Input
+                id="customerName"
                 type="text"
                 value={name}
                 onChange={(e) => onUpdate("customer.name", e.target.value)}
@@ -89,7 +91,7 @@ export default function CustomerDetails({
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2 relative">
-              <label className="text-sm font-medium leading-none flex justify-between items-center">
+              <label htmlFor="mobile" className="text-sm font-medium leading-none flex justify-between items-center">
                 <span>Mobile</span>
                 {fields?.phone && (
                   <button onClick={() => onUpdate("customer.fields.phone", "")} className="text-muted-foreground hover:text-destructive">
@@ -98,13 +100,14 @@ export default function CustomerDetails({
                 )}
               </label>
               <Input
+                id="mobile"
                 type="text"
                 value={fields?.phone || ""}
                 onChange={(e) => onUpdate("customer.fields.phone", e.target.value)}
               />
             </div>
             <div className="space-y-2 relative">
-              <label className="text-sm font-medium leading-none flex justify-between items-center">
+              <label htmlFor="aadhaar" className="text-sm font-medium leading-none flex justify-between items-center">
                 <span>Aadhaar</span>
                 {fields?.aadhaar && (
                   <button onClick={() => onUpdate("customer.fields.aadhaar", "")} className="text-muted-foreground hover:text-destructive">
@@ -113,6 +116,7 @@ export default function CustomerDetails({
                 )}
               </label>
               <Input
+                id="aadhaar"
                 type="text"
                 value={fields?.aadhaar || ""}
                 onChange={(e) => onUpdate("customer.fields.aadhaar", e.target.value)}
@@ -121,7 +125,7 @@ export default function CustomerDetails({
           </div>
 
           <div className="space-y-2 relative">
-            <label className="text-sm font-medium leading-none flex justify-between items-center">
+            <label htmlFor="customerAddress" className="text-sm font-medium leading-none flex justify-between items-center">
               <span>Customer Address</span>
               {address && (
                 <button onClick={() => onUpdate("customer.address", "")} className="text-muted-foreground hover:text-destructive">
@@ -130,6 +134,7 @@ export default function CustomerDetails({
               )}
             </label>
             <textarea
+              id="customerAddress"
               className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-y"
               rows={3}
               value={address}

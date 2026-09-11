@@ -28,7 +28,7 @@ export default function BankDetails({
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2 relative">
-            <label className="text-sm font-medium leading-none flex justify-between items-center">
+            <label htmlFor="bankName" className="text-sm font-medium leading-none flex justify-between items-center">
               <span>Bank Name</span>
               {bankName && (
                 <button onClick={() => onUpdate("bank.bankName", "")} className="text-muted-foreground hover:text-destructive">
@@ -37,13 +37,14 @@ export default function BankDetails({
               )}
             </label>
             <Input
+              id="bankName"
               type="text"
               value={bankName}
               onChange={(e) => onUpdate("bank.bankName", e.target.value)}
             />
           </div>
           <div className="space-y-2 relative">
-            <label className="text-sm font-medium leading-none flex justify-between items-center">
+            <label htmlFor="accountName" className="text-sm font-medium leading-none flex justify-between items-center">
               <span>Account Name</span>
               {accountName && (
                 <button onClick={() => onUpdate("bank.accountName", "")} className="text-muted-foreground hover:text-destructive">
@@ -52,13 +53,14 @@ export default function BankDetails({
               )}
             </label>
             <Input
+              id="accountName"
               type="text"
               value={accountName}
               onChange={(e) => onUpdate("bank.accountName", e.target.value)}
             />
           </div>
           <div className="space-y-2 relative">
-            <label className="text-sm font-medium leading-none flex justify-between items-center">
+            <label htmlFor="accountNumber" className="text-sm font-medium leading-none flex justify-between items-center">
               <span>Account Number</span>
               {accountNumber && (
                 <button onClick={() => onUpdate("bank.accountNumber", "")} className="text-muted-foreground hover:text-destructive">
@@ -67,13 +69,14 @@ export default function BankDetails({
               )}
             </label>
             <Input
+              id="accountNumber"
               type="text"
               value={accountNumber}
               onChange={(e) => onUpdate("bank.accountNumber", e.target.value)}
             />
           </div>
           <div className="space-y-2 relative">
-            <label className="text-sm font-medium leading-none flex justify-between items-center">
+            <label htmlFor="ifsc" className="text-sm font-medium leading-none flex justify-between items-center">
               <span>IFSC Code</span>
               {ifsc && (
                 <button onClick={() => onUpdate("bank.ifsc", "")} className="text-muted-foreground hover:text-destructive">
@@ -82,6 +85,7 @@ export default function BankDetails({
               )}
             </label>
             <Input
+              id="ifsc"
               type="text"
               value={ifsc}
               onChange={(e) => onUpdate("bank.ifsc", e.target.value)}

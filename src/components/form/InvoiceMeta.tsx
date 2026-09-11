@@ -26,7 +26,7 @@ export default function InvoiceMeta({
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2 relative">
-            <label className="text-sm font-medium leading-none flex justify-between items-center">
+            <label htmlFor="invoiceNumber" className="text-sm font-medium leading-none flex justify-between items-center">
               <span>Invoice Number</span>
               {invoiceNumber && (
                 <button onClick={() => onUpdate("meta.invoiceNumber", "")} className="text-muted-foreground hover:text-destructive">
@@ -35,13 +35,14 @@ export default function InvoiceMeta({
               )}
             </label>
             <Input
+              id="invoiceNumber"
               type="text"
               value={invoiceNumber}
               onChange={(e) => onUpdate("meta.invoiceNumber", e.target.value)}
             />
           </div>
           <div className="space-y-2 relative">
-            <label className="text-sm font-medium leading-none flex justify-between items-center">
+            <label htmlFor="date" className="text-sm font-medium leading-none flex justify-between items-center">
               <span>Date</span>
               {date && (
                 <button onClick={() => onUpdate("meta.date", "")} className="text-muted-foreground hover:text-destructive">
@@ -50,16 +51,18 @@ export default function InvoiceMeta({
               )}
             </label>
             <Input
+              id="date"
               type="date"
               value={date}
               onChange={(e) => onUpdate("meta.date", e.target.value)}
             />
           </div>
           <div className="space-y-2 relative">
-            <label className="text-sm font-medium leading-none flex justify-between items-center">
+            <label htmlFor="type" className="text-sm font-medium leading-none flex justify-between items-center">
               <span>Type</span>
             </label>
             <select
+              id="type"
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               value={type}
               onChange={(e) => onUpdate("meta.type", e.target.value)}

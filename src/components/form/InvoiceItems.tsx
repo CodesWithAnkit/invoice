@@ -119,6 +119,7 @@ export default function InvoiceItems({
                 <TableCell>
                   <Input
                     type="number"
+                    placeholder="Qty"
                     value={item.quantity}
                     onChange={(e) => handleNumberChange(index, "quantity", e.target.value)}
                   />
@@ -126,6 +127,7 @@ export default function InvoiceItems({
                 <TableCell>
                   <Input
                     type="number"
+                    placeholder="Price"
                     value={item.unitPrice}
                     onChange={(e) => handleNumberChange(index, "unitPrice", e.target.value)}
                   />
@@ -169,6 +171,7 @@ export default function InvoiceItems({
                   <label className="text-xs text-muted-foreground">Qty</label>
                   <Input
                     type="number"
+                    placeholder="Qty"
                     value={item.quantity}
                     onChange={(e) => handleNumberChange(index, "quantity", e.target.value)}
                   />
@@ -177,6 +180,7 @@ export default function InvoiceItems({
                   <label className="text-xs text-muted-foreground">Price</label>
                   <Input
                     type="number"
+                    placeholder="Price"
                     value={item.unitPrice}
                     onChange={(e) => handleNumberChange(index, "unitPrice", e.target.value)}
                   />
