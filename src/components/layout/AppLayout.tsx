@@ -1,9 +1,24 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { Sidebar } from "./Sidebar";
 import { TopNavbar } from "./TopNavbar";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { Toaster } from "sonner";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isLoginRoute = pathname === "/login";
+
+  if (isLoginRoute) {
+    return (
+      <>
+        {children}
+        <Toaster position="top-right" richColors />
+      </>
+    );
+  }
+
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar />
