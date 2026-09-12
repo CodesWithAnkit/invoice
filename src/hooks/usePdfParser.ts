@@ -4,8 +4,7 @@ import { toast } from "sonner";
 export function usePdfParser(setInvoiceField: (field: string, value: any) => void, recalculateTotals: () => void) {
   const [loading, setLoading] = useState(false);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFile = async (file: File | undefined | null) => {
     if (!file) return;
 
     try {
@@ -28,6 +27,8 @@ export function usePdfParser(setInvoiceField: (field: string, value: any) => voi
       if (data && !data.error) {
         mapPdfDataToState(data);
         toast.success(`Extracted ${data.items?.length || 0} items and structured fields from PDF!`);
+      } else {
+         toast.error(data.error || "Failed to parse PDF data.");
       }
     } catch (err) {
       console.error(err);
@@ -35,6 +36,10 @@ export function usePdfParser(setInvoiceField: (field: string, value: any) => voi
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFile(e.target.files?.[0]);
   };
 
   const mapPdfDataToState = (data: any) => {
@@ -74,5 +79,5 @@ export function usePdfParser(setInvoiceField: (field: string, value: any) => voi
     }
   };
 
-  return { loading, handleFileUpload };
+  return { loading, handleFileUpload, handleFile };
 }

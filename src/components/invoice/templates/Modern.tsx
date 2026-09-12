@@ -6,25 +6,25 @@ import { formatINR } from "@/utils/formatCurrency";
 import { getDocumentTitle } from "@/utils/documentType";
 
 // ── Design Tokens ─────────────────────────────────────────────────────────────
-const ACCENT      = "#1b3a6b";
+const ACCENT = "#1b3a6b";
 const ACCENT_LITE = "#edf0f7";
-const BORDER      = "#d4d8e2";
-const MUTED       = "#6b7280";
-const DARK        = "#111827";
-const RED         = "#b30000";
+const BORDER = "#d4d8e2";
+const MUTED = "#6b7280";
+const DARK = "#111827";
+const RED = "#b30000";
 
 export default function ModernTemplate() {
   const { invoice } = useInvoice();
   const { meta, customer, items, totals, bank, amountWords, fields } = invoice;
 
   const isProforma = meta.type === "proforma";
-  const taxHalf    = (invoice.taxPercent ?? 18) / 2;
+  const taxHalf = (invoice.taxPercent ?? 18) / 2;
 
-  const gt         = totals.grandTotal;
-  const pmAdvance  = Math.round(gt * 0.30);
-  const pmSecond   = Math.round(gt * 0.40);
+  const gt = totals.grandTotal;
+  const pmAdvance = Math.round(gt * 0.30);
+  const pmSecond = Math.round(gt * 0.40);
   const pmDispatch = Math.round(gt * 0.20);
-  const pmInstall  = gt - pmAdvance - pmSecond - pmDispatch;
+  const pmInstall = gt - pmAdvance - pmSecond - pmDispatch;
 
   const sortedItems = [...items].sort((a, b) => b.total - a.total);
 
@@ -46,6 +46,15 @@ export default function ModernTemplate() {
           color: DARK,
           backgroundColor: "#fff",
           lineHeight: 1.4,
+          // Proforma's footer (payment terms + delivery/installation block)
+          // is taller than Invoice/Quote's; at the shared 0.85 zoom it can
+          // overflow to a 2nd page once a signature image + 15 items are
+          // present (confirmed in a real browser print dialog, not just
+          // headless rendering). Scale it down a bit more — scoped to this
+          // template+type only via inline style (overrides the shared
+          // `.invoice-print-page { zoom }` rule) — so Invoice/Quote here
+          // and Classic's own handling are unaffected.
+          ...(isProforma ? { zoom: 0.84 } : {}),
         }}
       >
 

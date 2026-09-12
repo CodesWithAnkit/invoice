@@ -13,15 +13,29 @@ export default function ClassicTemplate() {
   const isProforma = meta.type === "proforma";
   const taxHalf = (invoice.taxPercent ?? 18) / 2;
 
-  const gt         = totals.grandTotal;
-  const pmAdvance  = Math.round(gt * 0.30);
-  const pmSecond   = Math.round(gt * 0.40);
+  const gt = totals.grandTotal;
+  const pmAdvance = Math.round(gt * 0.30);
+  const pmSecond = Math.round(gt * 0.40);
   const pmDispatch = Math.round(gt * 0.20);
-  const pmInstall  = gt - pmAdvance - pmSecond - pmDispatch;
+  const pmInstall = gt - pmAdvance - pmSecond - pmDispatch;
 
   return (
     <div id="invoice-print-root">
-      <div className="invoice-print-page" style={{ fontFamily: "Arial, sans-serif", color: "#222" }}>
+      <div
+        className="invoice-print-page"
+        style={{
+          fontFamily: "Arial, sans-serif",
+          color: "#222",
+          // Proforma's footer (payment terms + delivery/installation block)
+          // is taller than Invoice/Quote's; at the shared 0.85 zoom it can
+          // overflow to a 2nd page once a signature image + 15 items are
+          // present. Scale it down a bit more so it reliably stays on one
+          // page — scoped to this template+type only via inline style
+          // (overrides the shared `.invoice-print-page { zoom }` rule),
+          // so Modern and Classic Invoice/Quote are unaffected.
+          ...(isProforma ? { zoom: 0.85 } : {}),
+        }}
+      >
 
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
@@ -164,7 +178,7 @@ export default function ClassicTemplate() {
         </div>
 
         {/* Footer */}
-        <div className="invoice-footer" style={{ marginTop: "12px" }}>
+        <div className="invoice-footer" style={{ marginTop: isProforma ? "6px" : "12px" }}>
 
           {/* NON-PROFORMA footer */}
           {!isProforma && (
@@ -215,29 +229,29 @@ export default function ClassicTemplate() {
           {/* PROFORMA footer */}
           {isProforma && (
             <>
-              <div style={{ fontWeight: "bold", fontSize: "0.72rem", textTransform: "uppercase", color: "#444", borderBottom: "1px solid #ccc", paddingBottom: "3px", marginBottom: "7px" }}>
+              <div style={{ fontWeight: "bold", fontSize: "0.66rem", textTransform: "uppercase", color: "#444", borderBottom: "1px solid #ccc", paddingBottom: "1px", marginBottom: "2px" }}>
                 Terms &amp; Conditions
               </div>
               <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ border: "1px solid #d0d0d0", borderRadius: "4px", padding: "8px 10px", marginBottom: "6px", fontSize: "0.7rem" }}>
-                    <div style={{ fontWeight: "bold", textTransform: "uppercase", color: "#444", marginBottom: "5px", fontSize: "0.68rem" }}>Payment Terms</div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: "2px 10px", fontSize: "0.67rem" }}>
+                  <div style={{ border: "1px solid #d0d0d0", borderRadius: "4px", padding: "4px 6px", marginBottom: "2px", fontSize: "0.61rem" }}>
+                    <div style={{ fontWeight: "bold", textTransform: "uppercase", color: "#444", marginBottom: "3px", fontSize: "0.64rem" }}>Payment Terms</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: "0px 8px", fontSize: "0.6rem" }}>
                       <span>Advance</span><span style={{ color: "#888" }}>30%</span><span style={{ fontFamily: "monospace", textAlign: "right" }}>{formatINR(pmAdvance)}</span>
                       <span>Second Payment</span><span style={{ color: "#888" }}>40%</span><span style={{ fontFamily: "monospace", textAlign: "right" }}>{formatINR(pmSecond)}</span>
                       <span>Before Dispatch</span><span style={{ color: "#888" }}>20%</span><span style={{ fontFamily: "monospace", textAlign: "right" }}>{formatINR(pmDispatch)}</span>
                       <span>After Installation/Commissioning</span><span style={{ color: "#888" }}>10%</span><span style={{ fontFamily: "monospace", textAlign: "right" }}>{formatINR(pmInstall)}</span>
                     </div>
                     {gt > 0 && (
-                      <div style={{ borderTop: "1px solid #ccc", marginTop: "5px", paddingTop: "4px", display: "flex", justifyContent: "space-between", fontWeight: "bold", fontSize: "0.67rem" }}>
+                      <div style={{ borderTop: "1px solid #ccc", marginTop: "3px", paddingTop: "2px", display: "flex", justifyContent: "space-between", fontWeight: "bold", fontSize: "0.62rem" }}>
                         <span>Total</span><span style={{ fontFamily: "monospace" }}>{formatINR(gt)}</span>
                       </div>
                     )}
                   </div>
                   {(bank.bankName || bank.accountName || bank.accountNumber || bank.ifsc) && (
-                    <div style={{ border: "1px solid #d0d0d0", borderRadius: "4px", padding: "8px 10px", fontSize: "0.7rem" }}>
-                      <div style={{ fontWeight: "bold", textTransform: "uppercase", color: "#444", marginBottom: "5px", fontSize: "0.68rem" }}>Bank Details</div>
-                      <div style={{ display: "grid", gridTemplateColumns: "65px 1fr", gap: "2px 8px", fontSize: "0.67rem" }}>
+                    <div style={{ border: "1px solid #d0d0d0", borderRadius: "4px", padding: "4px 6px", fontSize: "0.63rem" }}>
+                      <div style={{ fontWeight: "bold", textTransform: "uppercase", color: "#444", marginBottom: "3px", fontSize: "0.64rem" }}>Bank Details</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "65px 1fr", gap: "0px 8px", fontSize: "0.6rem" }}>
                         {bank.bankName && <><span style={{ color: "#666" }}>Bank:</span><b>{bank.bankName}</b></>}
                         {bank.accountName && <><span style={{ color: "#666" }}>A/C Name:</span><b>{bank.accountName}</b></>}
                         {bank.accountNumber && <><span style={{ color: "#666" }}>A/C No:</span><b>{bank.accountNumber}</b></>}
@@ -253,8 +267,8 @@ export default function ClassicTemplate() {
                   )}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ border: "1px solid #d0d0d0", borderRadius: "4px", padding: "8px 10px", fontSize: "0.7rem" }}>
-                    <div style={{ fontWeight: "bold", textTransform: "uppercase", color: "#444", marginBottom: "5px", fontSize: "0.68rem" }}>Delivery &amp; Installation</div>
+                  <div style={{ border: "1px solid #d0d0d0", borderRadius: "4px", padding: "4px 6px", fontSize: "0.63rem" }}>
+                    <div style={{ fontWeight: "bold", textTransform: "uppercase", color: "#444", marginBottom: "3px", fontSize: "0.64rem" }}>Delivery &amp; Installation</div>
                     {([
                       { label: "Delivery:", text: "3–6 weeks from receipt of advance and order confirmation." },
                       { label: "Installation:", text: "Included, subject to site readiness." },
@@ -263,7 +277,7 @@ export default function ClassicTemplate() {
                       { label: "Transportation:", text: "As mutually agreed between buyer and seller." },
                       { label: "Civil & Electrical Work:", text: "Beyond the supplied panel and site development is not included unless otherwise agreed." },
                     ] as { label: string; text: string }[]).map(({ label, text }, i) => (
-                      <div key={i} style={{ display: "flex", gap: "5px", marginBottom: "3px", fontSize: "0.67rem", alignItems: "flex-start" }}>
+                      <div key={i} style={{ display: "flex", gap: "4px", marginBottom: "0px", fontSize: "0.6rem", alignItems: "flex-start" }}>
                         <span style={{ flexShrink: 0, fontWeight: "bold", color: "#444", minWidth: "12px" }}>{i + 1}.</span>
                         <span><b>{label}</b> {text}</span>
                       </div>
@@ -271,20 +285,20 @@ export default function ClassicTemplate() {
                   </div>
                 </div>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: "10px" }}>
-                <div style={{ fontStyle: "italic", color: "#b30000", fontWeight: "bold", fontSize: "0.82rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: "2px" }}>
+                <div style={{ fontStyle: "italic", color: "#b30000", fontWeight: "bold", fontSize: "0.74rem" }}>
                   Thank you for choosing {invoice.businessName || "us"}!
                 </div>
                 <div style={{ textAlign: "center" }}>
                   {invoice.businessName && (
-                    <div style={{ fontWeight: "bold", fontSize: "0.8rem", marginBottom: invoice.signature ? "4px" : "26px" }}>
+                    <div style={{ fontWeight: "bold", fontSize: "0.72rem", marginBottom: invoice.signature ? "2px" : "1px" }}>
                       For {invoice.businessName}
                     </div>
                   )}
                   {invoice.signature && (
-                    <img src={invoice.signature} alt="Signature" style={{ maxHeight: "60px", maxWidth: "150px", objectFit: "contain", display: "block", margin: "0 auto 4px" }} />
+                    <img src={invoice.signature} alt="Signature" style={{ maxHeight: "32px", maxWidth: "110px", objectFit: "contain", display: "block", margin: "0 auto 2px" }} />
                   )}
-                  <div style={{ borderTop: "1.5px solid #333", paddingTop: "3px", fontSize: "0.7rem", fontWeight: "bold" }}>
+                  <div style={{ borderTop: "1.5px solid #333", paddingTop: "1px", fontSize: "0.64rem", fontWeight: "bold" }}>
                     Proprietor / Authorized Signatory
                   </div>
                 </div>
@@ -302,7 +316,7 @@ export default function ClassicTemplate() {
 
         {/* Proforma disclaimer */}
         {isProforma && (
-          <div style={{ textAlign: "center", marginTop: "8px", fontStyle: "italic", color: "#999", fontSize: "0.62rem" }}>
+          <div style={{ textAlign: "center", marginTop: "4px", fontStyle: "italic", color: "#999", fontSize: "0.6rem" }}>
             This document is a Proforma Invoice prepared from the uploaded Price Quote and is not a Tax Invoice.
           </div>
         )}

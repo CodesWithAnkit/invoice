@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Plus, Search, Users } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/../lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,15 +16,66 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/EmptyState";
-import { mockCustomers } from "@/lib/mockData";
+import { MockCustomer } from "@/lib/mockData";
 
-// Static/mock directory — a real `customers` table already exists in
-// Supabase (used when saving invoices), but this list isn't wired to it yet.
-// See context/redesign_implementation_plan.md Phase 5.
 export default function CustomersPage() {
   const [search, setSearch] = useState("");
+  const [customers, setCustomers] = useState<MockCustomer[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = mockCustomers.filter(
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [customersRes, invoicesRes] = await Promise.all([
+          supabase.from("customers").select("*"),
+          supabase.from("invoices").select("customer_id, total, pdf_url")
+        ]);
+
+        if (customersRes.error) throw customersRes.error;
+        if (invoicesRes.error) throw invoicesRes.error;
+
+        const customerStats = new Map<string, { count: number; outstanding: number; settled: number }>();
+        
+        invoicesRes.data.forEach((inv) => {
+          const stats = customerStats.get(inv.customer_id) || { count: 0, outstanding: 0, settled: 0 };
+          stats.count += 1;
+          if (inv.pdf_url) {
+            stats.settled += (inv.total || 0);
+          } else {
+            stats.outstanding += (inv.total || 0);
+          }
+          customerStats.set(inv.customer_id, stats);
+        });
+
+        const formatted: MockCustomer[] = customersRes.data.map(c => {
+          const stats = customerStats.get(c.id) || { count: 0, outstanding: 0, settled: 0 };
+          return {
+            id: c.id,
+            name: c.name || "Unknown",
+            email: c.phone || "No phone", // Reusing email field for phone since the UI uses it for subtext
+            ledgerCount: stats.count,
+            outstanding: stats.outstanding,
+            settledVolumeYtd: stats.settled,
+            lastEvent: "Active", // simplified
+            achTargetNode: "",
+            jurisdiction: "",
+            taxId: c.aadhaar || "",
+            ledgerHistory: []
+          };
+        });
+        
+        setCustomers(formatted);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load customers");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const filtered = customers.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.email.toLowerCase().includes(search.toLowerCase())

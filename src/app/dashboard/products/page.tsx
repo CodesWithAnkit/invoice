@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Search, Package } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -16,18 +16,46 @@ import {
 } from "@/components/ui/table";
 import { EmptyState } from "@/components/EmptyState";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { mockProducts } from "@/lib/mockData";
+import { MockProduct } from "@/lib/mockData";
 
 const tabs = ["All Items", "Physical", "Services", "Digital"] as const;
 
-// Static/mock catalog — /api/products already exists server-side and could
-// wire this page up later, but it's built static for now.
-// See context/redesign_implementation_plan.md Phase 6.
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState<(typeof tabs)[number]>("All Items");
+  const [products, setProducts] = useState<MockProduct[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = mockProducts.filter((p) => {
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const res = await fetch("/api/products");
+        if (!res.ok) throw new Error("Failed to fetch");
+        const json = await res.json();
+        
+        // Map database product fields to UI MockProduct interface if necessary
+        const fetchedProducts = (json.products || []).map((p: any) => ({
+          id: p.id || p.sku || Math.random().toString(),
+          name: p.name || "Unnamed Product",
+          sku: p.sku || "N/A",
+          category: p.category || "Physical",
+          taxRate: p.taxRate || "0%",
+          status: p.status || "ACTIVE",
+          price: p.price ? `$${p.price}` : "$0.00"
+        }));
+        
+        setProducts(fetchedProducts);
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to load products");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  const filtered = products.filter((p) => {
     const matchesTab =
       tab === "All Items" ||
       (tab === "Services" && p.category === "Service") ||
