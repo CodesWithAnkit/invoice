@@ -62,7 +62,7 @@
     background: white;
     /* Allow content to flow to page 2 if needed — do NOT use avoid here */
     page-break-after: auto;
-    zoom: 0.75;
+    zoom: 0.85;
     /* Scale down to fit all content on a single page */
     overflow: visible !important;
   }

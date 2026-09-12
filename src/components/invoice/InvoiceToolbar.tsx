@@ -2,6 +2,7 @@
 
 import { useInvoicePrint } from "@/hooks/useInvoicePrint";
 import { useInvoice } from "@/hooks/useInvoice";
+import { useInvoiceTemplate } from "@/hooks/useInvoiceTemplate";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -13,6 +14,7 @@ interface InvoiceToolbarProps {
 export default function InvoiceToolbar({ onOpenPreview }: InvoiceToolbarProps) {
   const { printInvoice } = useInvoicePrint();
   const { invoice, generateInvoice } = useInvoice();
+  const { template, changeTemplate } = useInvoiceTemplate();
   const [saving, setSaving] = useState(false);
 
   const handleSaveToDashboard = async () => {
@@ -77,7 +79,37 @@ export default function InvoiceToolbar({ onOpenPreview }: InvoiceToolbarProps) {
   };
 
   return (
-    <div className="no-print flex flex-wrap gap-2">
+    <div className="no-print flex flex-wrap gap-2 items-center">
+      {/* Template toggle pill */}
+      <div
+        style={{
+          display: "flex",
+          border: "1px solid #d1d5db",
+          borderRadius: "6px",
+          overflow: "hidden",
+          fontSize: "0.78rem",
+          fontWeight: 500,
+        }}
+      >
+        {(["classic", "modern"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => changeTemplate(t)}
+            style={{
+              padding: "5px 14px",
+              cursor: "pointer",
+              border: "none",
+              borderRight: t === "classic" ? "1px solid #d1d5db" : undefined,
+              backgroundColor: template === t ? "#1b3a6b" : "#fff",
+              color: template === t ? "#fff" : "#374151",
+              transition: "background 0.15s, color 0.15s",
+              textTransform: "capitalize",
+            }}
+          >
+            {t === "classic" ? "Classic" : "Modern"}
+          </button>
+        ))}
+      </div>
       <Button
         onClick={generateInvoice}
         variant="secondary"

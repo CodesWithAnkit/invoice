@@ -21,24 +21,24 @@ const TotalsSection = ({ totals, taxPercent, amountWords }: { totals: any, taxPe
         <tbody>
           <tr>
             <td style={{ padding: "4px 10px", textAlign: "left", borderBottom: "1px solid #333" }}>Sub Total</td>
-            <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #333", fontWeight: "600" }}>{formatINR(totals.subTotal)}</td>
+            <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #333", fontWeight: "600" }}>₹ {formatINR(totals.subTotal)}</td>
           </tr>
           {(totals.sgst > 0 || totals.cgst > 0) && (
             <>
               <tr>
                 <td style={{ padding: "4px 10px", textAlign: "left", borderBottom: "1px solid #333" }}>SGST ({(taxPercent ?? 18) / 2}%)</td>
-                <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #333" }}>{formatINR(totals.sgst)}</td>
+                <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #333" }}>₹ {formatINR(totals.sgst)}</td>
               </tr>
               <tr>
                 <td style={{ padding: "4px 10px", textAlign: "left", borderBottom: "1px solid #333" }}>CGST ({(taxPercent ?? 18) / 2}%)</td>
-                <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #333" }}>{formatINR(totals.cgst)}</td>
+                <td style={{ padding: "4px 10px", textAlign: "right", borderBottom: "1px solid #333" }}>₹ {formatINR(totals.cgst)}</td>
               </tr>
             </>
           )}
           <tr>
             <td style={{ padding: "8px 10px", fontWeight: "bold", textAlign: "left", fontSize: "1rem", whiteSpace: "nowrap" }}>Grand Total</td>
-            <td style={{ padding: "8px 10px", fontWeight: "bold", textAlign: "right", fontSize: "1.1rem", color: "#000" }}>
-              {formatINR(totals.grandTotal)}
+            <td style={{ padding: "8px 10px", fontWeight: "bold", textAlign: "right", fontSize: "1.1rem", color: "#b30000" }}>
+              ₹ {formatINR(totals.grandTotal)}
             </td>
           </tr>
         </tbody>
