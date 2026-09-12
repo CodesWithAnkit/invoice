@@ -7,6 +7,7 @@ import { KpiCard } from "@/components/dashboard/KpiCard";
 import { SparklineChart } from "@/components/dashboard/SparklineChart";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
+import { DummyDataBadge } from "@/components/ui/dummy-data-badge";
 import { mockRecentInvoices, mockRevenueTrend } from "@/lib/mockData";
 
 // NOTE: this entire page is static/mock data — there is no backend for
@@ -26,6 +27,8 @@ export default function OverviewPage() {
 
   return (
     <div className="w-full space-y-4">
+      <DummyDataBadge />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {kpis.map((kpi) => (
           <KpiCard key={kpi.label} {...kpi} />

@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { DummyDataBadge } from "@/components/ui/dummy-data-badge";
 import { mockCustomers } from "@/lib/mockData";
 
 // Static/mock detail view — see context/redesign_implementation_plan.md Phase 5.
@@ -40,6 +41,8 @@ export default function CustomerDetailPage() {
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Customers
       </Link>
+
+      <DummyDataBadge className="mb-4" />
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <div className="space-y-4">
