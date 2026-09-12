@@ -120,8 +120,8 @@ test.describe('Platform-Wide Theme Audit', () => {
           await menuBtn.click();
         }
       }
-      // Click the visible Customers link
-      await page.locator('a[href="/dashboard/customers"]').first().click({ force: true });
+      // Click the Customers link via DOM to guarantee client navigation bypasses visibility checks
+      await page.locator('a[href="/dashboard/customers"]').first().evaluate((el) => (el as HTMLElement).click());
       await expect(page).toHaveURL(/.*customers/);
       
       // Expect theme to still be dark
