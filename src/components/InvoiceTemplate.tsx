@@ -108,7 +108,7 @@ export default function InvoiceTemplate() {
                 </h1>
                 {meta.type === "proforma" && meta.invoiceNumber && (
                   <div style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#555", marginTop: "2px" }}>
-                    Based on Price Quote #{meta.invoiceNumber}
+                    This is not a tax invoice only proforma invoice
                   </div>
                 )}
               </div>
@@ -135,10 +135,10 @@ export default function InvoiceTemplate() {
                 {Object.entries(customer.fields || {})
                   .filter(([label]) => label.toLowerCase() !== "companyname")
                   .map(([label, value]) => (
-                  <div key={label} style={{ fontSize: "0.85rem", marginTop: "1px" }}>
-                    <span style={{ fontWeight: "bold", textTransform: "capitalize" }}>{label}:</span> {String(value)}
-                  </div>
-                ))}
+                    <div key={label} style={{ fontSize: "0.85rem", marginTop: "1px" }}>
+                      <span style={{ fontWeight: "bold", textTransform: "capitalize" }}>{label}:</span> {String(value)}
+                    </div>
+                  ))}
               </div>
               {meta.type !== "proforma" && (
                 <div style={{ flex: 0.8, paddingLeft: "12px", alignSelf: "center" }}>
@@ -165,19 +165,19 @@ export default function InvoiceTemplate() {
                 </tr>
               </thead>
               <tbody style={{ verticalAlign: "top" }}>
-                  {sortedItems.map((item, index) => (
-                    <tr key={item.id} style={{ minHeight: "24px" }}>
-                      <td style={{ ...cellStyle, borderBottom: "1px solid #333", fontSize: "0.85rem", padding: "4px 8px" }}>
-                        <div style={{ fontWeight: "bold" }}>{item.description}</div>
-                      </td>
-                      <td style={{ ...cellStyle, borderBottom: "1px solid #333", textAlign: "center", fontSize: "0.85rem", padding: "4px 8px" }}>{item.quantity}</td>
-                      <td style={{ ...cellStyle, borderBottom: "1px solid #333", textAlign: "right", fontSize: "0.85rem", padding: "4px 8px" }}>{formatINR(item.unitPrice)}</td>
-                      <td style={{ ...cellStyle, borderBottom: "1px solid #333", textAlign: "right", fontSize: "0.85rem", padding: "4px 8px", fontWeight: "500" }}>{formatINR(item.total)}</td>
-                    </tr>
-                  ))}
+                {sortedItems.map((item, index) => (
+                  <tr key={item.id} style={{ minHeight: "24px" }}>
+                    <td style={{ ...cellStyle, borderBottom: "1px solid #333", fontSize: "0.85rem", padding: "4px 8px" }}>
+                      <div style={{ fontWeight: "bold" }}>{item.description}</div>
+                    </td>
+                    <td style={{ ...cellStyle, borderBottom: "1px solid #333", textAlign: "center", fontSize: "0.85rem", padding: "4px 8px" }}>{item.quantity}</td>
+                    <td style={{ ...cellStyle, borderBottom: "1px solid #333", textAlign: "right", fontSize: "0.85rem", padding: "4px 8px" }}>{formatINR(item.unitPrice)}</td>
+                    <td style={{ ...cellStyle, borderBottom: "1px solid #333", textAlign: "right", fontSize: "0.85rem", padding: "4px 8px", fontWeight: "500" }}>{formatINR(item.total)}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
-            
+
             <TotalsSection totals={totals} taxPercent={invoice.taxPercent} amountWords={amountWords} />
           </div>
 
@@ -186,29 +186,42 @@ export default function InvoiceTemplate() {
 
           {/* 3. Footer Section (Pinned at Bottom) */}
           <div style={{ flexShrink: 0, marginTop: "10px" }}>
-             {/* Bank Details & Terms & Signature */}
+            {/* Bank Details & Terms & Signature */}
             <div style={{ borderTop: "2px solid #333", paddingTop: "10px", display: "flex", justifyContent: "space-between" }}>
               <div style={{ flex: 1.5, paddingRight: "30px" }}>
-                 {bank.bankName && (
-                   <div style={{ marginBottom: "10px", fontSize: "0.8rem" }}>
-                     <div style={{ fontWeight: "bold", marginBottom: "2px", fontSize: "0.85rem", color: "#333" }}>Bank Details</div>
-                     <div style={{ display: "grid", gridTemplateColumns: "100px auto", gap: "1px", color: "#444" }}>
-                       <div style={{ fontWeight: "600" }}>Bank Name:</div><div>{bank.bankName}</div>
-                       <div style={{ fontWeight: "600" }}>Account Name:</div><div>{bank.accountName}</div>
-                       <div style={{ fontWeight: "600" }}>Account No:</div><div>{bank.accountNumber}</div>
-                       <div style={{ fontWeight: "600" }}>IFSC Code:</div><div>{bank.ifsc}</div>
-                     </div>
-                   </div>
-                 )}
-                 {meta.type !== "proforma" && (
-                   <div style={{ fontSize: "0.75rem", color: "#555" }}>
-                    <div style={{ fontWeight: "bold", marginBottom: "2px", color: "#333" }}>Terms & Conditions:</div>
-                      <>
-                        <div>1.Customer will be billed after indicating acceptance of this quote.</div>
-                        <div>2. Payment will be due prior to delivery of service and goods.</div>
-                       </>
+                {bank.bankName && (
+                  <div style={{ marginBottom: "10px", fontSize: "0.8rem" }}>
+                    <div style={{ fontWeight: "bold", marginBottom: "2px", fontSize: "0.85rem", color: "#333" }}>Bank Details</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "100px auto", gap: "1px", color: "#444" }}>
+                      <div style={{ fontWeight: "600" }}>Bank Name:</div><div>{bank.bankName}</div>
+                      <div style={{ fontWeight: "600" }}>Account Name:</div><div>{bank.accountName}</div>
+                      <div style={{ fontWeight: "600" }}>Account No:</div><div>{bank.accountNumber}</div>
+                      <div style={{ fontWeight: "600" }}>IFSC Code:</div><div>{bank.ifsc}</div>
+                    </div>
                   </div>
-                 )}
+                )}
+                {meta.type !== "proforma" && (
+                  <div style={{ fontSize: "0.75rem", color: "#555" }}>
+                    <div style={{ fontWeight: "bold", marginBottom: "2px", color: "#333" }}>Terms & Conditions:</div>
+                    <>
+                      <div>1.Customer will be billed after indicating acceptance of this quote.</div>
+                      <div>2. Payment will be due prior to delivery of service and goods.</div>
+                    </>
+                  </div>
+                )}
+                {meta.type === "proforma" && (
+                  <div style={{ fontSize: "0.75rem", color: "#555" }}>
+                    <div style={{ fontWeight: "bold", marginBottom: "3px", color: "#333", textTransform: "uppercase", borderBottom: "1px solid #ccc", paddingBottom: "2px" }}>Terms & Conditions</div>
+                    <div style={{ fontWeight: "600", marginTop: "4px", marginBottom: "2px", color: "#333" }}>Delivery &amp; Installation</div>
+                    <div>• Delivery: Approximately 8–12 weeks from receipt of advance and confirmation of order.</div>
+                    <div>• Installation: Included, subject to site readiness.</div>
+                    <div>• Trial Run: Included.</div>
+                    <div>• Operator Training: Included.</div>
+                    <div>• Warranty: 12 months from installation, subject to manufacturer&apos;s terms.</div>
+                    <div>• Transportation: As mutually agreed between buyer and seller.</div>
+                    <div>• Civil work, electrical cabling beyond the supplied panel and other site-development work: As applicable.</div>
+                  </div>
+                )}
               </div>
 
               <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "center" }}>
@@ -224,7 +237,7 @@ export default function InvoiceTemplate() {
                     <div style={{ height: "80px", display: "none" }}></div>
                   )}
                   <div style={{ borderTop: "1px solid #333", paddingTop: "4px", fontSize: "0.8rem", fontWeight: "bold", marginTop: invoice.signature ? "0" : "10px" }}>
-                     Proprietor / Authorized Signatory
+                    Proprietor / Authorized Signatory
                   </div>
                 </div>
               </div>
