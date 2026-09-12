@@ -5,27 +5,27 @@
 @layer base {
   :root {
     /* Northstar design tokens — light register */
-    --background: 0 0% 98%;
-    --foreground: 240 6% 10%;
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 34%;
-    --popover: 0 0% 100%;
+    --background: 0 0% 98%;      /* bg-canvas: #FAFAFA */
+    --foreground: 240 6% 10%;    /* text-primary: #18181B */
+    --muted: 240 5% 96%;         /* bg-card: #F4F4F5 */
+    --muted-foreground: 240 5% 34%; /* text-secondary: #52525B */
+    --popover: 0 0% 100%;        /* bg-surface: #FFFFFF */
     --popover-foreground: 240 6% 10%;
-    --card: 0 0% 100%;
+    --card: 240 5% 96%;          /* bg-card: #F4F4F5 */
     --card-foreground: 240 6% 10%;
-    --border: 240 6% 90%;
+    --border: 240 6% 90%;        /* border-subtle: #E4E4E7 */
     --input: 240 6% 90%;
-    --primary: 243 75% 59%;
+    --primary: 243 75% 59%;      /* brand-accent: #4F46E5 */
     --primary-foreground: 0 0% 100%;
     --secondary: 240 5% 96%;
     --secondary-foreground: 240 6% 10%;
     --accent: 240 5% 96%;
     --accent-foreground: 240 6% 10%;
-    --destructive: 0 72% 51%;
+    --destructive: 0 72% 51%;    /* state-destructive: #DC2626 */
     --destructive-foreground: 0 0% 100%;
-    --success: 160 84% 39%;
+    --success: 161 94% 30%;      /* state-success: #059669 */
     --success-foreground: 0 0% 100%;
-    --warning: 32 95% 44%;
+    --warning: 32 95% 44%;       /* state-warning: #D97706 */
     --warning-foreground: 0 0% 100%;
     --ring: 243 75% 59%;
     --radius: 0.5rem;
@@ -33,27 +33,27 @@
 
   .dark {
     /* Northstar design tokens — dark register */
-    --background: 240 10% 4%;
-    --foreground: 0 0% 98%;
-    --muted: 240 6% 10%;
-    --muted-foreground: 240 5% 65%;
-    --popover: 240 8% 7%;
-    --popover-foreground: 0 0% 98%;
-    --card: 240 8% 7%;
-    --card-foreground: 0 0% 98%;
-    --border: 240 5% 16%;
-    --input: 240 5% 16%;
-    --primary: 239 84% 67%;
+    --background: 240 10% 4%;    /* bg-canvas: #09090B */
+    --foreground: 240 5% 96%;    /* text-primary: #F4F4F5 */
+    --muted: 240 6% 10%;         /* bg-card: #18181B */
+    --muted-foreground: 240 5% 65%; /* text-secondary: #A1A1AA */
+    --popover: 240 5% 7%;        /* bg-surface: #121214 */
+    --popover-foreground: 240 5% 96%;
+    --card: 240 6% 10%;          /* bg-card: #18181B */
+    --card-foreground: 240 5% 96%;
+    --border: 240 4% 16%;        /* border-subtle: #27272A */
+    --input: 240 4% 16%;
+    --primary: 239 84% 67%;      /* brand-accent: #6366F1 */
     --primary-foreground: 0 0% 100%;
     --secondary: 240 6% 10%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary-foreground: 240 5% 96%;
     --accent: 240 6% 10%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 84% 60%;
+    --accent-foreground: 240 5% 96%;
+    --destructive: 0 84% 60%;    /* state-destructive: #EF4444 */
     --destructive-foreground: 0 0% 100%;
-    --success: 158 64% 52%;
+    --success: 160 84% 39%;      /* state-success: #10B981 */
     --success-foreground: 0 0% 10%;
-    --warning: 38 92% 50%;
+    --warning: 38 92% 50%;       /* state-warning: #F59E0B */
     --warning-foreground: 0 0% 10%;
     --ring: 239 84% 67%;
   }

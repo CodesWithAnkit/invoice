@@ -83,7 +83,7 @@ export default function InvoiceTemplate() {
         <div
           ref={invoiceRef}
           id="invoice-root"
-          className="bg-white text-black font-sans leading-relaxed box-border overflow-hidden flex flex-col shadow-md print:shadow-none"
+          className="bg-background text-foreground print:bg-white print:text-black font-sans leading-relaxed box-border overflow-hidden flex flex-col shadow-md print:shadow-none"
           style={{
             minHeight: "297mm",
             padding: "10mm",

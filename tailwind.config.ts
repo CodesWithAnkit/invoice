@@ -69,7 +69,12 @@ const config = {
         mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
       },
       fontSize: {
-        display: ["3rem", { lineHeight: "1.1", fontWeight: "800" }],
+        display: ["3rem", { lineHeight: "1.1", fontWeight: "800" }], // 48px
+        h1: ["2rem", { lineHeight: "1.2", fontWeight: "700" }],      // 32px
+        h2: ["1.5rem", { lineHeight: "1.3", fontWeight: "600" }],    // 24px
+        h3: ["1.125rem", { lineHeight: "1.4", fontWeight: "600" }],  // 18px
+        body: ["0.875rem", { lineHeight: "1.5", fontWeight: "400" }],// 14px
+        "body-sm": ["0.75rem", { lineHeight: "1.5", fontWeight: "400" }], // 12px
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -27,8 +27,8 @@ export default function SignaturePad({ onSave, onClear, initialValue }: Signatur
   };
 
   return (
-    <div className="flex flex-col gap-2 w-fit">
-      <div className="border border-input rounded-md bg-white dark:bg-white">
+    <div className="flex flex-col gap-2 w-full">
+      <div className="border border-input rounded-md bg-white">
         <SignatureCanvas
           ref={sigRef}
           penColor="black"
