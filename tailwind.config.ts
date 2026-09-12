@@ -52,6 +52,24 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+      },
+      fontFamily: {
+        // NOTE: the default `sans` key is intentionally left untouched so the
+        // print/PDF invoice template (which uses the plain `font-sans` utility)
+        // keeps rendering with its original font stack, unaffected by the
+        // Geist UI font applied to the app shell via `body` in globals.css.
+        mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+      },
+      fontSize: {
+        display: ["3rem", { lineHeight: "1.1", fontWeight: "800" }],
       },
       borderRadius: {
         lg: "var(--radius)",

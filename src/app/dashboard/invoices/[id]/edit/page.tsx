@@ -5,11 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/../lib/supabase";
 import { useInvoice } from "@/hooks/useInvoice";
 
-import InvoiceEditor from "@/components/invoice/InvoiceEditor";
-import InvoiceToolbar from "@/components/invoice/InvoiceToolbar";
 import InvoicePrintLayout from "@/components/invoice/InvoicePrintLayout";
 import InvoicePreviewModal from "@/components/invoice/InvoicePreviewModal";
-import { PageHeader } from "@/components/PageHeader";
+import InvoiceWorkspaceShell from "@/components/invoice/InvoiceWorkspaceShell";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -108,14 +106,14 @@ export default function EditInvoicePage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto w-full">
+    <div className="w-full">
       <InvoicePrintLayout />
 
-      <InvoiceToolbar onOpenPreview={() => setIsPreviewOpen(true)} />
-
-      <div className="no-print">
-        <InvoiceEditor />
-      </div>
+      <InvoiceWorkspaceShell
+        title="Edit Invoice"
+        description="Update the invoice details and save your changes."
+        onOpenPreview={() => setIsPreviewOpen(true)}
+      />
 
       <InvoicePreviewModal
         isOpen={isPreviewOpen}

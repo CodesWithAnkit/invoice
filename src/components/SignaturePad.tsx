@@ -27,58 +27,41 @@ export default function SignaturePad({ onSave, onClear, initialValue }: Signatur
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "fit-content" }}>
-      <div style={{ border: "1px solid #ccc", borderRadius: "4px", backgroundColor: "#fff" }}>
+    <div className="flex flex-col gap-2 w-fit">
+      <div className="border border-input rounded-md bg-white dark:bg-white">
         <SignatureCanvas
           ref={sigRef}
           penColor="black"
           canvasProps={{
             width: 300,
             height: 120,
-            className: "sigCanvas",
-            style: { display: "block" }
+            className: "sigCanvas block",
           }}
         />
       </div>
-      <div style={{ display: "flex", gap: "10px" }}>
+      <div className="flex gap-2">
         <button
           type="button"
           onClick={saveSignature}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#0070f3",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "0.9rem"
-          }}
+          className="px-4 py-2 bg-primary text-primary-foreground border-none rounded cursor-pointer text-sm font-medium hover:bg-primary/90 transition-colors"
         >
           Save Signature
         </button>
         <button
           type="button"
           onClick={clearSignature}
-          style={{
-            padding: "8px 16px",
-            backgroundColor: "#eee",
-            color: "#333",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontSize: "0.9rem"
-          }}
+          className="px-4 py-2 bg-secondary text-secondary-foreground border-none rounded cursor-pointer text-sm font-medium hover:bg-secondary/80 transition-colors"
         >
           Clear
         </button>
       </div>
       {initialValue && (
-        <div style={{ marginTop: "10px" }}>
-          <div style={{ fontSize: "0.8rem", color: "#666", marginBottom: "5px" }}>Current Signature:</div>
-          <img 
-            src={initialValue} 
-            alt="Current Signature" 
-            style={{ height: "60px", border: "1px solid #eee", backgroundColor: "#f9f9f9" }} 
+        <div className="mt-2">
+          <div className="text-xs text-muted-foreground mb-1 font-medium">Current Signature:</div>
+          <img
+            src={initialValue}
+            alt="Current Signature"
+            className="h-[60px] border border-border bg-card rounded"
           />
         </div>
       )}

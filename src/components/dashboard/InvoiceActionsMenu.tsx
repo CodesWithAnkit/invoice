@@ -20,12 +20,12 @@ export function InvoiceActionsMenu({ invoiceId, pdfUrl, onDelete }: InvoiceActio
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="h-8 w-8 p-0 bg-white">
+        <Button variant="outline" className="h-8 w-8 p-0 bg-background">
           <span className="sr-only">Open menu</span>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={8} className="w-50 bg-white border shadow-lg z-50">
+      <DropdownMenuContent align="end" sideOffset={8} className="w-50 bg-popover border shadow-lg z-50">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>

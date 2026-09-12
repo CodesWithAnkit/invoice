@@ -22,54 +22,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "column",
-        gap: "12px",
-        fontFamily: "sans-serif",
-      }}
-    >
-      <div
-        style={{
-          padding: "40px",
-          border: "1px solid #ddd",
-          borderRadius: "8px",
-          boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-          width: "300px",
-        }}
-      >
-        <h2 style={{ margin: "0 0 10px 0", textAlign: "center" }}>Invoice Access</h2>
+    <div className="flex h-screen items-center justify-center flex-col gap-3 font-sans bg-background text-foreground">
+      <div className="p-10 border border-border rounded-lg shadow-sm flex flex-col gap-4 w-[300px] bg-card text-card-foreground">
+        <h2 className="m-0 mb-2 text-center text-xl font-bold">Invoice Access</h2>
         <input
           placeholder="Username"
           value={user}
           onChange={(e) => setUser(e.target.value)}
-          style={{ padding: "10px", borderRadius: "4px", border: "1px solid #ccc" }}
+          className="p-2.5 rounded border border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         />
         <input
           type="password"
           placeholder="Password"
           value={pass}
           onChange={(e) => setPass(e.target.value)}
-          style={{ padding: "10px", borderRadius: "4px", border: "1px solid #ccc" }}
+          className="p-2.5 rounded border border-input bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
         />
         <button
           onClick={handleLogin}
-          style={{
-            padding: "10px",
-            backgroundColor: "#0070f3",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
+          className="p-2.5 bg-primary text-primary-foreground border-none rounded font-bold cursor-pointer hover:bg-primary/90 transition-colors"
         >
           Login
         </button>
