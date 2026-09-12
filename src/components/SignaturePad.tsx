@@ -61,7 +61,7 @@ export default function SignaturePad({ onSave, onClear, initialValue }: Signatur
           <img
             src={initialValue}
             alt="Current Signature"
-            className="h-[60px] border border-border bg-card rounded"
+            className="h-15 border border-border bg-card rounded"
           />
         </div>
       )}

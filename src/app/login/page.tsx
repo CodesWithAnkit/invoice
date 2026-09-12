@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { login } from "@/hooks/useAuth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,11 +11,7 @@ export default function LoginPage() {
   const [pass, setPass] = useState("");
 
   const handleLogin = () => {
-    if (
-      user === process.env.NEXT_PUBLIC_APP_USER &&
-      pass === process.env.NEXT_PUBLIC_APP_PASS
-    ) {
-      localStorage.setItem("invoice_auth", "true");
+    if (login(user, pass)) {
       router.push("/");
     } else {
       toast.error("Invalid credentials");
@@ -23,7 +20,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex h-screen items-center justify-center flex-col gap-3 font-sans bg-background text-foreground">
-      <div className="p-10 border border-border rounded-lg shadow-sm flex flex-col gap-4 w-[300px] bg-card text-card-foreground">
+      <div className="p-10 border border-border rounded-lg shadow-sm flex flex-col gap-4 w-75 bg-card text-card-foreground">
         <h2 className="m-0 mb-2 text-center text-xl font-bold">Invoice Access</h2>
         <input
           placeholder="Username"

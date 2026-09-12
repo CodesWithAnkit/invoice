@@ -68,6 +68,13 @@
     color: hsl(var(--foreground));
     font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  button:not(:disabled):hover:not(.no-hover) {
+    opacity: 0.9;
+  }
 }
 
 /* Guarantee the print/PDF invoice output keeps its original font regardless of

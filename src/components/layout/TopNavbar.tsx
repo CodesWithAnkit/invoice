@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   Search,
   Menu,
@@ -11,12 +12,15 @@ import {
   FileText,
   Users,
   Package,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { useAuth } from "@/hooks/useAuth";
 
 const navItems = [
   { name: "Overview", href: "/dashboard/overview", icon: LayoutDashboard },
@@ -43,6 +47,8 @@ function usePageTitle(pathname: string) {
 export function TopNavbar() {
   const pathname = usePathname();
   const pageTitle = usePageTitle(pathname);
+  const { signOut } = useAuth();
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
 
   return (
     <header className="flex h-14 items-center gap-4 border-b border-border bg-background/95 px-4 lg:h-15 lg:px-6 sticky top-0 z-40 backdrop-blur supports-backdrop-filter:bg-background/60 no-print">
@@ -118,6 +124,25 @@ export function TopNavbar() {
         <span className="sr-only">Notifications</span>
       </Button>
       <ThemeToggle />
+      <ConfirmModal
+        open={isLogoutOpen}
+        onOpenChange={setIsLogoutOpen}
+        trigger={
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-8 w-8 bg-background shrink-0"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="sr-only">Log out</span>
+          </Button>
+        }
+        title="Log out"
+        description="Are you sure you want to log out of Invoice Generator?"
+        confirmLabel="Log out"
+        variant="destructive"
+        onConfirm={signOut}
+      />
     </header>
   );
 }
