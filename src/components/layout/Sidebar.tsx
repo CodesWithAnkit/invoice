@@ -4,48 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Compass,
-  LayoutDashboard,
-  FileText,
-  Users,
-  Package,
-  CreditCard,
-  Receipt,
-  FileClock,
-  BarChart3,
-  RefreshCcw,
-  Wallet,
-  Percent,
-  ScrollText,
-  Workflow,
-  Landmark,
   HelpCircle,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const primaryNavItems = [
-  { name: "Overview", href: "/dashboard/overview", icon: LayoutDashboard },
-  { name: "Invoices", href: "/dashboard/invoices", icon: FileText },
-  { name: "Customers", href: "/dashboard/customers", icon: Users },
-  { name: "Products", href: "/dashboard/products", icon: Package },
-];
-
-// These modules are explicitly out-of-scope (see context/project_overview.md)
-// and have no backend today — they render as static, disabled entries so the
-// sidebar matches the Northstar design without implying functionality that
-// doesn't exist yet.
-const automatedModules = [
-  { name: "Payments", icon: CreditCard },
-  { name: "Expenses", icon: Receipt },
-  { name: "Estimates", icon: FileClock },
-  { name: "Reports", icon: BarChart3 },
-  { name: "Subscriptions", icon: RefreshCcw },
-  { name: "Payroll", icon: Wallet },
-  { name: "Tax Engine", icon: Percent },
-  { name: "Audit Log", icon: ScrollText },
-  { name: "Workflows", icon: Workflow },
-  { name: "Treasury", icon: Landmark },
-];
+import { primaryNavItems, automatedModules } from "@/config/navigation";
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -71,7 +34,7 @@ export function Sidebar() {
             return (
               <Link
                 key={item.name}
-                href={item.href}
+                href={item.href!}
                 className={cn(
                   "flex items-center gap-3 rounded-lg border px-3 py-2 transition-all",
                   isActive

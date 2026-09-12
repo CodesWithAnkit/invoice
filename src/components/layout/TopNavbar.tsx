@@ -4,38 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  Search,
   Menu,
   Bell,
   Compass,
-  LayoutDashboard,
-  FileText,
-  Users,
-  Package,
   LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/SearchInput";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
-
-const navItems = [
-  { name: "Overview", href: "/dashboard/overview", icon: LayoutDashboard },
-  { name: "Invoices", href: "/dashboard/invoices", icon: FileText },
-  { name: "Customers", href: "/dashboard/customers", icon: Users },
-  { name: "Products", href: "/dashboard/products", icon: Package },
-];
-
-const routeTitles: { href: string; eyebrow: string; title: string }[] = [
-  { href: "/dashboard/overview", eyebrow: "Core Dashboard", title: "Financial Operations" },
-  { href: "/dashboard/invoices", eyebrow: "Billing Center", title: "Invoice Registry" },
-  { href: "/dashboard/customers", eyebrow: "Directories", title: "Customer Profiles" },
-  { href: "/dashboard/products", eyebrow: "Product Operations", title: "Registry Catalog" },
-  { href: "/dashboard/settings", eyebrow: "System Configuration", title: "Global Workspace Settings" },
-];
+import { primaryNavItems, routeTitles } from "@/config/navigation";
 
 function usePageTitle(pathname: string) {
   const match = routeTitles.find(
@@ -69,12 +50,12 @@ export function TopNavbar() {
           </div>
           <div className="flex-1 overflow-auto py-2">
             <nav className="grid items-start px-2 text-sm font-medium space-y-1">
-              {navItems.map((item) => {
+              {primaryNavItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
                   <SheetClose asChild key={item.name}>
                     <Link
-                      href={item.href}
+                      href={item.href!}
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-foreground",
                         isActive
@@ -108,14 +89,11 @@ export function TopNavbar() {
 
       <div className="w-full flex-1 md:flex md:justify-end">
         <form className="w-full md:max-w-sm">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search invoices, customers (⌘K)..."
-              className="w-full appearance-none bg-background pl-8 shadow-none"
-            />
-          </div>
+          <SearchInput
+            placeholder="Search invoices, customers (⌘K)..."
+            className="w-full appearance-none bg-background shadow-none rounded-md"
+            containerClassName="max-w-none md:max-w-sm"
+          />
         </form>
       </div>
 

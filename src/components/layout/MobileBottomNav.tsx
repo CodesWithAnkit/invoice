@@ -2,14 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, Users, Package, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { primaryNavItems } from "@/config/navigation";
 
 const tabs = [
-  { name: "Overview", href: "/dashboard/overview", icon: LayoutDashboard },
-  { name: "Invoices", href: "/dashboard/invoices", icon: FileText },
-  { name: "Clients", href: "/dashboard/customers", icon: Users },
-  { name: "Products", href: "/dashboard/products", icon: Package },
+  ...primaryNavItems,
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
@@ -19,11 +17,11 @@ export function MobileBottomNav() {
   return (
     <nav className="mobile-bottom-nav fixed inset-x-0 bottom-0 z-40 flex md:hidden border-t border-border bg-background no-print">
       {tabs.map((tab) => {
-        const isActive = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
+        const isActive = pathname === tab.href || (tab.href && pathname.startsWith(`${tab.href}/`));
         return (
           <Link
             key={tab.name}
-            href={tab.href}
+            href={tab.href!}
             className={cn(
               "flex flex-1 flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium",
               isActive ? "text-primary" : "text-muted-foreground"
