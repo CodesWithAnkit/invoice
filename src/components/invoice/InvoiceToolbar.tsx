@@ -2,6 +2,7 @@
 
 import { useInvoicePrint } from "@/hooks/useInvoicePrint";
 import { useInvoice } from "@/hooks/useInvoice";
+import { useInvoiceTemplate } from "@/hooks/useInvoiceTemplate";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
@@ -13,6 +14,7 @@ interface InvoiceToolbarProps {
 export default function InvoiceToolbar({ onOpenPreview }: InvoiceToolbarProps) {
   const { printInvoice } = useInvoicePrint();
   const { invoice, generateInvoice } = useInvoice();
+  const { template, changeTemplate } = useInvoiceTemplate();
   const [saving, setSaving] = useState(false);
 
   const handleSaveToDashboard = async () => {
@@ -77,37 +79,64 @@ export default function InvoiceToolbar({ onOpenPreview }: InvoiceToolbarProps) {
   };
 
   return (
-    <div className="no-print sticky top-0 z-50 flex items-center justify-between gap-3 p-4 bg-slate-900 shadow-md mb-5 text-white">
-      <div className="font-semibold text-sm">Actions</div>
-      <div className="flex flex-wrap gap-2">
-        <Button
-          onClick={generateInvoice}
-          variant="secondary"
-          className="text-sm bg-slate-700 text-white hover:bg-slate-600 border-none"
-        >
-          Force Recalculate
-        </Button>
-        <Button
-          onClick={onOpenPreview}
-          variant="outline"
-          className="text-sm bg-slate-100 text-slate-900 hover:bg-white border-none"
-        >
-          Preview
-        </Button>
-        <Button
-          onClick={handleSaveToDashboard}
-          disabled={saving}
-          className="text-sm bg-amber-500 hover:bg-amber-600 text-white"
-        >
-          {saving ? "Saving..." : "Save to DB"}
-        </Button>
-        <Button
-          onClick={printInvoice}
-          className="text-sm bg-blue-500 hover:bg-blue-600 text-white"
-        >
-          Print / PDF
-        </Button>
+    <div className="no-print flex flex-wrap gap-2 items-center">
+      {/* Template toggle pill */}
+      <div
+        style={{
+          display: "flex",
+          border: "1px solid #d1d5db",
+          borderRadius: "6px",
+          overflow: "hidden",
+          fontSize: "0.78rem",
+          fontWeight: 500,
+        }}
+      >
+        {(["classic", "modern"] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => changeTemplate(t)}
+            style={{
+              padding: "5px 14px",
+              cursor: "pointer",
+              border: "none",
+              borderRight: t === "classic" ? "1px solid #d1d5db" : undefined,
+              backgroundColor: template === t ? "#1b3a6b" : "#fff",
+              color: template === t ? "#fff" : "#374151",
+              transition: "background 0.15s, color 0.15s",
+              textTransform: "capitalize",
+            }}
+          >
+            {t === "classic" ? "Classic" : "Modern"}
+          </button>
+        ))}
       </div>
+      <Button
+        onClick={generateInvoice}
+        variant="secondary"
+        className="text-sm"
+      >
+        Force Recalculate
+      </Button>
+      <Button
+        onClick={onOpenPreview}
+        variant="outline"
+        className="text-sm"
+      >
+        Preview
+      </Button>
+      <Button
+        onClick={handleSaveToDashboard}
+        disabled={saving}
+        className="text-sm bg-success hover:bg-success/90 text-success-foreground"
+      >
+        {saving ? "Saving..." : "Save to DB"}
+      </Button>
+      <Button
+        onClick={printInvoice}
+        className="text-sm"
+      >
+        Print / PDF
+      </Button>
     </div>
   );
 }

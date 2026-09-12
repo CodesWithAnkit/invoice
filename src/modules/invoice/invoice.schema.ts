@@ -22,7 +22,7 @@ export const BankSchema = z.object({
 export const InvoiceMetaSchema = z.object({
   invoiceNumber: z.string().min(1, "Invoice number is required"),
   date: z.string().min(1, "Date is required"),
-  type: z.enum(["invoice", "quote"]),
+  type: z.enum(["invoice", "quote", "proforma"]),
 });
 
 export const InvoiceTotalsSchema = z.object({

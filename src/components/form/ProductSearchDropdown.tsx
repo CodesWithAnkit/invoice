@@ -86,11 +86,11 @@ export default function ProductSearchDropdown({
   };
 
   return (
-    <div ref={wrapperRef} style={{ position: "relative", ...style }}>
+    <div ref={wrapperRef} className="relative" style={style}>
       <input
         type="text"
         placeholder={placeholder}
-        style={{ ...commonInputStyle, width: "100%", boxSizing: "border-box" }}
+        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         value={searchTerm}
         onChange={(e) => {
           setSearchTerm(e.target.value);
@@ -103,47 +103,24 @@ export default function ProductSearchDropdown({
       />
 
       {isOpen && searchTerm && searchTerm !== value && (
-        <div
-          style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
-            zIndex: 50,
-            background: "white",
-            border: "1px solid #ccc",
-            borderRadius: "4px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-            maxHeight: "200px",
-            overflowY: "auto",
-            marginTop: "2px",
-          }}
-        >
+        <div className="absolute top-full left-0 right-0 z-50 bg-popover border border-border rounded-md shadow-md max-h-[200px] overflow-y-auto mt-1 text-popover-foreground">
           {loading ? (
-            <div style={{ padding: "8px", color: "#666", fontSize: "0.875rem" }}>Searching...</div>
+            <div className="p-2 text-muted-foreground text-sm">Searching...</div>
           ) : results.length > 0 ? (
-            <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+            <ul className="list-none m-0 p-0">
               {results.map((product) => (
                 <li
                   key={product.id}
-                  style={{
-                    padding: "8px 12px",
-                    cursor: "pointer",
-                    borderBottom: "1px solid #f0f0f0",
-                    display: "flex",
-                    justifyContent: "space-between",
-                  }}
+                  className="p-2 px-3 cursor-pointer border-b border-border flex justify-between hover:bg-accent hover:text-accent-foreground transition-colors"
                   onMouseDown={() => {
                     onSelect(product.name, product.price);
                     setSearchTerm(product.name);
                     setIsOpen(false);
                   }}
-                  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f9f9f9")}
-                  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "white")}
                 >
-                  <span style={{ fontSize: "0.875rem" }}>{product.name}</span>
+                  <span className="text-sm">{product.name}</span>
                   {product.price != null && (
-                    <span style={{ fontSize: "0.875rem", color: "#666" }}>
+                    <span className="text-sm text-muted-foreground">
                       ₹{product.price.toLocaleString()}
                     </span>
                   )}
@@ -151,8 +128,8 @@ export default function ProductSearchDropdown({
               ))}
             </ul>
           ) : (
-            <div style={{ padding: "12px", textAlign: "center" }}>
-              <p style={{ margin: "0 0 8px 0", fontSize: "0.875rem", color: "#666" }}>
+            <div className="p-3 text-center">
+              <p className="m-0 mb-2 text-sm text-muted-foreground">
                 No products found
               </p>
               <button
@@ -162,16 +139,7 @@ export default function ProductSearchDropdown({
                   generateWithAI();
                 }}
                 disabled={aiGenerating}
-                style={{
-                  padding: "6px 12px",
-                  background: "#2563eb",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: aiGenerating ? "not-allowed" : "pointer",
-                  fontSize: "0.875rem",
-                  width: "100%",
-                }}
+                className="w-full px-3 py-1.5 bg-primary text-primary-foreground border-none rounded cursor-pointer text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {aiGenerating ? "Generating..." : `Generate with AI`}
               </button>

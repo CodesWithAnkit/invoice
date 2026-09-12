@@ -23,7 +23,7 @@ export interface BankDetails {
 export interface InvoiceMeta {
   invoiceNumber: string;
   date: string;
-  type: "invoice" | "quote";
+  type: "invoice" | "quote" | "proforma";
   fields?: Record<string, string>;
 }
 

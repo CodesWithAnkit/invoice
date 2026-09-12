@@ -102,72 +102,43 @@ export default function InvoiceBusinessGenerator({ onGenerate }: InvoiceBusiness
   };
 
   return (
-    <section style={{ 
-      marginBottom: "2rem", 
-      padding: "1.5rem", 
-      backgroundColor: "#f8fafc", 
-      borderRadius: "12px", 
-      border: "1px solid #e2e8f0",
-      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
-    }}>
-      <h3 style={{ marginTop: 0, marginBottom: "1rem", fontSize: "1.25rem", fontWeight: 700, color: "#1e293b" }}>
+    <section className="mb-8 p-6 bg-card border rounded-xl shadow-sm text-card-foreground">
+      <h3 className="mb-4 text-xl font-bold tracking-tight mt-0">
         Hybrid Business Invoice Generator
       </h3>
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem", borderBottom: "1px solid #e2e8f0" }}>
+      <div className="flex gap-2 mb-6 border-b border-border">
         <button 
           onClick={() => setActiveTab("FORM")}
-          style={{
-            padding: "0.5rem 1rem",
-            border: "none",
-            background: "none",
-            borderBottom: activeTab === "FORM" ? "2px solid #2563eb" : "none",
-            color: activeTab === "FORM" ? "#2563eb" : "#64748b",
-            fontWeight: 600,
-            cursor: "pointer"
-          }}
+          className={`px-4 py-2 font-semibold -mb-px border-b-2 transition-colors ${activeTab === "FORM" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
         >
           FORM
         </button>
         <button 
           onClick={() => setActiveTab("PROMPT")}
-          style={{
-            padding: "0.5rem 1rem",
-            border: "none",
-            background: "none",
-            borderBottom: activeTab === "PROMPT" ? "2px solid #2563eb" : "none",
-            color: activeTab === "PROMPT" ? "#2563eb" : "#64748b",
-            fontWeight: 600,
-            cursor: "pointer"
-          }}
+          className={`px-4 py-2 font-semibold -mb-px border-b-2 transition-colors ${activeTab === "PROMPT" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
         >
           PROMPT
         </button>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+      <div className="flex flex-col gap-4">
         {activeTab === "FORM" ? (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <label style={{ fontSize: "0.875rem", fontWeight: 600, color: "#475569" }}>Industry Type</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center">
+                <label className="text-sm font-semibold text-foreground">Industry Type</label>
                 <button 
                   onClick={fetchTemplates}
                   title="Refresh Templates"
-                  style={{ 
-                    border: "none", 
-                    background: "none", 
-                    cursor: "pointer", 
-                    fontSize: "0.8rem",
-                    color: "#2563eb"
-                  }}
+                  className="text-xs text-primary hover:text-primary/80 transition-colors"
                 >
                   Refresh 🔄
                 </button>
               </div>
               <select 
-                style={commonInputStyle}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 value={form.industryType}
                 onChange={(e) => setForm({ ...form, industryType: e.target.value })}
               >
@@ -179,47 +150,48 @@ export default function InvoiceBusinessGenerator({ onGenerate }: InvoiceBusiness
                 ))}
               </select>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <label style={{ fontSize: "0.875rem", fontWeight: 600, color: "#475569" }}>Business Name</label>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-foreground">Business Name</label>
               <input 
-                style={commonInputStyle}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 type="text"
                 value={form.businessName}
                 onChange={(e) => setForm({ ...form, businessName: e.target.value })}
                 placeholder="e.g. My Awesome Shop"
               />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <label style={{ fontSize: "0.875rem", fontWeight: 600, color: "#475569" }}>Budget</label>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-foreground">Budget</label>
               <input 
-                style={commonInputStyle}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 type="number"
                 value={form.budget}
                 onChange={(e) => setForm({ ...form, budget: Number(e.target.value) })}
               />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <label style={{ fontSize: "0.875rem", fontWeight: 600, color: "#475569" }}>GST %</label>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-foreground">GST %</label>
               <input 
-                style={commonInputStyle}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 type="number"
                 value={form.gstPercent}
                 onChange={(e) => setForm({ ...form, gstPercent: Number(e.target.value) })}
               />
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <div className="flex items-center gap-2">
               <input 
                 type="checkbox"
                 id="budgetIncludesGST"
+                className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
                 checked={form.budgetIncludesGST}
                 onChange={(e) => setForm({ ...form, budgetIncludesGST: e.target.checked })}
               />
-              <label htmlFor="budgetIncludesGST" style={{ fontSize: "0.875rem", color: "#475569" }}>Budget includes GST</label>
+              <label htmlFor="budgetIncludesGST" className="text-sm text-foreground cursor-pointer">Budget includes GST</label>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-              <label style={{ fontSize: "0.875rem", fontWeight: 600, color: "#475569" }}>Setup Mode</label>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold text-foreground">Setup Mode</label>
               <select 
-                style={commonInputStyle}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 value={form.setupMode}
                 onChange={(e) => setForm({ ...form, setupMode: e.target.value })}
               >
@@ -230,21 +202,17 @@ export default function InvoiceBusinessGenerator({ onGenerate }: InvoiceBusiness
             </div>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-            <label style={{ fontSize: "0.875rem", fontWeight: 600, color: "#475569" }}>Describe your setup</label>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-semibold text-foreground">Describe your setup</label>
             <textarea
-              style={{ 
-                ...commonInputStyle, 
-                height: "150px", 
-                resize: "vertical",
-              }}
+              className="flex min-h-[150px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
               placeholder="e.g. Create a quotation for a Medical Store with a budget of 10 Lakhs including 18% GST"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               disabled={loading}
             />
-            <div style={{ fontSize: "0.85rem", color: "#666", display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.5rem" }}>
-              <span style={{ fontWeight: "bold" }}>Try:</span>
+            <div className="flex flex-wrap gap-2 mt-2 text-sm text-muted-foreground items-center">
+              <span className="font-bold text-foreground">Try:</span>
               {[
                 "Medical Store setup for 10 Lakhs including 18% GST",
                 "Bakery shop with 5 Lakhs budget and 12% GST",
@@ -254,16 +222,7 @@ export default function InvoiceBusinessGenerator({ onGenerate }: InvoiceBusiness
                   key={example}
                   type="button"
                   onClick={() => setPrompt(example)}
-                  style={{ 
-                    border: "1px solid #ddd", 
-                    borderRadius: "4px", 
-                    padding: "2px 8px", 
-                    background: "#f9f9f9", 
-                    cursor: "pointer",
-                    fontSize: "0.8rem"
-                  }}
-                  onMouseOver={(e) => (e.currentTarget.style.background = "#ececec")}
-                  onMouseOut={(e) => (e.currentTarget.style.background = "#f9f9f9")}
+                  className="rounded border border-border bg-secondary px-2 py-1 text-xs text-secondary-foreground hover:bg-secondary/80 transition-colors"
                 >
                   {example}
                 </button>
@@ -275,24 +234,17 @@ export default function InvoiceBusinessGenerator({ onGenerate }: InvoiceBusiness
         <button
           onClick={handleGenerate}
           disabled={loading || (activeTab === "PROMPT" && !prompt.trim())}
-          style={{
-            marginTop: "1rem",
-            padding: "12px 24px",
-            backgroundColor: loading ? "#94a3b8" : "#2563eb",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            fontWeight: 700,
-            cursor: loading ? "not-allowed" : "pointer",
-            transition: "all 0.2s",
-            boxShadow: "0 2px 4px rgba(37, 99, 235, 0.2)"
-          }}
+          className={`mt-4 px-6 py-3 rounded-lg font-bold transition-all shadow-sm ${
+            loading || (activeTab === "PROMPT" && !prompt.trim()) 
+              ? "bg-muted text-muted-foreground cursor-not-allowed" 
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
+          }`}
         >
           {loading ? "Generating..." : "Generate Invoice"}
         </button>
         
         {error && (
-          <p style={{ color: "#dc2626", fontSize: "0.875rem", fontWeight: 500, marginTop: "0.5rem" }}>
+          <p className="text-destructive text-sm font-medium mt-2">
             ⚠️ {error}
           </p>
         )}

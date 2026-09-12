@@ -1,11 +1,14 @@
 "use client";
 
+import { useState, useRef } from "react";
 import { useInvoice } from "@/hooks/useInvoice";
 import { usePdfParser } from "@/hooks/usePdfParser";
 
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/card";
 import { Input } from "./ui/input";
+import { UploadCloud } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Sub-components
 import BusinessDetails from "./form/BusinessDetails";
@@ -29,8 +32,33 @@ export default function InvoiceForm() {
     setInvoiceData,
   } = useInvoice();
 
-  const { loading, handleFileUpload } = usePdfParser(setInvoiceField, recalculateTotals);
+  const { loading, handleFileUpload, handleFile } = usePdfParser(setInvoiceField, recalculateTotals);
   const { printInvoice } = useInvoicePrint();
+
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const onDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
 
   return (
     <div className="flex flex-col gap-6 p-4">
@@ -43,17 +71,37 @@ export default function InvoiceForm() {
       <Card className="border-dashed no-print">
         <CardHeader>
           <CardTitle>Auto-populate from PDF</CardTitle>
-          <CardDescription>Upload a previous invoice PDF to extract metadata.</CardDescription>
+          <CardDescription>Drag and drop a previous invoice PDF to extract metadata.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Input 
-            type="file" 
-            accept="application/pdf" 
-            onChange={handleFileUpload} 
-            disabled={loading} 
-            className="max-w-md"
-          />
-          {loading && <p className="text-sm text-blue-600 mt-2">Parsing PDF...</p>}
+          <div
+            className={cn(
+              "ai-parser-dropzone flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg transition-colors cursor-pointer",
+              isDragging ? "border-primary bg-primary/10" : "border-muted-foreground/25 hover:bg-muted/50 hover:border-muted-foreground/50"
+            )}
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onDrop={onDrop}
+            onClick={triggerFileInput}
+          >
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleFileUpload}
+              disabled={loading}
+              ref={fileInputRef}
+              className="hidden"
+            />
+            <UploadCloud className={cn("w-10 h-10 mb-4", loading ? "text-primary animate-pulse" : "text-muted-foreground")} />
+            {loading ? (
+              <p className="text-sm font-medium text-primary">Parsing PDF with Gemini AI...</p>
+            ) : (
+              <>
+                <p className="text-sm font-medium">Drag & drop a PDF here</p>
+                <p className="text-xs text-muted-foreground mt-1">or click to browse files</p>
+              </>
+            )}
+          </div>
         </CardContent>
       </Card>
 

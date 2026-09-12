@@ -1,14 +1,31 @@
 # Progress Tracker: Invoice System
 
 ## Current Phase
-- **Phase 1**: Establishing Architectural Context & Foundation Setup
+- **Phase 2**: Northstar Redesign — see `context/redesign_implementation_plan.md`. Phase 0 (design tokens/fonts) and Phase 1 (app shell + Dashboard Overview) of that plan are complete.
 
 ---
 
 ## Active & In-Progress Tasks
 - `[x]` Initialize Six-File Context System to enforce structural discipline and prevent AI drift.
-- `[ ]` Integrate Gemini AI parser on the frontend to allow dragging and dropping invoice PDFs for auto-filling inputs.
-- `[ ]` Connect dashboard views (`invoices`, `customers`, `products`) to dynamically query Supabase tables instead of static tables.
+- `[x]` Integrate Gemini AI parser on the frontend to allow dragging and dropping invoice PDFs for auto-filling inputs.
+- `[x]` Connect dashboard views (`invoices`, `customers`, `products`) to dynamically query Supabase tables instead of static tables.
+- `[x]` Redesign Phase 0: Northstar color tokens (`globals.css`, `tailwind.config.ts`) + Geist Sans/Mono fonts wired in without altering the print/PDF font stack.
+- `[x]` Redesign Phase 1: Sidebar/TopNavbar rebuilt to Northstar shell (Primary Operating Register + static/disabled Automated Modules), mobile bottom tab nav added.
+- `[x]` Redesign Phase 2: `/dashboard/overview` built — fully static/mock KPI cards, inline-SVG trend chart, resolution status, recent invoices list.
+- `[x]` Redesign Phase 3: Invoices list reskin (Supabase logic untouched; status is a placeholder derived from `pdf_url` until a real lifecycle field exists).
+- `[x]` Redesign Phase 4: Invoice Detail reskin (Issuer/Client profile cards, itemised table, totals); Audit Log panel derived from real timestamps, not fabricated events.
+- `[x]` Redesign Phase 5: `/dashboard/customers` + `/dashboard/customers/[id]` — fully static/mock (a real `customers` Supabase table exists but isn't wired up yet).
+- `[x]` Redesign Phase 6: `/dashboard/products` — fully static/mock (`/api/products` exists server-side but isn't wired up yet).
+- `[x]` Redesign Phase 7: `/dashboard/settings` — sub-nav shell; only Visual Appearance is real (wired to `next-themes`), other sections are static placeholders.
+- Verified via Playwright screenshots (light + dark) that the redesign matches the reference boards, and that print-media output of the invoice PDF template is pixel-identical to pre-redesign (font/layout isolated by design).
+- `[x]` Redesign Phase 8 (new reference boards `invoice_design/new/15-16`): reskinned the Invoice View page (Issuer/From, Recipient/To cards, 4-button header incl. static Send/Record Payment stubs, timeline dots) and the invoice Editor/Edit/Copy workspace pages (title+actions header, sticky "Realtime Calculation Audit" live-totals sidebar) to match. `InvoiceToolbar` was destyled into a plain button group (same handlers) so it can sit in the new header — no field, handler, or schema logic changed. Verified responsive at desktop/tablet/mobile and re-confirmed print/PDF output is still pixel-identical.
+- `[x]` Made the action-button header always visible while scrolling on the View/Edit/Create/Copy invoice pages (`sticky`, offset precisely measured against `TopNavbar` + layout gap). Extracted the duplicated header+editor+sidebar markup shared by the create/edit/copy pages into `src/components/invoice/InvoiceWorkspaceShell.tsx` so it only needs to change in one place.
+- `[x]` Added a third document type, **Proforma Invoice**, alongside Invoice/Quote: `meta.type` enum extended to `"proforma"` (`invoice.schema.ts`, `invoice.types.ts`), new option in the Invoice Meta type dropdown, and both `InvoicePrintLayout.tsx` (the real print/PDF pipeline) and `InvoiceTemplate.tsx` (on-screen preview) render "PROFORMA INVOICE" / "Proforma #", a "This is not a tax invoice only proforma invoice" subtitle under the title, and a "prepared from the uploaded Price Quote #{number} ... not a Tax Invoice" disclaimer at the bottom — matching the user-supplied reference PDF. For proforma specifically, the Quote#/Date row and the Terms & Conditions block are hidden (the quote number is already shown via the subtitle). `invoice`/`quote` output verified byte-for-byte unchanged via print-media screenshot regression check after each change. Shared title/number-label text via `src/utils/documentType.ts`, but only where the two templates already used identical strings — where they differed (`"Invoice #"` vs `"Invoice No:"`) each file kept its own original text to avoid silently changing real PDF output. Also fixed the Invoices list type filter (`/dashboard/invoices`), which previously used values (`Standard`/`Tax`) that never matched the actual saved `invoice_type` — now uses the real `invoice`/`quote`/`proforma` values.
+- `[x]` Added **proforma-specific Terms & Conditions** block in both `InvoicePrintLayout.tsx` and `InvoiceTemplate.tsx`. Proforma invoices now show a dedicated "Delivery & Installation" T&C section with: delivery timeline (3–6 weeks), installation (included), trial run, operator training, warranty (6 months), transportation terms, and civil/electrical work clauses — matching the reference PDF shared by the user.
+- `[x]` Added `tests/invoice-pdf-export.spec.ts` — a Playwright test guarding the print/PDF pipeline's "everything fits on one A4 page" contract (`src/styles/invoice-print.css`'s `.invoice-print-page { zoom: 0.85 }`, and the documented 15-item max). It fills a realistic invoice with the app's own enforced maximum of 15 line items, full business/customer/bank details, and a **drawn signature**, generates a real PDF via `page.pdf()`, and asserts exactly 1 page via `pdf-parse-new`'s `numpages` — for both templates (Classic/Modern) × the two heaviest-footer document types (Invoice, Proforma).
+  - **This test caught two real, pre-existing overflow bugs** in Classic template's Proforma footer (payment-terms table + delivery/installation block): first at 15 items with no signature, then — after a user-supplied screenshot showed a *real* 2-page case the first fix missed — again once a drawn signature was added to the repro. Root cause of the second one: the footer row is bottom-aligned (`alignItems: "flex-end"`), so a real signature image makes that row much taller than the no-signature placeholder ever tested.
+  - Fixed by (a) tightening spacing/font-sizes inside `Classic.tsx`'s `isProforma`-specific footer branch, and (b) adding a scoped `zoom: 0.78` inline-style override (beats the shared CSS `zoom: 0.85`) applied only when `isProforma`, so Modern and Classic's own Invoice/Quote branch are untouched.
+  - Verified `getBoundingClientRect().height` / CSS `zoom` metrics were unreliable signals here (didn't match actual PDF pagination) — the fix was validated against the real `page.pdf()` + `pdf-parse-new` page count instead, and Classic Invoice output was re-screenshotted and confirmed pixel-identical to before the fix.
 
 ---
 

@@ -16,12 +16,25 @@
   }
 
   /* Reset tailwind wrapper constraints that cause squishing and blank spaces */
-  body, main, div {
+  body,
+  main,
+  div {
     /* Only apply this aggressively to wrappers outside the print root if possible, but since we can't easily select ancestors, we'll reset structural classes */
   }
 
   /* Let's reset the specific Tailwind layout classes used in AppLayout and page.tsx during print */
-  .p-4, .sm\:p-6, .sm\:py-4, .sm\:pl-64, .md\:gap-8, .max-w-\[1400px\], .mx-auto, .flex-col, .gap-8, .min-h-screen {
+  .p-4,
+  .sm\:p-6,
+  .sm\:py-4,
+  .sm\:pl-64,
+  .md\:gap-8,
+  .max-w-\[1400px\],
+  .mx-auto,
+  .flex-col,
+  .gap-8,
+  .min-h-screen,
+  .pb-20,
+  .md\:pb-4 {
     padding: 0 !important;
     margin: 0 !important;
     max-width: none !important;
@@ -31,9 +44,11 @@
 
   #invoice-print-root {
     display: block !important;
-    width: 100% !important; /* Fill the page width */
-    max-height: none !important; 
-    padding: 10mm !important; /* Small padding inside */
+    width: 100% !important;
+    /* Fill the page width */
+    max-height: none !important;
+    padding: 10mm !important;
+    /* Small padding inside */
     margin: 0 !important;
     overflow: visible !important;
     background: white !important;
@@ -45,9 +60,11 @@
     height: auto;
     box-sizing: border-box;
     background: white;
-    page-break-inside: avoid;
-    page-break-after: avoid;
-    zoom: 0.85; /* Scale down to fit more items on a single page */
+    /* Allow content to flow to page 2 if needed — do NOT use avoid here */
+    page-break-after: auto;
+    zoom: 0.85;
+    /* Scale down to fit all content on a single page */
+    overflow: visible !important;
   }
 
   table {
@@ -65,8 +82,18 @@
 
   .invoice-footer {
     page-break-inside: avoid;
+    overflow: visible !important;
   }
+
+  /* Ensure no child div clips the footer content */
+  .invoice-footer * {
+    overflow: visible !important;
+  }
+
+
 }
+
+/* end @media print */
 
 /* Screen view behavior */
 @media screen {

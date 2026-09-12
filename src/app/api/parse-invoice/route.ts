@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
@@ -16,13 +19,74 @@ export async function POST(req: Request) {
     const data = await pdfParse(buffer);
     const text = data.text;
 
+    // Try Gemini First
+    if (process.env.GEMINI_API_KEY) {
+      try {
+        const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+
+        const systemPrompt = `You are a strict data extraction AI for parsing invoice PDFs.
+Extract the following information from the provided invoice text and return it as a JSON object.
+
+Rules:
+1. Output ONLY valid JSON.
+2. Do not include markdown formatting or explanations.
+3. Prices and quantities must be numbers.
+
+Schema:
+{
+  "business": {
+    "name": string,
+    "phone": string,
+    "gstin": string
+  },
+  "customer": {
+    "name": string,
+    "address": string,
+    "fields": {
+      "phone": string,
+      "aadhaar": string
+    }
+  },
+  "meta": {
+    "quoteNo": string,
+    "date": string
+  },
+  "items": [
+    { "id": string, "description": string, "quantity": number, "unitPrice": number, "total": number }
+  ],
+  "totals": {
+    "subTotal": number,
+    "sgst": number,
+    "cgst": number,
+    "grandTotal": number
+  },
+  "bank": {
+    "bankName": string,
+    "accountName": string,
+    "accountNumber": string,
+    "ifsc": string
+  },
+  "amountWords": string
+}`;
+
+        const result = await model.generateContent([systemPrompt, text]);
+        const responseText = (await result.response).text();
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        
+        if (jsonMatch) {
+          const extractedData = JSON.parse(jsonMatch[0]);
+          return NextResponse.json(extractedData);
+        }
+      } catch (geminiError) {
+        console.error("Gemini failed to parse invoice, falling back to regex:", geminiError);
+      }
+    }
+
+    // Fallback: Regex Extraction Logic (migrated from pdfParser.ts)
     const lines = text
       .split("\n")
       .map((l: string) => l.trim())
       .filter(Boolean);
-
-
-    // Extraction Logic (migrated from pdfParser.ts)
     
     // 1. Extract metadata & phone
     const gstin = text.match(/GSTIN:\s*([A-Z0-9]+)/)?.[1] || "";
