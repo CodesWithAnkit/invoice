@@ -90,18 +90,12 @@ export default function ModernTemplate() {
             )}
             {!isProforma && (
               <div style={{ marginTop: "8px", display: "grid", gridTemplateColumns: "auto auto", columnGap: "16px", rowGap: "2px", fontSize: "0.75rem", textAlign: "left" }}>
-                {meta.invoiceNumber && (
-                  <>
-                    <span style={{ color: MUTED }}>{meta.type === "invoice" ? "Invoice #" : "Quote #"}</span>
-                    <span style={{ fontWeight: 700 }}>{meta.invoiceNumber}</span>
-                  </>
-                )}
-                {meta.date && (
+                {/* {meta.date && (
                   <>
                     <span style={{ color: MUTED }}>Date</span>
                     <span style={{ fontWeight: 700 }}>{meta.date}</span>
                   </>
-                )}
+                )} */}
                 {Object.entries(meta.fields || {}).map(([label, value]) => (
                   <React.Fragment key={label}>
                     <span style={{ color: MUTED, textTransform: "capitalize" }}>{label}</span>
@@ -146,12 +140,7 @@ export default function ModernTemplate() {
                     <span style={{ fontWeight: 700 }}>{meta.invoiceNumber}</span>
                   </>
                 )}
-                {meta.date && (
-                  <>
-                    <span style={{ color: MUTED }}>Date</span>
-                    <span style={{ fontWeight: 700 }}>{meta.date}</span>
-                  </>
-                )}
+
               </div>
             </div>
           )}

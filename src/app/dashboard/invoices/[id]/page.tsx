@@ -3,21 +3,27 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/../lib/supabase";
+import { useInvoice } from "@/hooks/useInvoice";
+import InvoicePrintLayout from "@/components/invoice/InvoicePrintLayout";
 import { ArrowLeft, Download, FileEdit, Send, CheckCircle2, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { cn } from "@/lib/utils";
+import { useInvoiceTemplate } from "@/hooks/useInvoiceTemplate";
 
 export default function InvoiceDetail() {
   const params = useParams();
   const router = useRouter();
+  const { setInvoiceData } = useInvoice();
   const [invoice, setInvoice] = useState<any>(null);
   const [customer, setCustomer] = useState<any>(null);
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { template, changeTemplate } = useInvoiceTemplate();
 
   useEffect(() => {
     if (params?.id) {
@@ -36,13 +42,15 @@ export default function InvoiceDetail() {
       if (invoiceError) throw invoiceError;
       setInvoice(invoiceData);
 
+      let customerData: any = null;
       if (invoiceData.customer_id) {
-        const { data: customerData, error: customerError } = await supabase
+        const { data: cData, error: customerError } = await supabase
           .from("customers")
           .select("*")
           .eq("id", invoiceData.customer_id)
           .single();
         if (customerError) throw customerError;
+        customerData = cData;
         setCustomer(customerData);
       }
 
@@ -52,6 +60,42 @@ export default function InvoiceDetail() {
         .eq("invoice_id", id);
       if (itemsError) throw itemsError;
       setItems(itemsData || []);
+
+      // Preload state into useInvoice hook for print
+      setInvoiceData({
+        id: invoiceData.id,
+        businessName: invoiceData.business_name || "",
+        businessAddress: invoiceData.business_address || "",
+        phone: invoiceData.business_phone || "",
+        gstin: invoiceData.business_gstin || "",
+        meta: {
+          invoiceNumber: invoiceData.invoice_number,
+          date: new Date(invoiceData.created_at).toISOString().split("T")[0],
+          type: invoiceData.invoice_type || "invoice",
+        },
+        customer: {
+          name: customerData?.name || invoiceData.customer_name,
+          address: customerData?.address || "",
+          fields: {
+            phone: customerData?.phone || "",
+            aadhaar: customerData?.aadhaar || "",
+            companyName: customerData?.company_name || "",
+          },
+        },
+        items: itemsData?.map((item: any) => ({
+          id: item.id || crypto.randomUUID(),
+          description: item.product_name,
+          quantity: item.quantity,
+          unitPrice: item.unit_price,
+          total: item.total,
+        })) || [],
+        bank: {
+          bankName: invoiceData.bank_name || "",
+          accountName: invoiceData.account_name || "",
+          accountNumber: invoiceData.account_number || "",
+          ifsc: invoiceData.ifsc || "",
+        },
+      });
     } catch (error) {
       console.error("Error fetching invoice details:", error);
     } finally {
@@ -101,7 +145,9 @@ export default function InvoiceDetail() {
   const status = invoice.pdf_url ? "RECONCILED" : "DRAFT";
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
+      <InvoicePrintLayout />
+      <div className="print:hidden w-full">
       <Link
         href="/dashboard/invoices"
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition mb-4"
@@ -125,6 +171,19 @@ export default function InvoiceDetail() {
                     Edit
                   </Link>
                 </Button>
+                <Button variant="outline" onClick={() => window.print()}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Export as PDF
+                </Button>
+                <Select value={template} onValueChange={(val) => changeTemplate(val as any)}>
+                  <SelectTrigger className="w-27.5 h-9">
+                    <SelectValue placeholder="Template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="classic">Classic</SelectItem>
+                    <SelectItem value="modern">Modern</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Button variant="outline" onClick={() => toast.info("Sending invoices is coming soon.")}>
                   <Send className="mr-2 h-4 w-4" />
                   Send
@@ -255,6 +314,7 @@ export default function InvoiceDetail() {
             ))}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

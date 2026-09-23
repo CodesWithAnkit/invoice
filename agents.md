@@ -28,3 +28,30 @@ Whenever you start a session or receive a new task:
 3. Draft a precise execution plan inside the system's `task.md` or `implementation_plan.md` (if in planning mode).
 4. Strictly follow the guidelines set out in [ai_workflow_rules.md](file:///Users/ankit_mac/workspace/self/invoice/context/ai_workflow_rules.md).
 5. Upon completing a task, update the [progress_tracker.md](file:///Users/ankit_mac/workspace/self/invoice/context/progress_tracker.md) to log your progress for future sessions.
+
+## Stack
+
+- **Language / Runtime**: TypeScript, Node 20
+- **Framework**: Next.js 16 (App Router) + React 19
+- **Key dependencies**: Supabase, Google Generative AI, react-to-print, pdf-parse-new
+- **Package manager**: npm
+
+## Build approach
+
+<TBD, set by /scope>
+
+## Commands
+
+```bash
+# Install
+npm install
+
+# Dev server
+npm run dev
+
+# Build
+npm run build
+
+# Test
+npm run test:e2e
+```

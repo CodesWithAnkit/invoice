@@ -67,14 +67,9 @@ export default function ClassicTemplate() {
                 This is not a tax invoice — proforma only
               </div>
             )}
-            {!isProforma && meta.invoiceNumber && (
-              <div style={{ fontSize: "0.8rem", marginTop: "4px" }}>
-                <b>{meta.type === "invoice" ? "Invoice No:" : "Quote No:"}</b> {meta.invoiceNumber}
-              </div>
-            )}
-            {!isProforma && meta.date && (
+            {/* {!isProforma && meta.date && (
               <div style={{ fontSize: "0.8rem" }}><b>Date:</b> {meta.date}</div>
-            )}
+            )} */}
             {Object.entries(meta.fields || {}).map(([label, value]) => (
               <div key={label} style={{ fontSize: "0.8rem" }}>
                 <b style={{ textTransform: "capitalize" }}>{label}:</b> {String(value)}
