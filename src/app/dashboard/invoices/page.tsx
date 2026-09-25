@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/../lib/supabase";
 import { format } from "date-fns";
+import { deleteInvoice, fetchInvoices } from "@/modules/invoice/invoice.api";
 import Link from "next/link";
 import { Plus, Search, FileText, SlidersHorizontal, Download } from "lucide-react";
 import { toast } from "sonner";
@@ -36,35 +36,13 @@ export default function InvoiceDashboard() {
   const [sortOrder, setSortOrder] = useState("newest");
 
   useEffect(() => {
-    fetchInvoices();
+    loadInvoices();
   }, [search, filterType, sortOrder]);
 
-  const fetchInvoices = async () => {
+  const loadInvoices = async () => {
     setLoading(true);
     try {
-      let query = supabase.from("invoices").select("*");
-
-      if (search) {
-        query = query.or(`customer_name.ilike.%${search}%,invoice_number.ilike.%${search}%`);
-      }
-
-      if (filterType !== "all") {
-        query = query.eq("invoice_type", filterType);
-      }
-
-      if (sortOrder === "newest") {
-        query = query.order("created_at", { ascending: false });
-      } else if (sortOrder === "oldest") {
-        query = query.order("created_at", { ascending: true });
-      } else if (sortOrder === "highest") {
-        query = query.order("total", { ascending: false });
-      } else if (sortOrder === "lowest") {
-        query = query.order("total", { ascending: true });
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-      setInvoices(data || []);
+      setInvoices(await fetchInvoices({ search, type: filterType, sort: sortOrder }));
     } catch (error) {
       console.error("Error fetching invoices:", error);
     } finally {
@@ -75,11 +53,11 @@ export default function InvoiceDashboard() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this invoice?")) return;
     try {
-      await supabase.from("invoice_items").delete().eq("invoice_id", id);
-      await supabase.from("invoices").delete().eq("id", id);
-      fetchInvoices();
+      await deleteInvoice(id);
+      loadInvoices();
     } catch (error) {
       console.error("Error deleting invoice:", error);
+      toast.error("Failed to delete invoice");
     }
   };
 

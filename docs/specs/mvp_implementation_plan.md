@@ -132,7 +132,20 @@ Formatting to rupees happens only at display time (`formatCurrency` from the bus
 
 ## 3. Phases
 
-### Phase 0 — Security and ownership foundation · **M–L**
+### Phase 0 — Security and ownership foundation · **M–L** · ✅ implemented 2026-09-26 (after Phase 1)
+
+**As built:**
+- Migration `20260926000000_business_ownership.sql`: `businesses` table (1 per user, created by trigger on `auth.users`, backfilled); `business_id` on `customers`, `invoices`, `products`, **filled by a column default from the session** (`current_business_id()`); RLS on all five tables (invoice items via their invoice); trigger stopping an invoice from referencing another business's customer; private `invoice-pdfs` bucket with per-business folder policies; admin-only `claim_legacy_data(email)`.
+- Route guards `requireUser()` / `requireBusiness()` in `src/lib/api/auth.ts`, used by **every** API route (on top of the proxy). Another business's id → 404.
+- Browser → table access removed: the invoices list, detail, edit and copy pages and the customers list now call `GET /api/invoices`, `GET|DELETE /api/invoices/:id` and `GET /api/customers`. The anon client `lib/supabase.ts` was deleted.
+- `/api/invoices/save`: ids must belong to the business; totals recomputed with the existing invoice calculator (client totals ignored); re-saving reuses the invoice's customer, and the toolbar keeps the returned id (D1).
+- Template publishing to GitHub only when `TEMPLATE_PUBLISHING_ENABLED=true` (off by default).
+- Legacy data → **webans001@gmail.com** via `claim_legacy_data`, run on the hosted project; see [phase0_hosted_rollout.md](../runbooks/phase0_hosted_rollout.md).
+
+**Phase gate (2026-09-26):** backend E2E `tests/api/ownership.spec.ts` (API isolation, direct-DB RLS checks, anon key, server totals, legacy claim, template flag) + frontend E2E `tests/ownership.spec.ts` (desktop + mobile). Full `npm run test:e2e`: **254 passed, 0 failed**, 20 skipped (pre-existing). `next build` passes; no new lint errors.
+
+**Not yet applied to the hosted project.** Follow the runbook.
+
 
 This phase fixes the live vulnerabilities and puts the ownership model under **all** existing data before any new feature is built.
 

@@ -1,11 +1,15 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { requireUser } from "@/lib/api/auth";
 import fs from "fs";
 import path from "path";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
+  const auth = await requireUser();
+  if (!auth.ok) return auth.response;
+
   try {
     const { prompt } = await req.json();
 

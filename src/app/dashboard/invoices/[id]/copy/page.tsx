@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { supabase } from "@/../lib/supabase";
+import { fetchInvoiceBundle } from "@/modules/invoice/invoice.api";
 import { useInvoice } from "@/hooks/useInvoice";
 
 import InvoicePrintLayout from "@/components/invoice/InvoicePrintLayout";
@@ -26,31 +26,9 @@ export default function CopyInvoicePage() {
 
   const loadInvoiceData = async (id: string) => {
     try {
-      // Fetch invoice
-      const { data: invoiceData, error: invoiceError } = await supabase
-        .from("invoices")
-        .select("*")
-        .eq("id", id)
-        .single();
-      if (invoiceError) throw invoiceError;
-
-      // Fetch customer
-      let customerData = null;
-      if (invoiceData.customer_id) {
-        const { data: cData } = await supabase
-          .from("customers")
-          .select("*")
-          .eq("id", invoiceData.customer_id)
-          .single();
-        customerData = cData;
-      }
-
-      // Fetch items
-      const { data: itemsData, error: itemsError } = await supabase
-        .from("invoice_items")
-        .select("*")
-        .eq("invoice_id", id);
-      if (itemsError) throw itemsError;
+      // Invoice, customer and items from the business-scoped API
+      const { invoice: invoiceData, customer: customerData, items: itemsData } =
+        await fetchInvoiceBundle(id);
 
       // Preload state into useInvoice hook BUT WITHOUT THE ID
       setInvoiceData({

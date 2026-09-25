@@ -13,7 +13,7 @@ interface InvoiceToolbarProps {
 
 export default function InvoiceToolbar({ onOpenPreview }: InvoiceToolbarProps) {
   const { printInvoice } = useInvoicePrint();
-  const { invoice, generateInvoice } = useInvoice();
+  const { invoice, generateInvoice, setInvoiceField } = useInvoice();
   const { template, changeTemplate } = useInvoiceTemplate();
   const [saving, setSaving] = useState(false);
 
@@ -37,6 +37,8 @@ export default function InvoiceToolbar({ onOpenPreview }: InvoiceToolbarProps) {
           id: invoice.id,
           invoice_number: invoice.meta.invoiceNumber,
           invoice_type: invoice.meta.type,
+          // The server recomputes all totals from items + tax_percent.
+          tax_percent: invoice.taxPercent ?? 18,
           subtotal: invoice.totals.subTotal,
           sgst: invoice.totals.sgst,
           cgst: invoice.totals.cgst,
@@ -68,6 +70,11 @@ export default function InvoiceToolbar({ onOpenPreview }: InvoiceToolbarProps) {
       if (!res.ok) {
         throw new Error("Failed to save invoice");
       }
+
+      // Remember the saved id so saving again updates this invoice instead of
+      // creating a new invoice and customer.
+      const saved = await res.json();
+      if (saved?.invoice?.id) setInvoiceField("id", saved.invoice.id);
 
       toast.success("Invoice saved to dashboard successfully!");
     } catch (error) {

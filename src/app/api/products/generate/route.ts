@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/../lib/supabase";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { requireBusiness } from "@/lib/api/auth";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(request: Request) {
+  const auth = await requireBusiness();
+  if (!auth.ok) return auth.response;
+  const { supabase } = auth;
+
   try {
     const { prompt, industry } = await request.json();
 
@@ -34,6 +38,7 @@ Do not include any text outside the JSON array. Example: [{"name": "Product A", 
       throw new Error("AI did not return an array");
     }
 
+    // business_id is filled from the session by the column default.
     const productsToInsert = aiProducts.map((p) => ({
       name: p.name,
       price: p.price,

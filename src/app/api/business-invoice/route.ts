@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { requireUser } from "@/lib/api/auth";
+import { isTemplatePublishingEnabled, publishTemplate } from "@/lib/templates/publish";
 import { BusinessItem, BusinessTemplate } from "@/lib/businessTemplates";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs";
@@ -7,6 +9,9 @@ import path from "path";
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
+  const auth = await requireUser();
+  if (!auth.ok) return auth.response;
+
   try {
     const body = await req.json();
     const { form, prompt } = body;
@@ -56,32 +61,21 @@ export async function POST(req: Request) {
       const aiTemplate = await generateAITemplate(businessType);
       if (aiTemplate) {
         templateItems = aiTemplate.items;
-        // Persist it for next time using the new GitHub API
+        // Persist it for next time — only where template publishing is enabled
+        // (admin-only; it commits to the shared templates file on GitHub).
         try {
-          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (req.url.includes("localhost") ? "http://localhost:3000" : "");
-          // We can't easily call our own API with fetch in some serverless envs depending on config, 
-          // but we can just import the logic or just perform the fetch if the URL is known.
-          // For simplicity and to follow the requirement "Backend API route", we'll use fetch if possible or just note it.
-          // Better: The requirement says "Read the existing invoiceTemplates.json... Commit...".
-          // I will call the save API internally or just trigger it.
-          if (baseUrl) {
-            await fetch(`${baseUrl}/api/templates/save`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                template: {
-                  id: businessType,
-                  name: aiTemplate.industryName,
-                  industry: businessType,
-                  items: aiTemplate.items.map(item => ({
-                    description: item.name,
-                    category: item.category,
-                    price: 0, 
-                    quantity: item.quantity,
-                    weight: item.weight
-                  }))
-                }
-              })
+          if (isTemplatePublishingEnabled()) {
+            await publishTemplate({
+              id: businessType,
+              name: aiTemplate.industryName,
+              industry: businessType,
+              items: aiTemplate.items.map(item => ({
+                description: item.name,
+                category: item.category,
+                price: 0,
+                quantity: item.quantity,
+                weight: item.weight
+              }))
             });
           }
         } catch (e) {

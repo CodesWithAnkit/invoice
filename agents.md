@@ -79,6 +79,8 @@ Before creating a new component, service, utility, hook, API pattern, state-mana
 - Do not claim tests passed unless they were actually executed.
 
 ## Security Rules
+- Every API route handler starts with `requireUser()` or `requireBusiness()` (`src/lib/api/auth.ts`) and uses the returned per-request Supabase client, so RLS applies. Never take `business_id`/`user_id` from the request; business-owned tables fill `business_id` from the session by default.
+- Another business's resource answers 404. The browser never queries Supabase tables directly.
 - Keep private tokens private.
 - Authorization and Data constraints must be validated server-side.
 

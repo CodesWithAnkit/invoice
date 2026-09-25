@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Plus, Search, Users } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/../lib/supabase";
+import { fetchCustomersWithInvoiceStats } from "@/modules/invoice/invoice.api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -26,17 +26,11 @@ export default function CustomersPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [customersRes, invoicesRes] = await Promise.all([
-          supabase.from("customers").select("*"),
-          supabase.from("invoices").select("customer_id, total, pdf_url")
-        ]);
-
-        if (customersRes.error) throw customersRes.error;
-        if (invoicesRes.error) throw invoicesRes.error;
+        const { customers: customerRows, invoiceStats } = await fetchCustomersWithInvoiceStats();
 
         const customerStats = new Map<string, { count: number; outstanding: number; settled: number }>();
-        
-        invoicesRes.data.forEach((inv) => {
+
+        invoiceStats.forEach((inv) => {
           const stats = customerStats.get(inv.customer_id) || { count: 0, outstanding: 0, settled: 0 };
           stats.count += 1;
           if (inv.pdf_url) {
@@ -47,7 +41,7 @@ export default function CustomersPage() {
           customerStats.set(inv.customer_id, stats);
         });
 
-        const formatted: MockCustomer[] = customersRes.data.map(c => {
+        const formatted: MockCustomer[] = customerRows.map(c => {
           const stats = customerStats.get(c.id) || { count: 0, outstanding: 0, settled: 0 };
           return {
             id: c.id,

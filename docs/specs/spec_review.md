@@ -224,3 +224,5 @@ When a decision is made, record it here (date, decision, who).
 | R-29 | E2E tests run against a local Supabase stack (Docker), not the hosted project. | 2026-09-25 | Product owner |
 | R-22 | Supabase Auth with `@supabase/ssr` cookie sessions: the plan's default, adopted when Phase 1 was implemented. | 2026-09-25 | Implemented per plan |
 | R-23 | Email confirmation on (already the hosted setting); password minimum 8. | 2026-09-25 | Implemented per plan |
+| R-26 | All existing (unowned) data is assigned to **webans001@gmail.com** via the admin-only `claim_legacy_data(email)`, run once on the hosted project. | 2026-09-26 | Product owner |
+| — | Template publishing to GitHub is admin-only: off unless `TEMPLATE_PUBLISHING_ENABLED=true`; reading templates stays open to signed-in users. | 2026-09-26 | Product owner |

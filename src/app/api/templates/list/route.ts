@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { requireUser } from "@/lib/api/auth";
 
 const TEMPLATES_URL = "https://raw.githubusercontent.com/CodesWithAnkit/invoice/main/data/invoiceTemplates.json";
 
 export async function GET() {
+  const auth = await requireUser();
+  if (!auth.ok) return auth.response;
+
   try {
     // 1. Try to fetch from GitHub Raw first
     try {

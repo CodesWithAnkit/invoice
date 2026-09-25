@@ -46,6 +46,8 @@ These are live issues in the current code, not just future gaps. Each one breach
 
 C1, C2 and C4 can be fixed without any product decision (see Plan, Phase 0).
 
+> **Status 2026-09-26 (Phase 0, in code; hosted rollout pending, see docs/runbooks/phase0_hosted_rollout.md):** C3 fixed (RLS + no browser → table access), C4 fixed (every route guarded and business-scoped; GitHub publishing admin-only), C5 fixed (ids verified, totals recomputed server-side), C6 fixed (private bucket, per-business folders). D1 and D5 fixed.
+>
 > **Status 2026-09-25 (Phase 1):** C1 and C2 are **fixed** (Supabase Auth; the shared credential and localStorage flag are removed from the code). C4 is **fixed for anonymous callers**: every non-public `/api/*` now returns 401 without a session. Per-business authorization of those routes, and C3, C5 and C6, remain Phase 0 work. Delete the unused `NEXT_PUBLIC_APP_USER/PASS` from `.env` and rotate that password.
 
 ---

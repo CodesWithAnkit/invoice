@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { supabase } from "@/../lib/supabase";
+import { fetchInvoiceBundle } from "@/modules/invoice/invoice.api";
 import { useInvoice } from "@/hooks/useInvoice";
 import InvoicePrintLayout from "@/components/invoice/InvoicePrintLayout";
 import { ArrowLeft, Download, FileEdit, Send, CheckCircle2, CreditCard } from "lucide-react";
@@ -34,31 +34,10 @@ export default function InvoiceDetail() {
   const fetchInvoiceDetails = async (id: string) => {
     setLoading(true);
     try {
-      const { data: invoiceData, error: invoiceError } = await supabase
-        .from("invoices")
-        .select("*")
-        .eq("id", id)
-        .single();
-      if (invoiceError) throw invoiceError;
+      const { invoice: invoiceData, customer: customerData, items: itemsData } =
+        await fetchInvoiceBundle(id);
       setInvoice(invoiceData);
-
-      let customerData: any = null;
-      if (invoiceData.customer_id) {
-        const { data: cData, error: customerError } = await supabase
-          .from("customers")
-          .select("*")
-          .eq("id", invoiceData.customer_id)
-          .single();
-        if (customerError) throw customerError;
-        customerData = cData;
-        setCustomer(customerData);
-      }
-
-      const { data: itemsData, error: itemsError } = await supabase
-        .from("invoice_items")
-        .select("*")
-        .eq("invoice_id", id);
-      if (itemsError) throw itemsError;
+      if (customerData) setCustomer(customerData);
       setItems(itemsData || []);
 
       // Preload state into useInvoice hook for print
