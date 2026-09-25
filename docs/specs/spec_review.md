@@ -12,12 +12,18 @@ Per AGENTS.md ("Never silently guess load-bearing decisions"), each item below h
 
 ## A. Product-level conflicts
 
-### R-00 🔴 What happens to the existing invoice product? (blocks Phase 0)
+### R-00 ✅ What happens to the existing invoice product?
+> **Decided 2026-09-25:** keep the invoice/quote/proforma generator **as it is**: unchanged behaviour, still in navigation, and explicitly part of the MVP (see MVP Acceptance Criteria §30). The security and ownership fixes in Phase 0 still apply to it. The quotation domain is built alongside it.
+
+*Original analysis:*
 The codebase *is* an invoice/proforma generator: GST split, bank details, Aadhaar, signatures, AI PDF parsing, and hardcoded proforma delivery T&Cs. The PRD redefines the product as a quotation platform with "no accounts receivable" and never mentions invoices, proforma, bank details or signatures. The PRD's §49 even says "The current application does not have an authentication system", so it appears to have been written without the current feature set in view.
 **Options:** (a) keep invoicing alongside quotations; (b) freeze invoicing as legacy, hidden from nav but still reachable; (c) remove it.
 **Recommendation:** (b). Keep the invoice editor and print pipeline working and untouched, remove it from primary nav, and build quotations as a new domain that reuses its components. Revisit "quote → invoice" conversion post-MVP.
 
-### R-01 🔴 URL structure (blocks Phase 1)
+### R-01 ✅ URL structure
+> **Decided 2026-09-25:** keep the current structure: authenticated app under `/dashboard/*`, invoice editor at `/`. The spec's paths are logical names. New routes follow the same pattern (`/dashboard/projects`, `/dashboard/quotations`). The public quote page lives outside `/dashboard` at `/public/quote/[token]` (PRD §10).
+
+*Original analysis:*
 The PRD (§10) and AC-AUTH-006 list `/dashboard`, `/customers`, `/projects`, `/quotations`, … as top-level routes. The app nests everything under `/dashboard/*` and uses `/` for the invoice editor. AC-AUTH-006 also adds `/services`, which the PRD doesn't have.
 **Recommendation:** keep the `/dashboard/*` prefix (it is established and tested) and read the spec paths as logical names. Put the public route at `/q/[token]` or `/public/quote/[token]` (outside the authenticated layout). Treat Services as a tab of Products & Services, not its own route.
 
@@ -45,7 +51,10 @@ These are flagged in AGENTS.md as pending, not silently rewritten.
 
 ## B. Calculation rules (blocks Phase 4)
 
-### R-04 🔴 Percentage line-item base
+### R-04 ✅ Percentage line-item base
+> **Decided 2026-09-25:** percentage amount = **base subtotal × %**, where base subtotal = Σ of all **non-percentage** line amounts. Percentage items are never part of their own base (no circular calculation). The exact order of steps is in [mvp_implementation_plan.md §2.4](mvp_implementation_plan.md#24-money-and-calculation-rules-r-04-r-08).
+
+*Original analysis:*
 AC-ESTIMATE-007 says "calculate against the defined calculation base" but never defines it.
 **Recommendation:** base = Σ of **non-percentage** line amounts. Percentage items never include other percentage items (so there is no circularity). They are included in the subtotal, then discounted and taxed like any other line.
 
@@ -61,9 +70,12 @@ The current calculator always splits tax into CGST/SGST halves, while PRD §22 s
 Neither document specifies: quotation-level only or also per line? Can a discount exceed the subtotal? What is a fixed discount's max?
 **Recommendation:** quotation-level only. Percentage 0–100. Fixed from 0 up to the subtotal. The server rejects anything else (AC-CALC-005).
 
-### R-08 🔴 Money representation and rounding
+### R-08 ✅ Money representation and rounding
+> **Decided 2026-09-25:** store all monetary values as **integers in minor units** (paise), `bigint` in Postgres. Round with one deterministic rule at defined calculation boundaries only. The rule is **round half up**, applied once per line, per percentage item, and to discount and tax (see [mvp_implementation_plan.md §2.4](mvp_implementation_plan.md#24-money-and-calculation-rules-r-04-r-08)). This applies to the new quotation domain; the existing invoice calculator stays as it is (R-00).
+
+*Original analysis:*
 Not specified anywhere. The existing code uses JS floats with `round2` per line.
-**Recommendation:** store money as `numeric(14,2)` in Postgres, compute server-side with an explicit rounding rule (half-up to 2 dp at **each line** and at **each summary step**), and document it in one module shared by the server and the preview. Quantities `numeric(12,3)` (allows 0.5 hours). This rule decides the answers to AC-CALC-004 and AC-DATA-004.
+*Superseded recommendation:* store money as `numeric(14,2)` in Postgres, compute server-side with an explicit rounding rule (half-up to 2 dp at **each line** and at **each summary step**), and document it in one module shared by the server and the preview. Quantities `numeric(12,3)` (allows 0.5 hours). This rule decides the answers to AC-CALC-004 and AC-DATA-004.
 
 ### R-09 Quantity rules
 The AC rejects negative values but is silent on **zero** and fractions. The existing schema demands `quantity ≥ 1` (it would reject 0.5 h).
@@ -105,7 +117,12 @@ AC-QUOTE-002/003 talk about a "finalized" quotation, which is not in the status 
 Who moves Sent/Viewed → Expired, and when? In which time zone is `valid_until` evaluated?
 **Recommendation:** evaluate lazily. On every read and every public action, `valid_until < today(business_tz)` ⇒ treat the quotation as Expired and persist that plus an activity row. No cron needed for MVP. Add a business `timezone` setting (default `Asia/Kolkata`).
 
-### R-15 🔴 PDF generation approach
+### R-15 ✅ PDF generation approach
+> **Decided 2026-09-25:** the quotation PDF works **like the current one**: browser print, **single A4 page**. Multi-page PDFs are deferred and will be added later if needed. AC-PDF-004 "multi-page" is out of MVP (noted in MVP Acceptance Criteria).
+>
+> **Consequence, open as R-15a 🔴 (blocks Phase 6):** one A4 page already holds at most 15 line items with the current footer. Quotations also need scope, deliverables, timeline, assumptions and terms (AC-PREVIEW-001, AC-PDF-002). Not all of that fits on one page at full length. Decide which sections appear on the PDF and in what compact form, and cap their content in the builder. Caps are set by measurement with the existing one-page Playwright test (`tests/invoice-pdf-export.spec.ts` pattern), not by guesswork.
+
+*Original analysis:*
 AC-PDF-004 requires multi-page output; AC-CLIENT-003 requires a **client** "Download PDF" on the public page; E2E-003 requires verifying the output. The current engine is browser `window.print()`, deliberately fixed to **one A4 page and 15 items**, and protected by an AGENTS.md invariant.
 **Options:** (a) a new print-CSS quotation layout with real pagination (`break-inside`, running header and footer), still using browser print. The client's "Download PDF" is then just print-to-PDF. (b) Server-rendered PDF (headless Chromium, or `@react-pdf/renderer`) giving a real downloadable file.
 **Recommendation:** (a) for MVP. It reuses the proven print pipeline and needs no new infrastructure, and the invoice layout stays untouched. Revisit (b) if a real file download or storage becomes a requirement. Needs an explicit decision because it sets the meaning of "Download PDF".
@@ -197,4 +214,9 @@ When a decision is made, record it here (date, decision, who).
 
 | ID | Decision | Date | By |
 |---|---|---|---|
-| | | | |
+| R-00 | Keep the invoice/quote/proforma generator as it is; it is part of the MVP. | 2026-09-25 | Product owner |
+| R-01 | Keep the `/dashboard/*` URL structure; public quote at `/public/quote/[token]`. | 2026-09-25 | Product owner |
+| R-04 | Percentage items = base subtotal (Σ non-percentage lines) × %. | 2026-09-25 | Product owner |
+| R-08 | Money as integer minor units (paise); one deterministic rounding rule (half up) at defined boundaries. | 2026-09-25 | Product owner |
+| R-15 | Quotation PDF = browser print, single A4 page, as now. Multi-page deferred. Opens R-15a. | 2026-09-25 | Product owner |
+| — | Phase order: Security & ownership → Auth → Business onboarding → Existing customers/products/settings → Projects → Estimate builder → Quotation. | 2026-09-25 | Product owner |

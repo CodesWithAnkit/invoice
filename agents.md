@@ -26,7 +26,11 @@ Working documents derived from them:
 - `docs/specs/mvp_implementation_plan.md`: phased build order. Work within the current phase.
 - `docs/specs/spec_review.md`: contradictions and open decisions (`R-xx`). Items marked 🔴 must be decided before the phase that needs them. Record decisions in its Decision Log.
 
-**Pending conflicts:** some rules below (schema compatibility with `customers`/`invoices`/`invoice_items`, mutations only via `/api/invoices/save`, the `useInvoice` localStorage draft as state) predate these specs and conflict with them (see `spec_review.md` R-02). Until R-02 is decided, they still govern the **existing invoice feature**. For new quotation-domain work, do not silently pick a side. Surface the conflict and ask.
+**Existing invoice feature:** it is kept as it is and is part of the MVP (R-00). The invoice-specific rules below (schemas, `/api/invoices/save`, the `useInvoice` localStorage draft, print invariants) keep governing it, except for the Phase 0 security and ownership fixes.
+
+**Pending conflicts:** those same rules conflict with the specs for new quotation-domain work (see `spec_review.md` R-02). Do not silently pick a side. Surface the conflict and ask.
+
+**Quotation-domain decisions:** routes stay under `/dashboard/*` (R-01); money is integer minor units (R-08); percentage items use the non-percentage base subtotal (R-04); the quotation PDF is one A4 page via browser print (R-15).
 
 ## Existing Codebase Rule
 This is an existing production codebase.

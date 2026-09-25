@@ -22,7 +22,7 @@ The codebase is a **single-tenant invoice/quote/proforma generator** with a fini
 | Authorization / business isolation | **Absent.** There is no `business` concept; the browser reads and deletes rows directly with the public anon key. |
 | Domain model (business, projects, services, quotations, scope, timeline, activity) | **Absent.** Only `customers`, `invoices`, `invoice_items`, `products` exist. |
 | Calculation engine | **Partial.** A pure calculator exists, but it runs only in the client, the server trusts client totals, and discounts and pricing models are missing. |
-| PDF | **Partial and conflicting.** Browser print is hard-capped to one A4 page with 15 items; the ACs require multi-page. |
+| PDF | **Partial.** Browser print on one A4 page with 15 items. One page is the agreed MVP behaviour (R-15); the quotation sections still need to fit on it. |
 | Public quote / client accept-reject | **Absent.** |
 | Dashboard analytics | **Mock data only**, and invoice/payment-oriented. |
 | Tests | **E2E exists but bypasses auth.** No unit-test runner; the ACs require unit tests. |
@@ -159,7 +159,7 @@ Legend: ✅ Done · 🟡 Partial (usable foundation, not AC-compliant) · ❌ Mi
 | PDF-001 Generate | 🟡 | Browser `window.print()` → Save as PDF. Solid, well-tested ([invoice-pdf-export.spec.ts](../../tests/invoice-pdf-export.spec.ts)). |
 | PDF-002 Completeness | 🟡 | See PREVIEW-001. |
 | PDF-003 Accuracy | ⚠️ | Prints client state, not persisted totals. |
-| PDF-004 Layout / multi-page | ⚠️ | **Designed as exactly one A4 page** (`zoom: 0.85`, 15-item cap, test asserts 1 page). Multi-page quotations with scope, timeline and terms need a different layout contract. AGENTS.md also forbids changing the export PDF without an explicit request → [spec_review.md](spec_review.md) R-15. |
+| PDF-004 Layout | 🟡 | **Designed as exactly one A4 page** (`zoom: 0.85`, 15-item cap, test asserts 1 page). **Decided (R-15):** the quotation PDF stays one page for the MVP and multi-page is deferred. Remaining gap: fitting scope, timeline and terms onto one page ([spec_review.md](spec_review.md) R-15a). |
 | PDF-005 Branding | 🟡 | Name and contact yes; no logo; two templates (Classic, Modern). |
 
 ### 4.11 Public quote, client actions, activity (AC §15–18)

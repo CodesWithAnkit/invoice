@@ -736,9 +736,11 @@ The PDF must:
 - Handle long project names
 - Handle long customer names
 - Handle long line-item descriptions
-- Handle multi-page quotations
+- ~~Handle multi-page quotations~~ **Fit on exactly one A4 page** (see decision below)
 - Keep totals readable
 - Keep terms readable
+
+> **Decision (2026-09-25, R-15):** for the MVP the quotation PDF works like the current one: browser print on a **single A4 page**. Multi-page quotations are deferred and will be added later if required. The builder enforces content limits so a quotation always fits on one page (limits to be set under R-15a in `docs/specs/spec_review.md`).
 
 ---
 
@@ -1217,7 +1219,7 @@ The MVP is complete when all of the following are true:
 - [ ] PDF generation works.
 - [ ] PDF contains all required information.
 - [ ] PDF calculations match backend totals.
-- [ ] Multi-page quotations render correctly.
+- [ ] Quotations render on a single A4 page (multi-page deferred, R-15).
 - [ ] Long content does not break layout.
 
 ### Client
@@ -1366,3 +1368,26 @@ TRACK RESULT
 ```
 
 That is the complete product loop for the first release.
+---
+
+# 30. Existing Invoice Feature (Included in MVP)
+
+> **Decision (2026-09-25, R-00):** the existing invoice / quote / proforma generator is **kept as it is** and ships as part of the MVP alongside the new quotation workflow.
+
+## AC-LEGACY-001 — Unchanged Behaviour
+
+The existing invoice editor (`/`), invoice list, detail, edit and copy pages, Classic/Modern templates, proforma terms, GST calculation, bank details, signatures, AI-assisted features and the single-page A4 print/PDF output must continue to work exactly as before.
+
+The existing invoice regression tests (`invoice-pdf-export`, `invoice-view`, `invoice-editor`) must pass unmodified, apart from the login setup.
+
+## AC-LEGACY-002 — Navigation
+
+Invoices remains available in the application navigation.
+
+## AC-LEGACY-003 — Security Applies
+
+The invoice feature is not exempt from the security and authorization criteria. Its routes and APIs must require authentication, and its data must belong to and be isolated by business (AC-AUTHZ-001…003, §23).
+
+## AC-LEGACY-004 — Separation
+
+The new quotation workflow must not change invoice data, invoice calculations or the invoice print layout. Quotation-specific rules (for example integer minor-unit money, R-08) apply only to the quotation domain.
