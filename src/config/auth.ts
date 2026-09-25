@@ -25,7 +25,7 @@ export function isAuthPage(pathname: string) {
 
 /** Pages rendered without the sidebar/top-nav shell. */
 export function isShellFreePage(pathname: string) {
-  return isAuthPage(pathname) || matches(pathname, RESET_PASSWORD_PATH) || matches(pathname, "/public");
+  return isAuthPage(pathname) || matches(pathname, RESET_PASSWORD_PATH) || matches(pathname, "/public") || matches(pathname, "/onboarding");
 }
 
 /** Paths that never require a session. */

@@ -56,6 +56,7 @@ Before creating a new component, service, utility, hook, API pattern, state-mana
 ## Frontend Rules
 - Keep client components minimal. Mark files with `"use client"` only when they manage state, use local storage, browser APIs, or React hooks.
 - Build form inputs as modular blocks using Radix/Shadcn primitives.
+- **Form State Pattern**: Never use individual `useState` hooks for each form field. Always group form fields into a single `values` state object (e.g. `const [values, setValues] = useState({ field1: "", field2: "" })`) and use a single change handler, often paired with `zod` for validation. See `src/app/login/LoginForm.tsx` for reference.
 - **Strict Print Invariants**: The A4 printing engine and export PDF functionality must never be broken. Do NOT change export PDF (layout, styles, components) without explicit request. Pure UI controls must use `.no-print`.
 - **Theme & UI Rules (Permanent Dark/Light Mode)**: Every new UI must support both themes. Use **Semantic Theme Tokens** (e.g. `bg-background`, `text-foreground`). Hardcoded colors are prohibited unless intentional. Shared components must be theme-aware.
 - Use Geist Sans for UI, Geist Mono for tabular values.

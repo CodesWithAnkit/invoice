@@ -37,6 +37,8 @@
   - Found and fixed two WCAG contrast failures in the new form components (error red on the card surface was 4.4:1).
   - **Hosted-project follow-ups (dashboard, not code):** add `<site>/auth/callback` to Auth → URL Configuration redirect URLs; set minimum password length to 8; configure custom SMTP (the default only emails project team members, so real users would not receive confirmation or reset emails); delete `NEXT_PUBLIC_APP_USER/PASS` from `.env` and rotate that password.
   - **Found during the audit:** the hosted anon key can read every customer, invoice and invoice-item row (RLS off or permissive). That is Phase 0 work.
+- `[x]` **MVP Phase 2 — Business Onboarding** (2026-09-26; see `docs/specs/0001-business-onboarding.md`). Implemented the `/onboarding` UI and the `PATCH /api/business` route. Grouped form state and single update handlers per `AGENTS.md` rules. Backend and Frontend E2E coverage complete.
+  - **Phase gate:** `npm run test:e2e` for both API (`tests/api/business.spec.ts`) and frontend (`tests/onboarding.spec.ts`) passed on desktop and mobile.
 
 ---
 
