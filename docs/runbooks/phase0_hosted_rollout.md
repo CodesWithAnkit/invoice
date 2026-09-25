@@ -15,7 +15,9 @@ Do steps 2–4 together, in one short window.
 
 1. **Back up.** In the Supabase dashboard, open Database → Backups and confirm there is a recent backup (or take one).
 
-2. **Apply the migrations** (either option):
+2–3. **Simplest: one script.** In Supabase Dashboard → SQL Editor, paste all of [`phase0_hosted_rollout.sql`](phase0_hosted_rollout.sql) and click Run. It applies both migrations, claims all existing data for webans001@gmail.com, and records the migrations, in one transaction (all or nothing). It was dry-run on a production-like copy on 2026-09-26. If you use it, skip to step 4.
+
+2. **Or apply the migrations yourself** (either option):
    - **CLI:** reset the database password (Settings → Database; the one in `.env` is rejected), then:
      ```bash
      npx supabase link --project-ref pffulyqpbqcglptrawat
