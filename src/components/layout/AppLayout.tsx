@@ -5,12 +5,12 @@ import { Sidebar } from "./Sidebar";
 import { TopNavbar } from "./TopNavbar";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { Toaster } from "sonner";
+import { isShellFreePage } from "@/config/auth";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isLoginRoute = pathname === "/login";
 
-  if (isLoginRoute) {
+  if (isShellFreePage(pathname)) {
     return (
       <>
         {children}

@@ -46,6 +46,8 @@ These are live issues in the current code, not just future gaps. Each one breach
 
 C1, C2 and C4 can be fixed without any product decision (see Plan, Phase 0).
 
+> **Status 2026-09-25 (Phase 1):** C1 and C2 are **fixed** (Supabase Auth; the shared credential and localStorage flag are removed from the code). C4 is **fixed for anonymous callers**: every non-public `/api/*` now returns 401 without a session. Per-business authorization of those routes, and C3, C5 and C6, remain Phase 0 work. Delete the unused `NEXT_PUBLIC_APP_USER/PASS` from `.env` and rotate that password.
+
 ---
 
 ## 3. Functional defects in the existing UI
@@ -214,8 +216,8 @@ Legend: ✅ Done · 🟡 Partial (usable foundation, not AC-compliant) · ❌ Mi
 
 | # | Unknown | Why it matters | How to resolve |
 |---|---|---|---|
-| U1 | **Is RLS enabled** on `customers`, `invoices`, `invoice_items`, `products`, and what policies exist? | It decides whether C3 is a theoretical or an actively exploitable data exposure. | Supabase dashboard → Authentication → Policies, or `select relname, relrowsecurity from pg_class where relname in (...)`. |
+| U1 | **Answered 2026-09-25:** the public anon key can read **every row** of `customers` (23), `invoices` (4) and `invoice_items` (40), checked by row count only. RLS is off or permissive, so **C3 is an active exposure**. | It decides whether C3 is a theoretical or an actively exploitable data exposure. | Supabase dashboard → Authentication → Policies, or `select relname, relrowsecurity from pg_class where relname in (...)`. |
 | U2 | Is the `invoice-pdfs` bucket public, and does it contain real client PDFs? | C6 severity. | Supabase Storage settings. |
 | U3 | Does `.env` point at a production project that Playwright tests write to? | Test isolation; data pollution. | Confirm with the project owner. |
-| U4 | What columns do `products` and `invoices` actually have (for example `industry`, `created_at`, `updated_at`, `bank_*`)? | No migrations exist in the repo; [architecture_context.md](../architecture_context.md) is out of date (for example it is missing `company_name` and the bank fields). | `supabase db dump --schema-only` into `supabase/migrations/0000_baseline.sql`. |
-| U5 | Is there real production data (customers, invoices) that must survive the migration? | It decides between backfill and a clean start. | Product owner. |
+| U4 | **Answered 2026-09-25:** captured in `supabase/migrations/20260925000000_baseline_legacy_schema.sql` (from API metadata; `pg_dump` failed because the DB password in `.env` is rejected). What columns do `products` and `invoices` actually have (for example `industry`, `created_at`, `updated_at`, `bank_*`)? | No migrations exist in the repo; [architecture_context.md](../architecture_context.md) is out of date (for example it is missing `company_name` and the bank fields). | `supabase db dump --schema-only` into `supabase/migrations/0000_baseline.sql`. |
+| U5 | **Answered 2026-09-25:** yes, 23 customers, 4 invoices, 40 items. Is there real production data (customers, invoices) that must survive the migration? | It decides between backfill and a clean start. | Product owner. |

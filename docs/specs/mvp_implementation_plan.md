@@ -20,7 +20,19 @@
 4. **URLs stay as they are** (R-01). The app lives under `/dashboard/*`, the invoice editor at `/`, and the public quote at `/public/quote/[token]`.
 5. **Quotation PDF = one A4 page via browser print, like today** (R-15). Multi-page is deferred.
 6. **The server is the source of truth** for totals, status and numbering. The client calculator is only a live preview of the same shared module.
-7. **Every phase ends green**: `npm run build`, lint, unit, Playwright (desktop + mobile), axe, responsive audit, and the existing invoice regression tests unchanged.
+7. **Every phase ends green**: `npm run build`, lint, unit, Playwright (desktop + mobile), axe, responsive audit, and the existing invoice regression tests unchanged. See the phase gate below.
+
+### 1.1 Phase gate: backend and frontend E2E (mandatory)
+
+**A phase is not complete, and the next phase must not start, until its end-to-end tests pass on both the backend and the frontend.**
+
+| Layer | What must be covered | How |
+|---|---|---|
+| **Backend E2E** | Every API route the phase adds or changes, called over real HTTP against the running app and database: happy path, validation errors (400), unauthenticated (401), other business's resource (404), invalid state transitions. | Playwright API tests (`request` fixture), in `tests/api/**`. |
+| **Frontend E2E** | Every user flow the phase adds or changes, driven through the browser: happy path, empty, loading, error and validation states, and redirects. Run on desktop **and** mobile projects, with axe checks on new pages. | Playwright UI tests, in `tests/**`. |
+| **Regression** | All earlier phases' backend and frontend E2E suites, plus the unchanged invoice suites (AC-LEGACY-001). | Full `npm run test:e2e`. |
+
+The gate is recorded in `progress_tracker.md` per phase with the test command, the date and the pass count. Tests must actually be executed; they cannot be claimed (AGENTS.md).
 
 Sizes are relative (S ≈ a few days, M ≈ ~1 week, L ≈ 2+ weeks for one engineer). They are not commitments.
 
@@ -141,7 +153,20 @@ This phase fixes the live vulnerabilities and puts the ownership model under **a
 
 ---
 
-### Phase 1 — Authentication · **M**
+### Phase 1 — Authentication · **M** · ✅ implemented 2026-09-25 (started before Phase 0 at the product owner's request)
+
+**As built:**
+- Supabase Auth with `@supabase/ssr` cookie sessions. `src/lib/supabase/{browser,server}.ts`, route rules in `src/config/auth.ts`.
+- `src/proxy.ts` refreshes the session and calls `getUser()` (so a revoked session fails immediately). Protected pages redirect to `/login?next=…`; **every non-public `/api/*` returns 401 JSON** without a session, which also closes gap-analysis C4 for anonymous callers. Signed-in users are sent away from the sign-in pages.
+- Pages: `/login`, `/register`, `/forgot-password`, `/reset-password`, plus the `/auth/callback` route (PKCE `code` and `token_hash` links). `next` is same-origin only (open-redirect guard).
+- **Sign-in, sign-up and reset run from the browser client**, not through our API routes. Supabase rate-limits auth per client IP; routing through our server would make every user share the server's IP and limit. Auth calls are not database mutations, so the AGENTS.md mutation rule is unaffected.
+- Shared UI: `Alert`, `FormField`, `PasswordInput`, `AuthShell`; `Input` shows a red border when `aria-invalid`.
+- `NEXT_PUBLIC_APP_USER/PASS` and the `invoice_auth` localStorage flag are gone from the code (closes C1, C2).
+- Test infrastructure: local Supabase (`supabase/config.toml`, baseline migration of the legacy schema, Mailpit for emails); Playwright runs the app on port 3100 against it (`.next-e2e` build folder) with a separate `api` project for backend E2E.
+
+**Phase gate (2026-09-25):** backend E2E `tests/api/auth.spec.ts` + frontend E2E `tests/auth.spec.ts` (desktop + mobile): **64/64 passed**. Full regression `npm run test:e2e`: 218 passed, 20 skipped (pre-existing `test.skip` in the responsive audit), and 4 failed only because the Invoices visual-snapshot baselines had never been committed; they pass on re-run. `next build` passes.
+
+**Remaining Phase 1 follow-ups:** apply the hosted-project settings (redirect URLs, minimum password length 8, custom SMTP); see progress_tracker.md.
 
 | Task | Reuse / notes |
 |---|---|

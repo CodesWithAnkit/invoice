@@ -220,3 +220,7 @@ When a decision is made, record it here (date, decision, who).
 | R-08 | Money as integer minor units (paise); one deterministic rounding rule (half up) at defined boundaries. | 2026-09-25 | Product owner |
 | R-15 | Quotation PDF = browser print, single A4 page, as now. Multi-page deferred. Opens R-15a. | 2026-09-25 | Product owner |
 | — | Phase order: Security & ownership → Auth → Business onboarding → Existing customers/products/settings → Projects → Estimate builder → Quotation. | 2026-09-25 | Product owner |
+| — | Start with Phase 1 (Authentication). Every phase must pass backend and frontend E2E before the next starts. | 2026-09-25 | Product owner |
+| R-29 | E2E tests run against a local Supabase stack (Docker), not the hosted project. | 2026-09-25 | Product owner |
+| R-22 | Supabase Auth with `@supabase/ssr` cookie sessions: the plan's default, adopted when Phase 1 was implemented. | 2026-09-25 | Implemented per plan |
+| R-23 | Email confirmation on (already the hosted setting); password minimum 8. | 2026-09-25 | Implemented per plan |

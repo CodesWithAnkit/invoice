@@ -1,7 +1,7 @@
 # Progress Tracker: Invoice System
 
 ## Current Phase
-- **Phase 2**: Northstar Redesign — see `context/redesign_implementation_plan.md`. Phase 0 (design tokens/fonts) and Phase 1 (app shell + Dashboard Overview) of that plan are complete.
+- **Phase 2**: Northstar Redesign — see `docs/specs/redesign_implementation_plan.md`. Phase 0 (design tokens/fonts) and Phase 1 (app shell + Dashboard Overview) of that plan are complete.
 
 ---
 
@@ -27,6 +27,12 @@
   - **This test caught two real, pre-existing overflow bugs** in Classic template's Proforma footer (payment-terms table + delivery/installation block): first at 15 items with no signature, then — after a user-supplied screenshot showed a *real* 2-page case the first fix missed — again once a drawn signature was added to the repro. Root cause of the second one: the footer row is bottom-aligned (`alignItems: "flex-end"`), so a real signature image makes that row much taller than the no-signature placeholder ever tested.
   - Fixed by (a) tightening spacing/font-sizes inside `Classic.tsx`'s `isProforma`-specific footer branch, and (b) adding a scoped `zoom: 0.78` inline-style override (beats the shared CSS `zoom: 0.85`) applied only when `isProforma`, so Modern and Classic's own Invoice/Quote branch are untouched.
   - Verified `getBoundingClientRect().height` / CSS `zoom` metrics were unreliable signals here (didn't match actual PDF pagination) — the fix was validated against the real `page.pdf()` + `pdf-parse-new` page count instead, and Classic Invoice output was re-screenshotted and confirmed pixel-identical to before the fix.
+
+- `[x]` **MVP Phase 1 — Authentication** (2026-09-25; see `docs/specs/mvp_implementation_plan.md`). Replaced the shared-credential/localStorage login with Supabase Auth (`@supabase/ssr` cookie sessions): register with email confirmation, sign in (invalid, unconfirmed + resend, network states), sign out that revokes the session, forgot/reset password, and `/auth/callback`. `src/proxy.ts` protects pages (redirect to `/login?next=`) and returns 401 for every non-public `/api/*`. Added local Supabase test infrastructure (`supabase/`, baseline legacy-schema migration, Mailpit) and a Playwright `api` project.
+  - **Phase gate:** `npx playwright test tests/api tests/auth.spec.ts` → 64/64 passed (backend E2E + frontend E2E on desktop and mobile). Full `npm run test:e2e` → 218 passed / 20 skipped (pre-existing) / 4 failed on first run only, because the Invoices visual-snapshot baselines had never existed (they pass on re-run). `next build` passes.
+  - Found and fixed two WCAG contrast failures in the new form components (error red on the card surface was 4.4:1).
+  - **Hosted-project follow-ups (dashboard, not code):** add `<site>/auth/callback` to Auth → URL Configuration redirect URLs; set minimum password length to 8; configure custom SMTP (the default only emails project team members, so real users would not receive confirmation or reset emails); delete `NEXT_PUBLIC_APP_USER/PASS` from `.env` and rotate that password.
+  - **Found during the audit:** the hosted anon key can read every customer, invoice and invoice-item row (RLS off or permissive). That is Phase 0 work.
 
 ---
 

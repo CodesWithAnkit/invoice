@@ -1,19 +1,17 @@
 import { test as setup, expect } from '@playwright/test';
-import * as fs from 'fs';
 import * as path from 'path';
+import { createUser, signInViaUi } from './utils/auth';
 
 const authFile = path.join(__dirname, '../playwright/.auth/user.json');
 
+// Signs a real (local Supabase) user in through the login page and saves the
+// session cookies for the authenticated test projects.
 setup('authenticate', async ({ page }) => {
-  // We navigate to the root page. The app checks localStorage.
-  await page.goto('/');
-  
-  // Set the localStorage item "invoice_auth" which bypasses the login screen
-  await page.evaluate(() => {
-    localStorage.setItem('invoice_auth', 'true');
-  });
+  const user = await createUser('e2e-owner');
 
-  // Save the storage state which now includes our localStorage item.
-  // Playwright's `storageState` command captures cookies and localStorage.
+  await page.goto('/login');
+  await signInViaUi(page, user.email, user.password);
+  await expect(page).toHaveURL(/\/dashboard\/overview/);
+
   await page.context().storageState({ path: authFile });
 });

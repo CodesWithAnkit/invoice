@@ -71,6 +71,9 @@ Before creating a new component, service, utility, hook, API pattern, state-mana
 - Preserve transactional data flow for insertions and updates.
 
 ## Testing Rules
+- E2E tests run against **local Supabase** only: `npm run db:start` (Docker/colima), then `npm run test:e2e`. Playwright serves the app on port 3100 from `.next-e2e`, so it can run next to `npm run dev`. Never point tests at the hosted project.
+- **Phase gate:** a phase is done only when its backend E2E (`tests/api/**`, Playwright `api` project, real HTTP) and frontend E2E (`tests/**`, desktop + mobile) pass, together with all earlier suites. Record the result in `docs/progress_tracker.md`.
+- Schema changes go in `supabase/migrations/`; `npm run db:reset` re-applies them locally.
 - Use existing Playwright setup for UI changes.
 - Use existing accessibility and responsive tests.
 - Do not claim tests passed unless they were actually executed.
