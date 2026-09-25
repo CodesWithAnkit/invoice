@@ -48,3 +48,10 @@ playwright/.cache/
 playwright/.auth/
 
 /invoice_design
+
+# Playwright
+node_modules/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
