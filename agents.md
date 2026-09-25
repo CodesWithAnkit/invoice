@@ -11,6 +11,22 @@ This is an existing production codebase for a high-fidelity, high-speed Invoice 
 - `src/modules`: Business logic & schemas
 - `docs/`: Architecture and specific implementations
 - `docs/specs/`: Feature specifications and plans
+- `docs/project_document/`: Product specifications (PRD, MVP acceptance criteria, design system)
+
+## Product Direction & Specifications
+The product is evolving into a **Quotation & Project Estimation Platform**. These documents are the "Existing specification" at the top of the Decision Hierarchy below:
+
+- `docs/project_document/Quotation & Project Estimation Platform — Product Requirements Document.md`: what to build and why.
+- `docs/project_document/MVP Acceptance Criteria.md`: `AC-*` IDs that define "done". Reference them in specs, PRs and tests.
+- `docs/project_document/Quotation & Project Estimation Platform — Design System Specification.md`: UI tokens, components and quality gates.
+
+Working documents derived from them:
+
+- `docs/specs/mvp_gap_analysis.md`: current code vs. specs, including open security findings (C1–C6).
+- `docs/specs/mvp_implementation_plan.md`: phased build order. Work within the current phase.
+- `docs/specs/spec_review.md`: contradictions and open decisions (`R-xx`). Items marked 🔴 must be decided before the phase that needs them. Record decisions in its Decision Log.
+
+**Pending conflicts:** some rules below (schema compatibility with `customers`/`invoices`/`invoice_items`, mutations only via `/api/invoices/save`, the `useInvoice` localStorage draft as state) predate these specs and conflict with them (see `spec_review.md` R-02). Until R-02 is decided, they still govern the **existing invoice feature**. For new quotation-domain work, do not silently pick a side. Surface the conflict and ask.
 
 ## Existing Codebase Rule
 This is an existing production codebase.
