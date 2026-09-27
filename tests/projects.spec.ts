@@ -8,8 +8,8 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { createUser } from "./utils/auth";
-import { adminClient, createTenant, businessIdFor, type Tenant } from "./utils/ownership";
+import { adminClient } from "./utils/auth";
+import { createTenant, type Tenant } from "./utils/ownership";
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
