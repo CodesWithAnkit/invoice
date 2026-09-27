@@ -20,6 +20,26 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Local Database & Email Verification
+
+This project uses **Supabase** for its database and authentication. To run the backend locally:
+
+1. Ensure Docker is running.
+2. Start local Supabase:
+```bash
+npx supabase start
+```
+3. The API and database will be running on your local machine.
+
+### Verifying Auth Emails Locally
+Since emails are not actually sent to real addresses during local development, Supabase intercepts them using a built-in local SMTP testing server (Inbucket). 
+
+To view confirmation emails (like when you register a new account) or password reset emails:
+1. Open your browser and navigate to the Local Email Inbox: **[http://localhost:54324](http://localhost:54324)**
+2. Click on the email in the inbox to view it and click the confirmation links directly.
+
+*(Note: You can also access the full local Supabase Studio dashboard at [http://localhost:54323](http://localhost:54323))*
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
