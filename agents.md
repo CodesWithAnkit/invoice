@@ -78,6 +78,7 @@ Before creating a new component, service, utility, hook, API pattern, state-mana
 - Use existing Playwright setup for UI changes.
 - Use existing accessibility and responsive tests.
 - Do not claim tests passed unless they were actually executed.
+- **`/check verify` behavior**: `/check verify` means you MUST write a Playwright E2E test for the new feature and verify all the conditions using the test runner. Do not use manual browser automation (Browser Subagent) for `/check verify`.
 
 ## Security Rules
 - Every API route handler starts with `requireUser()` or `requireBusiness()` (`src/lib/api/auth.ts`) and uses the returned per-request Supabase client, so RLS applies. Never take `business_id`/`user_id` from the request; business-owned tables fill `business_id` from the session by default.

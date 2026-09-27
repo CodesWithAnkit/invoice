@@ -14,15 +14,18 @@ export interface CustomerFormValues {
   address: string;
   notes: string;
   tax_id: string;
+  company_name: string;
   status: "active" | "archived";
 }
 
 interface CustomerFormProps {
   initialValues?: Partial<CustomerFormValues>;
   customerId?: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-export function CustomerForm({ initialValues, customerId }: CustomerFormProps) {
+export function CustomerForm({ initialValues, customerId, onSuccess, onCancel }: CustomerFormProps) {
   const router = useRouter();
   const [values, setValues] = useState<CustomerFormValues>({
     name: initialValues?.name || "",
@@ -31,6 +34,7 @@ export function CustomerForm({ initialValues, customerId }: CustomerFormProps) {
     address: initialValues?.address || "",
     notes: initialValues?.notes || "",
     tax_id: initialValues?.tax_id || "",
+    company_name: initialValues?.company_name || "",
     status: initialValues?.status || "active",
   });
   const [saving, setSaving] = useState(false);
@@ -57,8 +61,12 @@ export function CustomerForm({ initialValues, customerId }: CustomerFormProps) {
       if (!data.success) throw new Error(data.error || "Failed to save customer");
 
       toast.success(`Customer ${customerId ? "updated" : "created"} successfully`);
-      router.push("/dashboard/customers");
       router.refresh();
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push("/dashboard/customers");
+      }
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -80,6 +88,10 @@ export function CustomerForm({ initialValues, customerId }: CustomerFormProps) {
         <div className="space-y-2">
           <label htmlFor="phone" className="text-sm font-medium">Phone</label>
           <Input id="phone" name="phone" value={values.phone} onChange={handleChange} />
+        </div>
+        <div className="space-y-2">
+          <label htmlFor="company_name" className="text-sm font-medium">Company Name</label>
+          <Input id="company_name" name="company_name" value={values.company_name} onChange={handleChange} />
         </div>
         <div className="space-y-2">
           <label htmlFor="tax_id" className="text-sm font-medium">Tax ID</label>
@@ -114,7 +126,12 @@ export function CustomerForm({ initialValues, customerId }: CustomerFormProps) {
       )}
 
       <div className="flex justify-end gap-3 pt-4 border-t border-border">
-        <Button type="button" variant="outline" onClick={() => router.back()} disabled={saving}>
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={() => (onCancel ? onCancel() : router.back())} 
+          disabled={saving}
+        >
           Cancel
         </Button>
         <Button type="submit" disabled={saving}>

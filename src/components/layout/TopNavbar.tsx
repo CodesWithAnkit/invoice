@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/SearchInput";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
-import { ConfirmModal } from "@/components/ui/confirm-modal";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
@@ -102,8 +102,8 @@ export function TopNavbar() {
         <span className="sr-only">Notifications</span>
       </Button>
       <ThemeToggle />
-      <ConfirmModal
-        open={isLogoutOpen}
+      <ConfirmationDialog
+        isOpen={isLogoutOpen}
         onOpenChange={setIsLogoutOpen}
         trigger={
           <Button
@@ -117,8 +117,8 @@ export function TopNavbar() {
         }
         title="Log out"
         description="Are you sure you want to log out of Invoice Generator?"
-        confirmLabel="Log out"
-        variant="destructive"
+        confirmText="Log out"
+        destructive={true}
         onConfirm={signOut}
       />
     </header>

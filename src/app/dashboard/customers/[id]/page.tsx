@@ -1,9 +1,9 @@
 import { requireBusiness } from "@/lib/api/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Pencil } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { EditCustomerDialog } from "./EditCustomerDialog";
 
 export default async function CustomerDetailPage({
   params,
@@ -52,12 +52,7 @@ export default async function CustomerDetailPage({
             </Badge>
           </div>
         </div>
-        <Link href={`/dashboard/customers/${id}/edit`}>
-          <Button variant="outline">
-            <Pencil className="w-4 h-4 mr-2" />
-            Edit
-          </Button>
-        </Link>
+        <EditCustomerDialog customer={customer} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

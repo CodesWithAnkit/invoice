@@ -104,19 +104,33 @@ export async function POST(request: Request) {
     }
 
     if (!customerId) {
-      const { data: newCustomer, error: customerError } = await supabase
+      const { data: existing, error: existingError } = await supabase
         .from("customers")
-        .insert({
-          name: customerData.name,
-          phone: customerData.phone,
-          address: customerData.address,
-          aadhaar: customerData.aadhaar,
-          company_name: customerData.companyName,
-        })
         .select("id")
-        .single();
-      if (customerError) throw customerError;
-      customerId = newCustomer.id;
+        .eq("name", customerData.name)
+        .eq("business_id", businessId)
+        .limit(1)
+        .maybeSingle();
+      
+      if (existingError) throw existingError;
+
+      if (existing) {
+        customerId = existing.id;
+      } else {
+        const { data: newCustomer, error: customerError } = await supabase
+          .from("customers")
+          .insert({
+            name: customerData.name,
+            phone: customerData.phone,
+            address: customerData.address,
+            aadhaar: customerData.aadhaar,
+            company_name: customerData.companyName,
+          })
+          .select("id")
+          .single();
+        if (customerError) throw customerError;
+        customerId = newCustomer.id;
+      }
     }
 
     // 2. Optional PDF upload to the private bucket, under the business folder.

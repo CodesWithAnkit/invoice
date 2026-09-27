@@ -102,7 +102,7 @@ Watch server/console logs for errors or warnings even when the UI "looks" fine.
 
 | Behavior kind | The evidence to record |
 |---|---|
-| UI | the URL you loaded, the screenshot path you saved, and what you saw rendered |
+| UI | A Playwright E2E test file (`tests/*.spec.ts`) that verifies the conditions. YOU MUST WRITE AND RUN PLAYWRIGHT TESTS to verify UI changes. DO NOT rely on manual checking or browser automation. |
 | API | the exact request line, the HTTP status, and the key fields of the body |
 | CLI / job | the exact command, its exit code, and the stdout/stderr excerpt |
 | Data layer | the query you ran against the live schema, and its result |
