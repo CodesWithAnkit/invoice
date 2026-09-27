@@ -11,6 +11,8 @@ import {
   Wallet,
   Percent,
   ScrollText,
+  FolderKanban,
+  FileBadge,
   Workflow,
   Landmark,
   type LucideIcon,
@@ -25,6 +27,8 @@ export interface NavItem {
 
 export const primaryNavItems: NavItem[] = [
   { name: "Overview", href: "/dashboard/overview", icon: LayoutDashboard },
+  { name: "Projects", href: "/dashboard/projects", icon: FolderKanban },
+  { name: "Quotations", href: "/dashboard/quotations", icon: FileBadge },
   { name: "Invoices", href: "/dashboard/invoices", icon: FileText },
   { name: "Customers", href: "/dashboard/customers", icon: Users },
   { name: "Products", href: "/dashboard/products", icon: Package },
@@ -45,6 +49,8 @@ export const automatedModules: NavItem[] = [
 
 export const routeTitles: { href: string; eyebrow: string; title: string }[] = [
   { href: "/dashboard/overview", eyebrow: "Core Dashboard", title: "Financial Operations" },
+  { href: "/dashboard/projects", eyebrow: "Workspace", title: "Projects" },
+  { href: "/dashboard/quotations", eyebrow: "Workspace", title: "Quotations" },
   { href: "/dashboard/invoices", eyebrow: "Billing Center", title: "Invoice Registry" },
   { href: "/dashboard/customers", eyebrow: "Directories", title: "Customer Profiles" },
   { href: "/dashboard/products", eyebrow: "Product Operations", title: "Registry Catalog" },
