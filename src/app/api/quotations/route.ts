@@ -1,7 +1,9 @@
 import { requireBusiness } from "@/lib/api/auth";
 import { fail, ok, serverError } from "@/lib/api/respond";
 import { CreateQuotationSchema } from "@/modules/quotation/quotation.schema";
-import { todayInZone } from "@/modules/quotation/quotation.service";
+import { listQuotations, todayInZone } from "@/modules/quotation/quotation.service";
+import { QUOTATION_STATUSES, type QuotationStatus } from "@/modules/quotation/quotation.types";
+import { isUuid } from "@/lib/api/validate";
 
 // POST /api/quotations — create a draft quotation for a project (AC-ESTIMATE-001).
 // Defaults (currency, tax, validity, notes, terms) come from business settings;
@@ -64,6 +66,15 @@ export async function POST(req: Request) {
     const scope = await supabase.from("quotation_scope").insert({ quotation_id: created.data.id });
     if (scope.error) throw scope.error;
 
+    const activity = await supabase.from("quotation_activity").insert({
+      quotation_id: created.data.id,
+      business_id: businessId,
+      type: "created",
+      actor: "owner",
+      version: 1,
+    });
+    if (activity.error) throw activity.error;
+
     // A project leaves manual "Draft" once estimating starts; from then on its
     // status is derived from the latest quotation (R-18).
     if (project.data.status === "Draft") {
@@ -78,5 +89,30 @@ export async function POST(req: Request) {
     return ok({ id: created.data.id as string });
   } catch (error) {
     return serverError("Create quotation failed", error);
+  }
+}
+
+// GET /api/quotations?search=&status=&project_id= — this business's quotations, newest first.
+export async function GET(req: Request) {
+  const auth = await requireBusiness();
+  if (!auth.ok) return auth.response;
+
+  try {
+    const url = new URL(req.url);
+    const status = url.searchParams.get("status") || undefined;
+    if (status && !(QUOTATION_STATUSES as readonly string[]).includes(status)) {
+      return fail("Unknown status filter", 400);
+    }
+    const projectId = url.searchParams.get("project_id") || undefined;
+    if (projectId && !isUuid(projectId)) return fail("Invalid project filter", 400);
+
+    const quotations = await listQuotations(auth.supabase, auth.businessId, {
+      search: url.searchParams.get("search") || undefined,
+      status: status as QuotationStatus | undefined,
+      projectId,
+    });
+    return ok({ quotations });
+  } catch (error) {
+    return serverError("List quotations failed", error);
   }
 }

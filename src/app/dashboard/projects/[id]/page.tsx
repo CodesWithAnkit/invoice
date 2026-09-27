@@ -2,17 +2,19 @@ import { requireBusiness } from "@/lib/api/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, User } from "lucide-react";
-import { StatusBadge, toneForProjectStatus } from "@/components/ui/status-badge";
+import { StatusBadge, toneForProjectStatus, toneForQuotationStatus } from "@/components/ui/status-badge";
 import { ActivityTimeline, TimelineEvent } from "@/components/ActivityTimeline";
 import { ProjectActions } from "./ProjectActions";
 import { CreateQuotationButton } from "./CreateQuotationButton";
 import { formatMinor } from "@/modules/quotation/quotation.money";
 import { format } from "date-fns";
+import { deriveProjectStatus } from "@/modules/project/project.status";
 
 type QuotationRow = {
   id: string;
   status: string;
   title: string;
+  quote_number: string | null;
   total_minor: number;
   currency: string;
   created_at: string;
@@ -39,7 +41,7 @@ export default async function ProjectDetailPage({
     .select(`
       *,
       customers ( id, name, email, phone ),
-      quotations ( id, status, title, total_minor, currency, created_at, updated_at )
+      quotations ( id, status, title, quote_number, total_minor, currency, created_at, updated_at )
     `)
     .eq("id", id)
     .eq("business_id", businessId)
@@ -54,20 +56,7 @@ export default async function ProjectDetailPage({
   const quotations = (project.quotations as QuotationRow[]) || [];
 
   // Derive display status (R-18)
-  let displayStatus = project.status as string;
-  if (!["Draft", "Completed", "Archived"].includes(project.status as string) && quotations.length > 0) {
-    const sorted = [...quotations].sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
-    const map: Record<string, string> = {
-      Draft: "Estimating",
-      Sent: "Quoted",
-      Accepted: "Accepted",
-      Rejected: "Rejected",
-      Expired: "Expired",
-    };
-    displayStatus = map[sorted[0].status] ?? displayStatus;
-  }
+  const displayStatus = deriveProjectStatus(project.status as string, quotations);
 
   // Build activity timeline from timestamps
   const activityEvents: TimelineEvent[] = [
@@ -194,24 +183,19 @@ export default async function ProjectDetailPage({
                 key={q.id}
                 className="flex items-center justify-between py-2 border-b border-border last:border-0"
               >
-                {q.status === "Draft" ? (
-                  <Link
-                    href={`/dashboard/quotations/${q.id}/edit`}
-                    className="min-w-0 truncate text-sm font-medium text-foreground hover:underline"
-                  >
-                    {q.title || "Untitled quotation"}
-                  </Link>
-                ) : (
-                  <span className="min-w-0 truncate text-sm font-medium text-foreground">
-                    {q.title || "Untitled quotation"}
-                  </span>
-                )}
+                <Link
+                  href={`/dashboard/quotations/${q.id}`}
+                  className="min-w-0 truncate text-sm font-medium text-foreground hover:underline"
+                >
+                  {q.quote_number ? `${q.quote_number} · ` : ""}
+                  {q.title || "Untitled quotation"}
+                </Link>
                 <div className="flex shrink-0 items-center gap-3">
                   <span className="font-mono text-sm tabular-nums">{formatMinor(q.total_minor, q.currency)}</span>
                   <span className="text-xs text-muted-foreground">
                     {format(new Date(q.created_at), "dd MMM yyyy")}
                   </span>
-                  <StatusBadge status={q.status} />
+                  <StatusBadge status={q.status} tone={toneForQuotationStatus(q.status)} />
                 </div>
               </div>
             ))}

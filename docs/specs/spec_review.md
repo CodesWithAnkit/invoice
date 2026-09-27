@@ -37,7 +37,9 @@ The PRD (§10) and AC-AUTH-006 list `/dashboard`, `/customers`, `/projects`, `/q
 
 These are flagged in AGENTS.md as pending, not silently rewritten.
 
-### R-03 MVP scope is inconsistent across documents
+### R-03 ✅ MVP scope is inconsistent across documents
+> **Decided 2026-09-27:** as recommended below.
+
 | Feature | PRD §43 phases | PRD §44/§46 MVP & roadmap | AC | Recommendation |
 |---|---|---|---|---|
 | Quotation versioning | Phase 5 | **V1 (post-MVP)** | AC-CLIENT-004/005 record "quotation version"; AC-DATA-002/003 require stable snapshots | **Minimal versioning in MVP:** an immutable snapshot + `version` integer on each send. No version-history UI until V1. |
@@ -97,7 +99,9 @@ Quotations have `currency` (PRD §26) and the business has a default currency, b
 
 ## C. Quotation lifecycle (blocks Phase 5–6)
 
-### R-11 🔴 Full status transition table
+### R-11 ✅ Full status transition table
+> **Decided 2026-09-27:** as recommended below.
+
 PRD §27 gives a partial graph. Undefined: Sent → Rejected? Sent → Accepted (client accepts without a recorded view)? Viewed → Expired? Archive from anything other than Draft? Un-archive?
 **Recommended table** (the server enforces it; everything else is rejected):
 
@@ -113,11 +117,15 @@ PRD §27 gives a partial graph. Undefined: Sent → Rejected? Sent → Accepted 
 
 Accepting implies viewing, so the `Viewed` activity is recorded implicitly if it is missing.
 
-### R-12 🔴 What does "Sent" mean without email?
+### R-12 ✅ What does "Sent" mean without email?
+> **Decided 2026-09-27:** as recommended below.
+
 Email is a V3 integration (PRD §46), yet `Sent` is a core status and PRD §42 has `POST /quotations/:id/send`.
 **Recommendation:** "Send" = the owner finalizes the quotation. That assigns the quote number (R-13), freezes a version snapshot (R-03), creates the public token and shows a copyable link. Delivery is manual (copy link / download PDF).
 
-### R-13 "Finalized" is used but is not a status
+### R-13 ✅ "Finalized" is used but is not a status
+> **Decided 2026-09-27:** as recommended below.
+
 AC-QUOTE-002/003 talk about a "finalized" quotation, which is not in the status list.
 **Recommendation:** finalized ≡ transition Draft → Sent (R-12). Drafts show a provisional label ("Draft") and receive their `QT-YYYY-NNN` number at send time, from a per-business, per-year DB sequence, so drafts never burn numbers.
 
@@ -139,7 +147,9 @@ AC-PDF-004 requires multi-page output; AC-CLIENT-003 requires a **client** "Down
 Link unfurlers (WhatsApp, Slack, iMessage previews) and the owner opening their own link would mark a quotation `Viewed`.
 **Recommendation:** record a view only from a real page render (not HEAD requests or bot user-agents), and skip it when the viewer has an authenticated session for the owning business.
 
-### R-17 Public-link lifecycle
+### R-17 ✅ Public-link lifecycle
+> **Decided 2026-09-27:** as recommended below.
+
 Undefined: does the link change per version? Can the owner revoke it? What does the client see for a superseded version?
 **Recommendation:** one token per quotation, always showing the **latest sent version**. The owner can revoke and regenerate it. Accept/reject records the version number being viewed, and the server rejects the action if that is no longer the current version ("This quotation has been updated, please review the latest version").
 
@@ -241,3 +251,9 @@ When a decision is made, record it here (date, decision, who).
 | R-15a | The one-page quotation PDF shows every section in compact form (items, totals, scope overview, deliverables/included/excluded/assumptions bullets, milestones table, terms). The builder caps each section; final caps are set by the Phase 6 one-page measurement test. | 2026-09-27 | Product owner |
 | R-02 | Quotation drafts: the server is the source of truth (debounced auto-save to `/api/quotations/:id`). The builder uses its own grouped-`values` hook; `useInvoice` stays invoice-only and is not reused. | 2026-09-27 | Product owner |
 | R-28 | Unit tests run on Playwright's test runner (a browserless `unit` project over `src/**/*.test.ts`), not Vitest: one runner, no new dependency. | 2026-09-27 | Product owner |
+| R-11 | Quotation status transitions follow the recommended table; the server rejects everything else. `Viewed` and `Archived` join the status enum. Accepted is final except archive; Archived is terminal. | 2026-09-27 | Product owner |
+| R-12 | "Send" = the owner finalizes: validate required data, assign the number, freeze a version snapshot, create the public link. No email; delivery is manual (copy link / download PDF). | 2026-09-27 | Product owner |
+| R-13 | Number assigned at send time from a per-business, per-year counter: `{quote_prefix}YYYY-NNN` (e.g. `QT-2026-001`). Drafts never use up numbers; a revised quotation keeps its number. | 2026-09-27 | Product owner |
+| R-17 | One unguessable token (≥128-bit) per quotation, always showing the latest sent version; owner can revoke/regenerate; accept/reject record the version and stale versions are refused (Phase 7). | 2026-09-27 | Product owner |
+| R-03 | MVP versioning = immutable snapshot + version number per send, no history UI until V1. Duplicate quotation is in MVP; duplicate project is post-MVP. | 2026-09-27 | Product owner |
+| R-15a (update) | Measured in Phase 6: at every cap with maximum-length text a quotation is ~2.1 A4 pages, so caps alone can't guarantee one page. The caps stay as hard limits, and "fits on one page" is decided by measuring the rendered document (190mm × 277mm printable area). Send is blocked in the UI when a draft doesn't fit. The server can't lay out text, so this check is client-side; the Playwright PDF guard proves a complete realistic quotation prints on one page. | 2026-09-27 | Product owner |

@@ -247,7 +247,7 @@ This phase fixes the live vulnerabilities and puts the ownership model under **a
 
 ---
 
-### Phase 6 — Quotation · **L** · needs R-11, R-12, R-13, R-15a, R-17
+### Phase 6 — Quotation · **L** · needs R-11, R-12, R-13, R-15a, R-17 · ✅ implemented 2026-09-27 (gate passed)
 
 | Task | Notes |
 |---|---|
@@ -299,7 +299,7 @@ Design-system components are built inside the phase that first needs them (DS §
 | 🔴 Needed before Phase 0 | R-22 (auth provider; Supabase Auth assumed in this plan), gap-analysis U1–U5, R-26 (legacy data owner) |
 | Needed before Phase 3–4 | R-18, R-19, R-20 |
 | ✅ Decided for Phase 5 (2026-09-27) | R-02, R-05, R-07, R-09, R-10, R-15a, R-28 |
-| Needed before Phase 6 | R-03, R-11, R-12, R-13, R-17 |
+| ✅ Decided for Phase 6 (2026-09-27) | R-03, R-11, R-12, R-13, R-17, R-15a update (measured fit) |
 | Needed before Phase 7 | R-14, R-16, R-24, R-25, R-27 |
 
 ## 6. Risks

@@ -4,7 +4,8 @@ export type StatusTone = "success" | "warning" | "danger" | "neutral";
 
 const toneClasses: Record<StatusTone, string> = {
   success: "bg-success/10 text-success border-success/20",
-  warning: "bg-warning/10 text-warning border-warning/20",
+  // Light mode darkens the text (from the same token) to meet 4.5:1 at 11px.
+  warning: "bg-warning/10 text-[color-mix(in_oklab,hsl(var(--warning))_60%,black)] dark:text-warning border-warning/20",
   danger: "bg-destructive/10 text-destructive border-destructive/20",
   neutral: "bg-muted text-muted-foreground border-border",
 };
@@ -43,6 +44,21 @@ const projectStatusToneMap: Record<string, StatusTone> = {
 
 export function toneForProjectStatus(status: string): StatusTone {
   return projectStatusToneMap[status] ?? "neutral";
+}
+
+// Quotation statuses (R-11, AC-QUOTE-005).
+const quotationStatusToneMap: Record<string, StatusTone> = {
+  Draft: "neutral",
+  Sent: "warning",
+  Viewed: "warning",
+  Accepted: "success",
+  Rejected: "danger",
+  Expired: "danger",
+  Archived: "neutral",
+};
+
+export function toneForQuotationStatus(status: string): StatusTone {
+  return quotationStatusToneMap[status] ?? "neutral";
 }
 
 export function StatusBadge({

@@ -69,13 +69,14 @@ Before creating a new component, service, utility, hook, API pattern, state-mana
 
 ## Database Rules
 - **Invoice feature** schema mutations go through `/api/invoices/save` (the transactional handler for `invoices` and `invoice_items`). Keep this route for all invoice writes.
-- **New domain schemas** (`projects`, `quotations`, and future domain tables) go through `supabase/migrations/` via `npx supabase db reset --local`.
+- **New domain schemas** (`projects`, `quotations`, and future domain tables) go through `supabase/migrations/` and are applied with `npm run db:migrate` (`supabase migration up --local`).
+- **Never reset a database.** Do not run `supabase db reset` (local or remote), `npm run db:reset`, or anything that drops and recreates the database. The local database holds the developer's own account and data (loaded from production); a reset deletes them. Apply schema changes only as new, forward-only migrations with `npm run db:migrate`. If a migration is wrong, fix it with a new migration, never by resetting. If a reset ever seems unavoidable, stop and ask the user first.
 - Preserve transactional data flow for insertions and updates.
 
 ## Testing Rules
 - E2E tests run against **local Supabase** only: `npm run db:start` (Docker/colima), then `npm run test:e2e`. Playwright serves the app on port 3100 from `.next-e2e`, so it can run next to `npm run dev`. Never point tests at the hosted project.
 - **Phase gate:** a phase is done only when its backend E2E (`tests/api/**`, Playwright `api` project, real HTTP) and frontend E2E (`tests/**`, desktop + mobile) pass, together with all earlier suites. Record the result in `docs/progress_tracker.md`.
-- Schema changes go in `supabase/migrations/`; `npm run db:reset` re-applies them locally.
+- Schema changes go in `supabase/migrations/`; `npm run db:migrate` applies pending ones locally. Never reset the database to re-apply them (see Database Rules). E2E tests create their own users and businesses, so they need no reset.
 - Use existing Playwright setup for UI changes.
 - Use existing accessibility and responsive tests.
 - Do not claim tests passed unless they were actually executed.
@@ -139,3 +140,6 @@ A task is complete only when:
 ## Context files
 - **StatusBadge**: `toneForProjectStatus(status)` maps all 8 project statuses (Draft, Estimating, Quoted, Accepted, Rejected, Expired, Completed, Archived). Import from `src/components/ui/status-badge.tsx`.
 - **Soft delete pattern**: `DELETE /api/projects/[id]` archives (sets `status = Archived`) rather than hard-deleting. Preserve quotations.
+- **Project status**: derive with `deriveProjectStatus()` from `src/modules/project/project.status.ts`; never re-implement the map.
+- **Quotation lifecycle**: status, number, token and version change only through the SQL functions (`send_quotation`, `revise_quotation`, `archive_quotation`, `regenerate_quotation_token`); a trigger rejects direct updates. Use `toneForQuotationStatus` for badges.
+- **Quotation document / PDF**: `QuotationDocumentView` renders the client-facing document (preview, PDF, and the Phase 7 public page) from a `QuotationDocument` (sent versions use the frozen snapshot). Print styles live in `src/styles/quotation-print.css`; one-page fit is measured with `OnePageMeasurer`, not by counting items.

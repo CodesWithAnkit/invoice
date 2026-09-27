@@ -1,6 +1,7 @@
 import { requireBusiness } from "@/lib/api/auth";
 import { fail, ok, serverError } from "@/lib/api/respond";
 import { z } from "zod";
+import { deriveProjectStatus } from "@/modules/project/project.status";
 
 const CreateProjectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
@@ -80,29 +81,10 @@ export async function GET(req: Request) {
     type ProjectRow = typeof res.data[number] & { quotations?: QuotationRow[] | null };
 
     // Derive status from latest quotation (R-18)
-    const projects = (res.data as ProjectRow[]).map((project) => {
-      let derivedStatus = project.status as string;
-
-      if (
-        !["Draft", "Completed", "Archived"].includes(project.status as string) &&
-        project.quotations &&
-        project.quotations.length > 0
-      ) {
-        const sorted = [...project.quotations].sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
-        const map: Record<string, string> = {
-          Draft: "Estimating",
-          Sent: "Quoted",
-          Accepted: "Accepted",
-          Rejected: "Rejected",
-          Expired: "Expired",
-        };
-        derivedStatus = map[sorted[0].status] ?? (project.status as string);
-      }
-
-      return { ...project, status: derivedStatus };
-    });
+    const projects = (res.data as ProjectRow[]).map((project) => ({
+      ...project,
+      status: deriveProjectStatus(project.status as string, project.quotations),
+    }));
 
     // Apply status filter after derivation (derived statuses are not in DB)
     const filtered = statusFilter

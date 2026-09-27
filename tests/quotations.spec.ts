@@ -103,8 +103,9 @@ test.describe("Estimate builder", () => {
     await expect(page.getByText("₹1,06,200.00")).toBeVisible();
     await expect(page.getByText("Estimating").first()).toBeVisible();
     await shot(page, testInfo, "step4_project_with_quotation");
+    // Quotations link to their detail page (Phase 6), which offers Edit for drafts.
     await page.getByRole("link", { name: "Builder calc", exact: true }).click();
-    await expect(page).toHaveURL(new RegExp(`/dashboard/quotations/${id}/edit$`));
+    await expect(page).toHaveURL(new RegExp(`/dashboard/quotations/${id}$`));
   });
 
   test("hourly, daily, quantity and percentage pricing; reorder and remove", async ({ page }) => {

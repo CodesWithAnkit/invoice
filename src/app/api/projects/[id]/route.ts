@@ -1,7 +1,7 @@
 import { requireBusiness } from "@/lib/api/auth";
 import { fail, ok, serverError } from "@/lib/api/respond";
+import { MANUAL_PROJECT_STATUSES, deriveProjectStatus } from "@/modules/project/project.status";
 
-const MANUAL_STATUSES = ["Draft", "Completed", "Archived"] as const;
 
 export async function GET(
   _req: Request,
@@ -30,7 +30,8 @@ export async function GET(
       throw res.error;
     }
 
-    return ok(res.data);
+    const project = res.data as typeof res.data & { quotations?: { status: string; created_at: string }[] | null };
+    return ok({ ...project, status: deriveProjectStatus(project.status as string, project.quotations) });
   } catch (error) {
     return serverError("Get project failed", error);
   }
@@ -72,8 +73,8 @@ export async function PATCH(
     if (body.expected_end_date !== undefined) updateData.expected_end_date = body.expected_end_date || null;
 
     if (body.status !== undefined) {
-      if (!MANUAL_STATUSES.includes(body.status)) {
-        return fail(`Status must be one of: ${MANUAL_STATUSES.join(", ")}`, 400);
+      if (!(MANUAL_PROJECT_STATUSES as readonly string[]).includes(body.status)) {
+        return fail(`Status must be one of: ${MANUAL_PROJECT_STATUSES.join(", ")}`, 400);
       }
       updateData.status = body.status;
     }

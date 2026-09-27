@@ -1,17 +1,20 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, CloudUpload, AlertTriangle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "@/components/ui/form-field";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { StatusBadge, toneForQuotationStatus } from "@/components/ui/status-badge";
 import { BulletListEditor } from "@/components/quotation/BulletListEditor";
 import { CurrencyInput, PercentageInput } from "@/components/quotation/FinancialInputs";
 import { EstimateLineItem } from "@/components/quotation/EstimateLineItem";
 import { MilestoneEditor } from "@/components/quotation/MilestoneEditor";
 import { QuoteSummary } from "@/components/quotation/QuoteSummary";
+import { OnePageMeasurer, useOnePageFit } from "@/components/quotation/OnePageMeasurer";
+import { withDraft, type QuotationDocument } from "@/modules/quotation/quotation.document";
 import { useQuotationDraft, type SaveStatus } from "@/hooks/useQuotationDraft";
 import type { DiscountType } from "@/modules/quotation/quotation.calculator";
 import type { ScopeListKey } from "@/modules/quotation/quotation.form";
@@ -64,15 +67,13 @@ function Section({ title, description, children }: { title: string; description?
   );
 }
 
-function CapMeter({ label, used, max }: { label: string; used: number; max: number }) {
+function CapMeter({ label, used, max, unit = "" }: { label: string; used: number; max: number; unit?: string }) {
   const pct = Math.min(100, Math.round((used / max) * 100));
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-xs text-muted-foreground">
         <span>{label}</span>
-        <span className="font-mono">
-          {used}/{max}
-        </span>
+        <span className="font-mono">{unit ? `${used}${unit}` : `${used}/${max}`}</span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
         <div className={cn("h-full rounded-full", used > max ? "bg-destructive" : "bg-primary")} style={{ width: `${pct}%` }} />
@@ -81,7 +82,16 @@ function CapMeter({ label, used, max }: { label: string; used: number; max: numb
   );
 }
 
-export function EstimateBuilder({ quotation, catalog }: { quotation: QuotationRecord; catalog: CatalogOption[] }) {
+export function EstimateBuilder({
+  quotation,
+  catalog,
+  baseDocument,
+}: {
+  quotation: QuotationRecord;
+  catalog: CatalogOption[];
+  /** Business, customer and project parts for the live one-page check. */
+  baseDocument: QuotationDocument;
+}) {
   const draft = useQuotationDraft(quotation);
   const { values, errors, preview, calcError, parsedDraft } = draft;
   const currency = quotation.currency;
@@ -91,12 +101,12 @@ export function EstimateBuilder({ quotation, catalog }: { quotation: QuotationRe
   const discountError = errors["discount"] ?? (calcError?.startsWith("Discount") ? calcError : undefined);
 
   const bulletCount = SCOPE_LISTS.reduce((sum, l) => sum + values.scope[l.key].length, 0);
-  const fitsOnePage =
-    values.items.length <= QUOTATION_CAPS.items &&
-    values.milestones.length <= QUOTATION_CAPS.milestones &&
-    SCOPE_LISTS.every((l) => values.scope[l.key].length <= QUOTATION_CAPS.bulletsPerList) &&
-    values.terms.length <= QUOTATION_CAPS.terms &&
-    values.scope.overview.length <= QUOTATION_CAPS.overviewChars;
+  // R-15a: measure the real document, including unsaved edits.
+  const { fit, onMeasure } = useOnePageFit();
+  const liveDocument = useMemo(
+    () => (parsedDraft && preview ? withDraft(baseDocument, parsedDraft, preview) : baseDocument),
+    [baseDocument, parsedDraft, preview]
+  );
 
   const onText =
     (name: "title" | "issue_date" | "valid_until" | "tax_name" | "tax_rate" | "discount_value" | "discount_percent" | "notes" | "internal_notes") =>
@@ -120,7 +130,7 @@ export function EstimateBuilder({ quotation, catalog }: { quotation: QuotationRe
           </Link>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight">Estimate builder</h1>
-            <StatusBadge status={quotation.status} />
+            <StatusBadge status={quotation.status} tone={toneForQuotationStatus(quotation.status)} />
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {quotation.customer?.name ?? "No customer"} · {quotation.project?.name ?? "No project"} · {currency}
@@ -128,15 +138,20 @@ export function EstimateBuilder({ quotation, catalog }: { quotation: QuotationRe
         </div>
         <div className="flex flex-col items-start gap-2 md:items-end">
           <SaveIndicator status={draft.status} error={draft.saveError} />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => void draft.saveNow()}
-            disabled={draft.status === "saving" || draft.status === "saved"}
-          >
-            Save now
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => void draft.saveNow()}
+              disabled={draft.status === "saving" || draft.status === "saved"}
+            >
+              Save now
+            </Button>
+            <Button asChild size="sm" variant={draft.status === "saved" ? "default" : "outline"}>
+              <Link href={`/dashboard/quotations/${quotation.id}`}>Preview &amp; send</Link>
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -329,10 +344,21 @@ export function EstimateBuilder({ quotation, catalog }: { quotation: QuotationRe
             discountLabel={discountLabel}
           />
           <section className="space-y-3 rounded-xl border border-border bg-card p-5" aria-label="One-page check">
-            <p className={cn("flex items-center gap-1.5 text-sm font-semibold", fitsOnePage ? "text-foreground" : "text-destructive")} data-testid="one-page-status">
-              {fitsOnePage ? <CheckCircle2 className="h-4 w-4 text-success" /> : <AlertTriangle className="h-4 w-4" />}
-              {fitsOnePage ? "Fits on one page" : "Too long for one page"}
+            <OnePageMeasurer document={liveDocument} onMeasure={onMeasure} />
+            <p
+              className={cn("flex items-center gap-1.5 text-sm font-semibold", fit?.fits === false ? "text-destructive" : "text-foreground")}
+              data-testid="one-page-status"
+              aria-live="polite"
+            >
+              {fit === null ? null : fit.fits ? <CheckCircle2 className="h-4 w-4 text-success" /> : <AlertTriangle className="h-4 w-4" />}
+              {fit === null ? "Checking page length…" : fit.fits ? "Fits on one page" : "Too long for one page"}
             </p>
+            {fit && <CapMeter label="Page used" used={fit.usedPercent} max={100} unit="%" />}
+            {fit?.fits === false && (
+              <p className="text-body-sm text-muted-foreground">
+                Shorten descriptions, scope bullets or terms. A quotation must fit on one page before it can be sent.
+              </p>
+            )}
             <CapMeter label="Line items" used={values.items.length} max={QUOTATION_CAPS.items} />
             <CapMeter label="Milestones" used={values.milestones.length} max={QUOTATION_CAPS.milestones} />
             <CapMeter label="Scope bullets" used={bulletCount} max={QUOTATION_CAPS.bulletsPerList * SCOPE_LISTS.length} />

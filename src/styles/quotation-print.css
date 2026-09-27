@@ -1,0 +1,52 @@
+/* Quotation one-page A4 print (R-15, R-15a). Scoped to #quotation-print-root so
+   the invoice print stylesheet (invoice-print.css) is untouched. The shared
+   `@page { size: A4; margin: 0 }` and `.no-print` rules already apply. */
+
+/* Printable area of one A4 page with 10mm margins: 190mm × 277mm. The builder's
+   one-page check (OnePageMeasurer) measures against the same numbers. */
+.quotation-paper {
+  width: 100%;
+  max-width: 210mm;
+  min-width: 170mm;
+  margin-inline: auto;
+  padding: 10mm;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+@media print {
+  #quotation-print-root,
+  #quotation-print-root .quotation-scroll {
+    display: block !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    max-width: none !important;
+  }
+
+  /* invoice-print.css zeroes padding on common layout classes; restate ours. */
+  #quotation-print-root .quotation-paper {
+    width: 210mm !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    padding: 10mm !important;
+    margin: 0 !important;
+  }
+
+  /* Screen-only spacing around the document must not push it down the page. */
+  .quotation-detail,
+  .quotation-detail > .quotation-layout {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+
+  #quotation-print-root table,
+  #quotation-print-root tr {
+    page-break-inside: avoid;
+  }
+}
