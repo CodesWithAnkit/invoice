@@ -27,6 +27,8 @@
     --success-foreground: 0 0% 100%;
     --warning: 32 95% 44%;       /* state-warning: #D97706 */
     --warning-foreground: 0 0% 100%;
+    --info: 221 83% 53%;         /* state-info: #3B82F6 */
+    --info-foreground: 0 0% 100%;
     --ring: 243 75% 59%;
     --radius: 0.5rem;
   }
@@ -55,6 +57,8 @@
     --success-foreground: 0 0% 10%;
     --warning: 38 92% 50%;       /* state-warning: #F59E0B */
     --warning-foreground: 0 0% 10%;
+    --info: 217 91% 60%;         /* state-info: #60A5FA */
+    --info-foreground: 0 0% 10%;
     --ring: 239 84% 67%;
   }
 }

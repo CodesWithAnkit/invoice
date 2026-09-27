@@ -51,7 +51,7 @@ Before creating a new component, service, utility, hook, API pattern, state-mana
 - **Database / Backend**: Supabase
 - **AI Processing**: Google Generative AI
 - **No External Store Libraries**: Do not introduce Redux, Zustand, Recoil, or MobX. The hook `useInvoice.ts` provides a custom singleton listener model.
-- **No Database schema drift**: Use API route handlers instead of direct client DB access. Ensure compatibility with `customers`, `invoices`, and `invoice_items` schemas.
+- **No Database schema drift**: Use API route handlers instead of direct client DB access. Ensure compatibility with `customers`, `invoices`, `invoice_items`, `projects`, and `quotations` schemas.
 
 ## Frontend Rules
 - Keep client components minimal. Mark files with `"use client"` only when they manage state, use local storage, browser APIs, or React hooks.
