@@ -41,6 +41,8 @@
   - **Phase gate:** `npm run test:e2e` for both API (`tests/api/business.spec.ts`) and frontend (`tests/onboarding.spec.ts`) passed on desktop and mobile.
 - `[x]` **MVP Phase 3 — Existing customers, products and settings on business data** (2026-09-27). Rebuilt `/dashboard/customers` and `/dashboard/products` around actual DB data, fixed all forms using Zod. Rebuilt `/dashboard/settings` to expose Company Profile and Quotation settings schemas. Configured navigation for Phase 4.
   - **Phase gate:** `npx playwright test tests/products-services.spec.ts` and `tests/settings.spec.ts` pass, regression tests remain stable.
+- `[x]` **MVP Phase 4 — Projects** (2026-09-27). Created `projects` table with extra fields. Implemented `/api/projects` CRUD with Zod validation, search/status filtering, and R-18 derived status logic. Added `/dashboard/projects` list, detail, and edit screens.
+  - **Phase gate:** `npx playwright test tests/projects.spec.ts` pass (29 passed, 2 skipped, 0 failed), including all A11Y contrast and landmark fixes. `next build` passes.
 
 ---
 

@@ -68,7 +68,8 @@ Before creating a new component, service, utility, hook, API pattern, state-mana
 - The browser should not hold private tokens (e.g. Supabase service roles, Gemini keys) or call the LLM directly.
 
 ## Database Rules
-- Schema mutations go through `/api/invoices/save`.
+- **Invoice feature** schema mutations go through `/api/invoices/save` (the transactional handler for `invoices` and `invoice_items`). Keep this route for all invoice writes.
+- **New domain schemas** (`projects`, `quotations`, and future domain tables) go through `supabase/migrations/` via `npx supabase db reset --local`.
 - Preserve transactional data flow for insertions and updates.
 
 ## Testing Rules
@@ -134,3 +135,7 @@ A task is complete only when:
 [ ] Security reviewed where applicable
 [ ] Documentation updated
 [ ] Project context synchronized
+
+## Context files
+- **StatusBadge**: `toneForProjectStatus(status)` maps all 8 project statuses (Draft, Estimating, Quoted, Accepted, Rejected, Expired, Completed, Archived). Import from `src/components/ui/status-badge.tsx`.
+- **Soft delete pattern**: `DELETE /api/projects/[id]` archives (sets `status = Archived`) rather than hard-deleting. Preserve quotations.
