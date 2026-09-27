@@ -145,9 +145,9 @@ test.describe('Cross-business access through the API (AC-AUTHZ-001/002)', () => 
     expect(error).toBeNull();
 
     const bProducts = await (await b.request.get('/api/products?search=A-only')).json();
-    expect(bProducts.products).toEqual([]);
+    expect(bProducts.data.products).toEqual([]);
     const aProducts = await (await a.request.get('/api/products?search=A-only')).json();
-    expect(aProducts.products.map((p: { name: string }) => p.name)).toContain('A-only product');
+    expect(aProducts.data.products.map((p: { name: string }) => p.name)).toContain('A-only product');
   });
 
   test('owner can delete their own invoice', async () => {

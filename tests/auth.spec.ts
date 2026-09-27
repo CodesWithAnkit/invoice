@@ -217,7 +217,7 @@ test.describe('Logout (AC-AUTH-004)', () => {
     await expect(page).toHaveURL(/\/dashboard\/overview$/);
 
     await page.getByRole('button', { name: 'Log out' }).click();
-    await page.getByRole('dialog').getByRole('button', { name: 'Log out' }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Log out' }).click();
     await expect(page).toHaveURL(/\/login/);
 
     await page.goto('/dashboard/overview');

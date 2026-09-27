@@ -209,6 +209,6 @@ test.describe("Projects UI", () => {
     await page.goto(`/dashboard/projects/${projectId}`);
     await expect(page.getByRole("heading", { name: "E2E Detail Test Project" })).toBeVisible();
     await expect(page.getByText("Back to Projects")).toBeVisible();
-    await expect(page.getByText("Customer")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Customer", exact: true })).toBeVisible();
   });
 });

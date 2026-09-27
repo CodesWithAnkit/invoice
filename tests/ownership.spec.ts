@@ -69,7 +69,8 @@ test('customer list shows only the business’s own customers', async () => {
 
   const pageB = await b.context.newPage();
   await pageB.goto('/dashboard/customers');
-  await expect(pageB.getByText('No matching customers')).toBeVisible();
+  await expect(pageB.getByText('No results')).toBeVisible();
+  await expect(pageB.getByText('Tenant A Client')).toHaveCount(0);
 });
 
 test('saving twice from the editor updates one invoice instead of creating duplicates', async () => {

@@ -70,7 +70,7 @@ test.describe('Authenticated access', () => {
   test('protected API responds normally with a valid session', async ({ request }) => {
     const res = await request.get('/api/products');
     expect(res.status()).toBe(200);
-    expect(await res.json()).toHaveProperty('products');
+    expect((await res.json()).data).toHaveProperty('products');
   });
 
   test('protected page is served with a valid session', async ({ request }) => {
@@ -103,7 +103,7 @@ test.describe('Logout invalidates the session (AC-AUTH-004)', () => {
 
     // Log out through the UI.
     await page.getByRole('button', { name: 'Log out' }).click();
-    await page.getByRole('dialog').getByRole('button', { name: 'Log out' }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Log out' }).click();
     await expect(page).toHaveURL(/\/login/);
 
     // The old cookies must no longer grant access.

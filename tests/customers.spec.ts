@@ -58,13 +58,10 @@ test.describe('Customers UI flow', () => {
     // Save
     await page.getByRole('button', { name: 'Save Customer' }).click();
 
-    // Should redirect back to list
-    await expect(page.getByRole('heading', { name: 'Customers' })).toBeVisible();
+    // Editing happens in a dialog on the detail page; it closes and the page refreshes.
+    await expect(page.getByRole('dialog')).toBeHidden();
+    await expect(page.getByRole('heading', { name: uniqueCustomerName })).toBeVisible();
 
-    // Wait for the table to stabilize (we expect the status to be changed)
-    // We can go back to details to check if notes changed.
-    await page.getByRole('link', { name: uniqueCustomerName }).click();
-    
     await expect(page.getByText('Updated notes through UI')).toBeVisible();
     await expect(page.getByText('archived')).toBeVisible();
     await page.waitForTimeout(500);
