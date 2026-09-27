@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
 import { Settings as SettingsIcon } from "lucide-react";
+import { CompanyProfilePanel } from "./CompanyProfilePanel";
+import { QuotationSettingsPanel } from "./QuotationSettingsPanel";
 
 const sections = [
   "Company Profile",
-  "Invoice Customization",
+  "Quotation Settings",
   "Tax Compliance Rails",
   "Payment Gateways",
   "Notifications & Alerts",
@@ -109,7 +111,37 @@ function VisualAppearancePanel() {
 }
 
 export default function SettingsPage() {
-  const [active, setActive] = useState<Section>("Visual Appearance");
+  const [active, setActive] = useState<Section>("Company Profile");
+  const [businessData, setBusinessData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchBusinessData() {
+      try {
+        const res = await fetch("/api/business");
+        const data = await res.json();
+        if (data.success) {
+          setBusinessData(data.data);
+        } else {
+          setError(data.error);
+        }
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchBusinessData();
+  }, []);
+
+  if (error) {
+    return (
+      <div className="p-8">
+        <EmptyState title="Error Loading Settings" description={error} icon={<SettingsIcon className="h-6 w-6" />} />
+      </div>
+    );
+  }
 
   return (
     <div className="w-full grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -134,7 +166,15 @@ export default function SettingsPage() {
       </div>
 
       <div className="lg:col-span-3 rounded-xl border border-border bg-card p-6">
-        {active === "Visual Appearance" ? (
+        {loading ? (
+          <div className="flex h-40 items-center justify-center">
+            <span className="text-muted-foreground animate-pulse">Loading settings...</span>
+          </div>
+        ) : active === "Company Profile" ? (
+          <CompanyProfilePanel initialData={businessData} />
+        ) : active === "Quotation Settings" ? (
+          <QuotationSettingsPanel initialData={businessData} />
+        ) : active === "Visual Appearance" ? (
           <VisualAppearancePanel />
         ) : (
           <EmptyState

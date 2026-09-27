@@ -34,7 +34,11 @@ export async function PATCH(request: Request) {
     return fail("Invalid JSON payload", 400);
   }
 
-  const { name, email, phone, address, website, tax_id, currency, logo_path } = body;
+  const { 
+    name, email, phone, address, website, tax_id, currency, logo_path,
+    timezone, default_validity_days, default_terms, default_notes,
+    default_tax_name, default_tax_rate_bp, quote_prefix, allow_client_pdf_download
+  } = body;
 
   const updates: Record<string, any> = {};
   if (name !== undefined) updates.name = name;
@@ -45,6 +49,14 @@ export async function PATCH(request: Request) {
   if (tax_id !== undefined) updates.tax_id = tax_id;
   if (currency !== undefined) updates.currency = currency;
   if (logo_path !== undefined) updates.logo_path = logo_path;
+  if (timezone !== undefined) updates.timezone = timezone;
+  if (default_validity_days !== undefined) updates.default_validity_days = default_validity_days;
+  if (default_terms !== undefined) updates.default_terms = default_terms;
+  if (default_notes !== undefined) updates.default_notes = default_notes;
+  if (default_tax_name !== undefined) updates.default_tax_name = default_tax_name;
+  if (default_tax_rate_bp !== undefined) updates.default_tax_rate_bp = default_tax_rate_bp;
+  if (quote_prefix !== undefined) updates.quote_prefix = quote_prefix;
+  if (allow_client_pdf_download !== undefined) updates.allow_client_pdf_download = allow_client_pdf_download;
   
   updates.updated_at = new Date().toISOString();
 
