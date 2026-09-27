@@ -18,3 +18,15 @@ _Steps derived from spec 0002 acceptance criteria. `/check verify` runs these; `
 - AC-3 covered by step (UI/API customer creation)
 - AC-4 covered by step (UI/API customer deletion)
 - AC-5 covered by step (UI rendering check)
+
+## API / Backend (Customers Feature)
+- [x] `POST /api/customers` creates a customer with new fields (`email`, `notes`, `tax_id`) and returns `status="active"`
+- [x] `PATCH /api/customers/[id]` successfully updates `email`, `notes`, `tax_id`, and `status` to `archived`
+- [x] `GET /api/customers?search=xyz` returns only matching customers
+- [x] `GET /api/customers?sort=name&dir=desc` returns correctly sorted list
+
+## UI / manual (Customers Feature)
+- [x] Navigate to `/dashboard/customers`, verify the columns (Name, Phone, Invoices, Status) and that search works locally.
+- [x] Click "New Customer", submit the form, and verify redirection to the list with the new customer visible.
+- [x] Click a customer name in the list, verify the detail page loads real data (Contact Details, Business Details, Recent Projects, Recent Invoices).
+- [x] Click "Edit", change a field (e.g., set status to Archived), and save. Verify the detail page reflects the change.

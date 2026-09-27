@@ -2,62 +2,52 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Plus, Search, Users } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { toast } from "sonner";
-import { fetchCustomersWithInvoiceStats } from "@/modules/invoice/invoice.api";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { EmptyState } from "@/components/EmptyState";
-import { MockCustomer } from "@/lib/mockData";
+import { SearchInput } from "@/components/SearchInput";
+import { DataTable } from "@/components/DataTable";
+import { columns, CustomerRow } from "./columns";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function CustomersPage() {
   const [search, setSearch] = useState("");
-  const [customers, setCustomers] = useState<MockCustomer[]>([]);
+  const debouncedSearch = useDebounce(search, 300);
+  const [customers, setCustomers] = useState<CustomerRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
+      setLoading(true);
       try {
-        const { customers: customerRows, invoiceStats } = await fetchCustomersWithInvoiceStats();
+        const params = new URLSearchParams();
+        if (debouncedSearch) params.set("search", debouncedSearch);
 
-        const customerStats = new Map<string, { count: number; outstanding: number; settled: number }>();
+        const res = await fetch(`/api/customers?${params.toString()}`);
+        if (!res.ok) throw new Error("Failed to fetch customers");
 
-        invoiceStats.forEach((inv) => {
-          const stats = customerStats.get(inv.customer_id) || { count: 0, outstanding: 0, settled: 0 };
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+
+        const customerRows = data.data.customers;
+        const invoiceStats = data.data.invoiceStats;
+
+        const customerStats = new Map<string, { count: number }>();
+        invoiceStats.forEach((inv: any) => {
+          const stats = customerStats.get(inv.customer_id) || { count: 0 };
           stats.count += 1;
-          if (inv.pdf_url) {
-            stats.settled += (inv.total || 0);
-          } else {
-            stats.outstanding += (inv.total || 0);
-          }
           customerStats.set(inv.customer_id, stats);
         });
 
-        const formatted: MockCustomer[] = customerRows.map(c => {
-          const stats = customerStats.get(c.id) || { count: 0, outstanding: 0, settled: 0 };
-          return {
-            id: c.id,
-            name: c.name || "Unknown",
-            email: c.phone || "No phone", // Reusing email field for phone since the UI uses it for subtext
-            ledgerCount: stats.count,
-            outstanding: stats.outstanding,
-            settledVolumeYtd: stats.settled,
-            lastEvent: "Active", // simplified
-            achTargetNode: "",
-            jurisdiction: "",
-            taxId: c.aadhaar || "",
-            ledgerHistory: []
-          };
-        });
-        
+        const formatted: CustomerRow[] = customerRows.map((c: any) => ({
+          id: c.id,
+          name: c.name || "Unknown",
+          email: c.email || null,
+          phone: c.phone || null,
+          status: c.status || "active",
+          invoiceCount: customerStats.get(c.id)?.count || 0,
+        }));
+
         setCustomers(formatted);
       } catch (err) {
         console.error(err);
@@ -67,81 +57,35 @@ export default function CustomersPage() {
       }
     }
     fetchData();
-  }, []);
-
-  const filtered = customers.filter(
-    (c) =>
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.email.toLowerCase().includes(search.toLowerCase())
-  );
+  }, [debouncedSearch]);
 
   return (
-    <div className="w-full">
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search customer directories..."
-            className="pl-8 bg-background"
+    <div className="w-full space-y-6">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
+          <p className="text-muted-foreground">Manage your client directory.</p>
+        </div>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <SearchInput
+            placeholder="Search customers..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <Link href="/dashboard/customers/new">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              New Customer
+            </Button>
+          </Link>
         </div>
-        <Button
-          onClick={() => toast.info("Adding customer records is coming soon.")}
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Customer Record
-        </Button>
       </div>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <Table>
-          <TableHeader className="bg-muted/50">
-            <TableRow>
-              <TableHead>Corporate Entity / Primary Routing</TableHead>
-              <TableHead className="text-right">Ledger Count</TableHead>
-              <TableHead className="text-right">Outstanding</TableHead>
-              <TableHead className="text-right">Settled Volume YTD</TableHead>
-              <TableHead className="text-right">Last Event</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="h-64 text-center p-0">
-                  <EmptyState
-                    title="No matching customers"
-                    description="Adjust your search to find a customer record."
-                    icon={<Users className="h-6 w-6" />}
-                  />
-                </TableCell>
-              </TableRow>
-            ) : (
-              filtered.map((customer) => (
-                <TableRow key={customer.id} className="hover:bg-muted/50">
-                  <TableCell>
-                    <Link href={`/dashboard/customers/${customer.id}`} className="block">
-                      <p className="font-semibold text-foreground hover:underline">{customer.name}</p>
-                      <p className="text-xs text-muted-foreground">{customer.email}</p>
-                    </Link>
-                  </TableCell>
-                  <TableCell className="text-right text-muted-foreground">
-                    {customer.ledgerCount} Invoices
-                  </TableCell>
-                  <TableCell className="text-right font-mono font-semibold">
-                    ${customer.outstanding.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </TableCell>
-                  <TableCell className="text-right font-mono font-semibold">
-                    ${customer.settledVolumeYtd.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </TableCell>
-                  <TableCell className="text-right text-muted-foreground">{customer.lastEvent}</TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        columns={columns}
+        data={customers}
+        isLoading={loading}
+      />
     </div>
   );
 }
