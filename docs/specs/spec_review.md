@@ -58,7 +58,9 @@ These are flagged in AGENTS.md as pending, not silently rewritten.
 AC-ESTIMATE-007 says "calculate against the defined calculation base" but never defines it.
 **Recommendation:** base = Σ of **non-percentage** line amounts. Percentage items never include other percentage items (so there is no circularity). They are included in the subtotal, then discounted and taxed like any other line.
 
-### R-05 🔴 Tax granularity
+### R-05 ✅ Tax granularity
+> **Decided 2026-09-27:** one quotation-level tax, as recommended below.
+
 PRD §18 and AC-CATALOG-001 give every service a **Tax** field, which implies per-line tax. PRD §22 and AC-CALC-003 describe a **single quotation-level rate** applied to the taxable amount.
 **Recommendation:** MVP uses **one quotation-level tax** (name + %) defaulted from business settings. The service `tax` field is stored for future per-line tax but ignored in MVP calculation. This must be stated in the service form UI.
 
@@ -66,7 +68,9 @@ PRD §18 and AC-CATALOG-001 give every service a **Tax** field, which implies pe
 The current calculator always splits tax into CGST/SGST halves, while PRD §22 says a single named tax for MVP.
 **Recommendation:** the quotation calculator stores `tax_name`, `tax_rate`, `tax_amount`. A "Show as CGST + SGST" presentation toggle can come later. Leave the invoice calculator unchanged (R-00).
 
-### R-07 Discount rules
+### R-07 ✅ Discount rules
+> **Decided 2026-09-27:** as recommended below.
+
 Neither document specifies: quotation-level only or also per line? Can a discount exceed the subtotal? What is a fixed discount's max?
 **Recommendation:** quotation-level only. Percentage 0–100. Fixed from 0 up to the subtotal. The server rejects anything else (AC-CALC-005).
 
@@ -77,11 +81,15 @@ Neither document specifies: quotation-level only or also per line? Can a discoun
 Not specified anywhere. The existing code uses JS floats with `round2` per line.
 *Superseded recommendation:* store money as `numeric(14,2)` in Postgres, compute server-side with an explicit rounding rule (half-up to 2 dp at **each line** and at **each summary step**), and document it in one module shared by the server and the preview. Quantities `numeric(12,3)` (allows 0.5 hours). This rule decides the answers to AC-CALC-004 and AC-DATA-004.
 
-### R-09 Quantity rules
+### R-09 ✅ Quantity rules
+> **Decided 2026-09-27:** as recommended below.
+
 The AC rejects negative values but is silent on **zero** and fractions. The existing schema demands `quantity ≥ 1` (it would reject 0.5 h).
 **Recommendation:** quantity > 0, fractional allowed, max 3 dp. Rate ≥ 0 (zero allowed for complimentary items).
 
-### R-10 Multi-currency
+### R-10 ✅ Multi-currency
+> **Decided 2026-09-27:** as recommended below.
+
 Quotations have `currency` (PRD §26) and the business has a default currency, but dashboard KPIs sum "quoted value" across quotations.
 **Recommendation:** in MVP, currency is fixed per business (the settings default). The quotation copies it, and changing it on a quotation is disallowed. KPIs then sum safely.
 
@@ -120,7 +128,7 @@ Who moves Sent/Viewed → Expired, and when? In which time zone is `valid_until`
 ### R-15 ✅ PDF generation approach
 > **Decided 2026-09-25:** the quotation PDF works **like the current one**: browser print, **single A4 page**. Multi-page PDFs are deferred and will be added later if needed. AC-PDF-004 "multi-page" is out of MVP (noted in MVP Acceptance Criteria).
 >
-> **Consequence, open as R-15a 🔴 (blocks Phase 6):** one A4 page already holds at most 15 line items with the current footer. Quotations also need scope, deliverables, timeline, assumptions and terms (AC-PREVIEW-001, AC-PDF-002). Not all of that fits on one page at full length. Decide which sections appear on the PDF and in what compact form, and cap their content in the builder. Caps are set by measurement with the existing one-page Playwright test (`tests/invoice-pdf-export.spec.ts` pattern), not by guesswork.
+> **Consequence, R-15a ✅ decided 2026-09-27 (compact all sections, capped in the builder; see Decision log):** one A4 page already holds at most 15 line items with the current footer. Quotations also need scope, deliverables, timeline, assumptions and terms (AC-PREVIEW-001, AC-PDF-002). Not all of that fits on one page at full length. Decide which sections appear on the PDF and in what compact form, and cap their content in the builder. Caps are set by measurement with the existing one-page Playwright test (`tests/invoice-pdf-export.spec.ts` pattern), not by guesswork.
 
 *Original analysis:*
 AC-PDF-004 requires multi-page output; AC-CLIENT-003 requires a **client** "Download PDF" on the public page; E2E-003 requires verifying the output. The current engine is browser `window.print()`, deliberately fixed to **one A4 page and 15 items**, and protected by an AGENTS.md invariant.
@@ -226,3 +234,10 @@ When a decision is made, record it here (date, decision, who).
 | R-23 | Email confirmation on (already the hosted setting); password minimum 8. | 2026-09-25 | Implemented per plan |
 | R-26 | All existing (unowned) data is assigned to **webans001@gmail.com** via the admin-only `claim_legacy_data(email)`, run once on the hosted project. | 2026-09-26 | Product owner |
 | — | Template publishing to GitHub is admin-only: off unless `TEMPLATE_PUBLISHING_ENABLED=true`; reading templates stays open to signed-in users. | 2026-09-26 | Product owner |
+| R-05 | MVP tax = one quotation-level tax (name + rate in basis points), defaulted from business settings. Catalog items carry no tax in MVP. | 2026-09-27 | Product owner |
+| R-07 | Discount is quotation-level only: percent 0–100 %, fixed 0…subtotal. The server rejects anything else. | 2026-09-27 | Product owner |
+| R-09 | Quantity > 0, fractional allowed, max 3 decimals. Rate ≥ 0 (zero allowed). | 2026-09-27 | Product owner |
+| R-10 | Currency is fixed per business; the quotation copies it at creation and it cannot be changed on the quotation. | 2026-09-27 | Product owner |
+| R-15a | The one-page quotation PDF shows every section in compact form (items, totals, scope overview, deliverables/included/excluded/assumptions bullets, milestones table, terms). The builder caps each section; final caps are set by the Phase 6 one-page measurement test. | 2026-09-27 | Product owner |
+| R-02 | Quotation drafts: the server is the source of truth (debounced auto-save to `/api/quotations/:id`). The builder uses its own grouped-`values` hook; `useInvoice` stays invoice-only and is not reused. | 2026-09-27 | Product owner |
+| R-28 | Unit tests run on Playwright's test runner (a browserless `unit` project over `src/**/*.test.ts`), not Vitest: one runner, no new dependency. | 2026-09-27 | Product owner |

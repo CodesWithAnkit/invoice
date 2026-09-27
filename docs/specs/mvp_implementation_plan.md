@@ -63,10 +63,10 @@ Supabase (per-request server client with the user's session → RLS as second wa
 | Route protection | `src/proxy.ts` (Next 16 name for middleware) | Server-side redirect for protected routes (AC-AUTH-006). |
 | API helpers | `src/lib/api/{respond,auth,validate}.ts` | `ok(data)` / `fail(msg, status)` matching AGENTS.md `{ success, data }` / `{ error }`. `requireBusiness()` returns `{ user, businessId }` **from the session only**, never from the request (AC-AUTHZ-003). |
 | Migrations | `supabase/migrations/*.sql` via Supabase CLI | No migrations exist today (gap analysis U4). A baseline dump comes first. |
-| Unit tests | Vitest, `src/**/*.test.ts` | AC §25 (R-28). |
+| Unit tests | Playwright `unit` project (no browser), `src/**/*.test.ts`, `npm run test:unit` | AC §25 (R-28). Vitest was dropped 2026-09-27 to avoid a second test runner. |
 | Test DB | local Supabase via `supabase start`, seeded | R-29. Tests never touch the real project. |
 
-**New dependencies:** `@supabase/ssr` (runtime), `vitest` (dev), `supabase` CLI (dev).
+**New dependencies:** `@supabase/ssr` (runtime), `supabase` CLI (dev).
 
 ### 2.3 Data model (MVP)
 
@@ -232,11 +232,11 @@ This phase fixes the live vulnerabilities and puts the ownership model under **a
 
 ---
 
-### Phase 5 — Estimate builder · **L** · needs R-05, R-07, R-09, R-10, R-15a
+### Phase 5 — Estimate builder · **L** · needs R-05, R-07, R-09, R-10, R-15a · ✅ implemented 2026-09-27 (gate blocked by pre-existing Phase 1–4 test failures, see progress_tracker)
 
 | Task | Notes |
 |---|---|
-| `quotation.calculator.ts` per §2.4, plus a **Vitest suite**: fixed, hourly, daily, quantity, percentage, discount (fixed and %), tax, total, rounding ties, and invalid values (negatives, NaN, ∞, non-integer minor units, discount > subtotal). | AC-ESTIMATE-003…007, AC-CALC-*, AC §25 unit list |
+| `quotation.calculator.ts` per §2.4, plus a **unit suite** (Playwright `unit` project): fixed, hourly, daily, quantity, percentage, discount (fixed and %), tax, total, rounding ties, and invalid values (negatives, NaN, ∞, non-integer minor units, discount > subtotal). | AC-ESTIMATE-003…007, AC-CALC-*, AC §25 unit list |
 | `quotation.schema.ts` (zod) is the single validation source for the API and forms. | AC-CALC-005 |
 | Migrations: `quotations`, `quotation_items`, `quotation_scope`, `quotation_milestones`. `/api/quotations` create/get/patch draft. **The server recomputes totals on every write** and ignores client totals. | AC-CALC-004 |
 | UI: `CurrencyInput` (rupees in, paise stored), `PercentageInput`, `QuantityInput`, `EstimateLineItem` (desktop row / mobile card), `EstimateBuilder`, `QuoteSummary` (seeded from [InvoiceLiveSummary.tsx](../../src/components/invoice/InvoiceLiveSummary.tsx)), `ScopeSection`, milestone editor. Entry point: "Create quotation" on the project page. | DS §31–35 |
@@ -298,7 +298,7 @@ Design-system components are built inside the phase that first needs them (DS §
 | ✅ Decided | R-00, R-01, R-04, R-08, R-15, phase order |
 | 🔴 Needed before Phase 0 | R-22 (auth provider; Supabase Auth assumed in this plan), gap-analysis U1–U5, R-26 (legacy data owner) |
 | Needed before Phase 3–4 | R-18, R-19, R-20 |
-| Needed before Phase 5 | R-05, R-07, R-09, R-10, **R-15a** |
+| ✅ Decided for Phase 5 (2026-09-27) | R-02, R-05, R-07, R-09, R-10, R-15a, R-28 |
 | Needed before Phase 6 | R-03, R-11, R-12, R-13, R-17 |
 | Needed before Phase 7 | R-14, R-16, R-24, R-25, R-27 |
 

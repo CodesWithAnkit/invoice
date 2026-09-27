@@ -5,11 +5,16 @@ import { ArrowLeft, CalendarDays, User } from "lucide-react";
 import { StatusBadge, toneForProjectStatus } from "@/components/ui/status-badge";
 import { ActivityTimeline, TimelineEvent } from "@/components/ActivityTimeline";
 import { ProjectActions } from "./ProjectActions";
+import { CreateQuotationButton } from "./CreateQuotationButton";
+import { formatMinor } from "@/modules/quotation/quotation.money";
 import { format } from "date-fns";
 
 type QuotationRow = {
   id: string;
   status: string;
+  title: string;
+  total_minor: number;
+  currency: string;
   created_at: string;
   updated_at: string;
 };
@@ -34,7 +39,7 @@ export default async function ProjectDetailPage({
     .select(`
       *,
       customers ( id, name, email, phone ),
-      quotations ( id, status, created_at, updated_at )
+      quotations ( id, status, title, total_minor, currency, created_at, updated_at )
     `)
     .eq("id", id)
     .eq("business_id", businessId)
@@ -172,12 +177,15 @@ export default async function ProjectDetailPage({
       {/* Quotations */}
       <div className="rounded-xl border border-border bg-card p-5 space-y-4">
         <div className="flex items-center justify-between border-b border-border pb-2">
-          <h2 className="font-semibold text-foreground">Quotations</h2>
-          <span className="text-xs text-muted-foreground">{quotations.length} total</span>
+          <div className="flex items-center gap-3">
+            <h2 className="font-semibold text-foreground">Quotations</h2>
+            <span className="text-xs text-muted-foreground">{quotations.length} total</span>
+          </div>
+          <CreateQuotationButton projectId={project.id as string} disabled={project.status === "Archived"} />
         </div>
         {quotations.length === 0 ? (
           <p className="text-sm text-muted-foreground py-4 text-center">
-            No quotations yet. Quotation builder coming in Phase 5.
+            No quotations yet. Create one to start estimating.
           </p>
         ) : (
           <div className="space-y-2">
@@ -186,8 +194,20 @@ export default async function ProjectDetailPage({
                 key={q.id}
                 className="flex items-center justify-between py-2 border-b border-border last:border-0"
               >
-                <div className="text-sm font-mono text-muted-foreground truncate">{q.id.slice(0, 8)}…</div>
-                <div className="flex items-center gap-3">
+                {q.status === "Draft" ? (
+                  <Link
+                    href={`/dashboard/quotations/${q.id}/edit`}
+                    className="min-w-0 truncate text-sm font-medium text-foreground hover:underline"
+                  >
+                    {q.title || "Untitled quotation"}
+                  </Link>
+                ) : (
+                  <span className="min-w-0 truncate text-sm font-medium text-foreground">
+                    {q.title || "Untitled quotation"}
+                  </span>
+                )}
+                <div className="flex shrink-0 items-center gap-3">
+                  <span className="font-mono text-sm tabular-nums">{formatMinor(q.total_minor, q.currency)}</span>
                   <span className="text-xs text-muted-foreground">
                     {format(new Date(q.created_at), "dd MMM yyyy")}
                   </span>

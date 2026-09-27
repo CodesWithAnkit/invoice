@@ -49,7 +49,7 @@ const createProductSchema = z.object({
   name: z.string().min(1, "Name is required"),
   price: z.number().optional(), // For legacy price numeric
   kind: z.enum(["product", "service"]).default("product"),
-  pricing_model: z.enum(["fixed", "hourly", "daily", "percentage"]).default("fixed"),
+  pricing_model: z.enum(["fixed", "hourly", "daily", "quantity", "percentage"]).default("fixed"),
   unit: z.string().optional().nullable(),
   default_rate_minor: z.number().optional().nullable(),
   default_percent_bp: z.number().optional().nullable(),

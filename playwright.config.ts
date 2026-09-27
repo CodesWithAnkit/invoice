@@ -58,6 +58,12 @@ export default defineConfig({
       testMatch: /global\.setup\.ts/,
     },
     {
+      // Unit tests for pure domain modules (AC §25). No browser, no auth, no DB.
+      name: 'unit',
+      testDir: './src',
+      testMatch: /.*\.test\.ts/,
+    },
+    {
       // Backend E2E: real HTTP against the running app + local Supabase.
       name: 'api',
       testMatch: /api\/.*\.spec\.ts/,

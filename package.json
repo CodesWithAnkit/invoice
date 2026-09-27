@@ -11,7 +11,8 @@
     "test:e2e:ui": "playwright test --ui",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
-    "db:reset": "supabase db reset"
+    "db:reset": "supabase db reset",
+    "test:unit": "playwright test --project=unit"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

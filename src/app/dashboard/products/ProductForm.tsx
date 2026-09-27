@@ -11,7 +11,7 @@ import { FormField } from "@/components/ui/form-field";
 const ProductSchema = z.object({
   name: z.string().min(1, "Name is required"),
   kind: z.enum(["product", "service"]).default("product"),
-  pricing_model: z.enum(["fixed", "hourly", "daily", "percentage"]).default("fixed"),
+  pricing_model: z.enum(["fixed", "hourly", "daily", "quantity", "percentage"]).default("fixed"),
   unit: z.string().optional(),
   default_rate_minor: z.string().optional(),
   default_percent_bp: z.string().optional(),
@@ -138,6 +138,7 @@ export function ProductForm({ initialValues, productId, onSuccess, onCancel }: P
               <option value="fixed">Fixed</option>
               <option value="hourly">Hourly</option>
               <option value="daily">Daily</option>
+              <option value="quantity">Quantity</option>
               <option value="percentage">Percentage</option>
             </select>
           )}

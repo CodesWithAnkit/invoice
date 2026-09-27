@@ -22,7 +22,7 @@ export type ProductRow = {
   id: string;
   name: string;
   kind: "product" | "service";
-  pricing_model: "fixed" | "hourly" | "daily" | "percentage";
+  pricing_model: "fixed" | "hourly" | "daily" | "quantity" | "percentage";
   unit: string | null;
   default_rate_minor: number | null;
   default_percent_bp: number | null;
