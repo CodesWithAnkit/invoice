@@ -96,7 +96,15 @@ export default async function CustomerDetailPage({
       {/* Optional: Add sections for Projects and Invoices lists here */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-card p-5 space-y-4">
-          <h2 className="font-semibold text-foreground border-b border-border pb-2">Recent Projects ({projects.length})</h2>
+          <div className="flex items-center justify-between border-b border-border pb-2">
+            <h2 className="font-semibold text-foreground">Projects ({projects.length})</h2>
+            <Link
+              href={`/dashboard/projects`}
+              className="text-xs text-muted-foreground hover:text-foreground transition"
+            >
+              View all →
+            </Link>
+          </div>
           {projects.length === 0 ? (
              <p className="text-sm text-muted-foreground">No projects found.</p>
           ) : (

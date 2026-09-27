@@ -1,5 +1,15 @@
 import { requireBusiness } from "@/lib/api/auth";
 import { fail, ok, serverError } from "@/lib/api/respond";
+import { z } from "zod";
+
+const CreateProjectSchema = z.object({
+  name: z.string().min(1, "Project name is required"),
+  customer_id: z.string().uuid("Valid customer ID is required"),
+  description: z.string().optional(),
+  notes: z.string().optional(),
+  start_date: z.string().optional(),
+  expected_end_date: z.string().optional(),
+});
 
 export async function POST(req: Request) {
   const auth = await requireBusiness();
@@ -8,15 +18,13 @@ export async function POST(req: Request) {
   try {
     const { supabase, businessId } = auth;
     const body = await req.json();
-    const { name, customer_id } = body;
-    
-    if (!name || typeof name !== "string" || name.trim() === "") {
-      return fail("Project name is required", 400);
+
+    const validated = CreateProjectSchema.safeParse(body);
+    if (!validated.success) {
+      return fail(validated.error.issues[0]?.message || "Invalid input", 400);
     }
-    
-    if (!customer_id || typeof customer_id !== "string") {
-      return fail("Customer ID is required", 400);
-    }
+
+    const { name, customer_id, description, notes, start_date, expected_end_date } = validated.data;
 
     const res = await supabase
       .from("projects")
@@ -24,6 +32,10 @@ export async function POST(req: Request) {
         business_id: businessId,
         customer_id,
         name: name.trim(),
+        description: description || null,
+        notes: notes || null,
+        start_date: start_date || null,
+        expected_end_date: expected_end_date || null,
         status: "Draft",
       })
       .select("id")
@@ -43,61 +55,61 @@ export async function GET(req: Request) {
 
   try {
     const { supabase, businessId } = auth;
-    
-    // In a full implementation, this query would use a database view or RPC to efficiently
-    // compute the derived status from the latest quotation. 
-    // For MVP, we can fetch projects and their latest quotation.
-    const res = await supabase
+    const url = new URL(req.url);
+    const search = url.searchParams.get("search") || "";
+    const statusFilter = url.searchParams.get("status") || "";
+
+    let query = supabase
       .from("projects")
       .select(`
         *,
-        quotations (
-          id,
-          status,
-          created_at
-        )
+        customers ( id, name ),
+        quotations ( id, status, created_at )
       `)
       .eq("business_id", businessId)
       .order("created_at", { ascending: false });
 
+    if (search) {
+      query = query.ilike("name", `%${search}%`);
+    }
+
+    const res = await query;
     if (res.error) throw res.error;
-    
-    // Derive status logic
-    const projects = res.data.map(project => {
-      let derivedStatus = project.status;
-      
-      // If manual status is Draft, Completed, or Archived, it takes precedence.
-      // Otherwise derive from latest quotation.
-      if (!["Draft", "Completed", "Archived"].includes(project.status) && project.quotations && project.quotations.length > 0) {
-        // Sort quotations descending by created_at
-        const sortedQuotations = [...project.quotations].sort((a, b) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+
+    type QuotationRow = { id: string; status: string; created_at: string };
+    type ProjectRow = typeof res.data[number] & { quotations?: QuotationRow[] | null };
+
+    // Derive status from latest quotation (R-18)
+    const projects = (res.data as ProjectRow[]).map((project) => {
+      let derivedStatus = project.status as string;
+
+      if (
+        !["Draft", "Completed", "Archived"].includes(project.status as string) &&
+        project.quotations &&
+        project.quotations.length > 0
+      ) {
+        const sorted = [...project.quotations].sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
-        
-        const latestQuotation = sortedQuotations[0];
-        
-        if (latestQuotation.status === "Draft") {
-          derivedStatus = "Estimating";
-        } else if (latestQuotation.status === "Sent") {
-          derivedStatus = "Quoted";
-        } else if (latestQuotation.status === "Accepted") {
-          derivedStatus = "Accepted";
-        } else if (latestQuotation.status === "Rejected") {
-          derivedStatus = "Rejected";
-        } else if (latestQuotation.status === "Expired") {
-          derivedStatus = "Expired";
-        }
+        const map: Record<string, string> = {
+          Draft: "Estimating",
+          Sent: "Quoted",
+          Accepted: "Accepted",
+          Rejected: "Rejected",
+          Expired: "Expired",
+        };
+        derivedStatus = map[sorted[0].status] ?? (project.status as string);
       }
-      
-      // Strip quotations from output if not needed, or keep for client details
-      return {
-        ...project,
-        status: derivedStatus,
-        _manual_status: project.status
-      };
+
+      return { ...project, status: derivedStatus };
     });
 
-    return ok({ projects });
+    // Apply status filter after derivation (derived statuses are not in DB)
+    const filtered = statusFilter
+      ? projects.filter((p) => p.status === statusFilter)
+      : projects;
+
+    return ok({ projects: filtered });
   } catch (error) {
     return serverError("List projects failed", error);
   }

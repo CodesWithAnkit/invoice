@@ -29,6 +29,22 @@ export function toneForStatus(status: string): StatusTone {
   return statusToneMap[status.toUpperCase()] ?? "neutral";
 }
 
+// Project-specific status tones (R-18: Estimating, Quoted, Accepted, Rejected, Expired derived)
+const projectStatusToneMap: Record<string, StatusTone> = {
+  Draft: "neutral",
+  Estimating: "warning",
+  Quoted: "warning",
+  Accepted: "success",
+  Rejected: "danger",
+  Expired: "danger",
+  Completed: "success",
+  Archived: "neutral",
+};
+
+export function toneForProjectStatus(status: string): StatusTone {
+  return projectStatusToneMap[status] ?? "neutral";
+}
+
 export function StatusBadge({
   status,
   tone,
