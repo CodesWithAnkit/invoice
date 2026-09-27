@@ -232,7 +232,7 @@ This phase fixes the live vulnerabilities and puts the ownership model under **a
 
 ---
 
-### Phase 5 — Estimate builder · **L** · needs R-05, R-07, R-09, R-10, R-15a · ✅ implemented 2026-09-27 (gate blocked by pre-existing Phase 1–4 test failures, see progress_tracker)
+### Phase 5 — Estimate builder · **L** · needs R-05, R-07, R-09, R-10, R-15a · ✅ implemented 2026-09-27 (gate passed)
 
 | Task | Notes |
 |---|---|
