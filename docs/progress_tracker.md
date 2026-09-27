@@ -16,7 +16,7 @@
 - `[x]` Redesign Phase 4: Invoice Detail reskin (Issuer/Client profile cards, itemised table, totals); Audit Log panel derived from real timestamps, not fabricated events.
 - `[x]` Redesign Phase 5: `/dashboard/customers` + `/dashboard/customers/[id]` — fully static/mock (a real `customers` Supabase table exists but isn't wired up yet).
 - `[x]` Redesign Phase 6: `/dashboard/products` — fully static/mock (`/api/products` exists server-side but isn't wired up yet).
-- `[x]` Redesign Phase 7: `/dashboard/settings` — sub-nav shell; only Visual Appearance is real (wired to `next-themes`), other sections are static placeholders.
+- `[x]` Redesign Phase 7: `/dashboard/settings` — Complete! Sub-nav shell, Company Profile and Quotation Settings wired to database with full Zod validations.
 - Verified via Playwright screenshots (light + dark) that the redesign matches the reference boards, and that print-media output of the invoice PDF template is pixel-identical to pre-redesign (font/layout isolated by design).
 - `[x]` Redesign Phase 8 (new reference boards `invoice_design/new/15-16`): reskinned the Invoice View page (Issuer/From, Recipient/To cards, 4-button header incl. static Send/Record Payment stubs, timeline dots) and the invoice Editor/Edit/Copy workspace pages (title+actions header, sticky "Realtime Calculation Audit" live-totals sidebar) to match. `InvoiceToolbar` was destyled into a plain button group (same handlers) so it can sit in the new header — no field, handler, or schema logic changed. Verified responsive at desktop/tablet/mobile and re-confirmed print/PDF output is still pixel-identical.
 - `[x]` Made the action-button header always visible while scrolling on the View/Edit/Create/Copy invoice pages (`sticky`, offset precisely measured against `TopNavbar` + layout gap). Extracted the duplicated header+editor+sidebar markup shared by the create/edit/copy pages into `src/components/invoice/InvoiceWorkspaceShell.tsx` so it only needs to change in one place.
@@ -39,6 +39,8 @@
   - **Found during the audit:** the hosted anon key can read every customer, invoice and invoice-item row (RLS off or permissive). That is Phase 0 work.
 - `[x]` **MVP Phase 2 — Business Onboarding** (2026-09-26; see `docs/specs/0001-business-onboarding.md`). Implemented the `/onboarding` UI and the `PATCH /api/business` route. Grouped form state and single update handlers per `AGENTS.md` rules. Backend and Frontend E2E coverage complete.
   - **Phase gate:** `npm run test:e2e` for both API (`tests/api/business.spec.ts`) and frontend (`tests/onboarding.spec.ts`) passed on desktop and mobile.
+- `[x]` **MVP Phase 3 — Existing customers, products and settings on business data** (2026-09-27). Rebuilt `/dashboard/customers` and `/dashboard/products` around actual DB data, fixed all forms using Zod. Rebuilt `/dashboard/settings` to expose Company Profile and Quotation settings schemas. Configured navigation for Phase 4.
+  - **Phase gate:** `npx playwright test tests/products-services.spec.ts` and `tests/settings.spec.ts` pass, regression tests remain stable.
 
 ---
 
