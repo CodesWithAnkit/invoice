@@ -3,20 +3,28 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { FormField } from "@/components/ui/form-field";
 
-export interface CustomerFormValues {
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  notes: string;
-  tax_id: string;
-  company_name: string;
-  status: "active" | "archived";
-}
+const CustomerSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.union([z.string().email("Invalid email"), z.literal("")]).optional(),
+  phone: z.string().optional(),
+  address: z.string().optional(),
+  notes: z.string().optional(),
+  tax_id: z.string().optional(),
+  company_name: z.string().optional(),
+  status: z.enum(["active", "archived"]).default("active"),
+});
+
+export type CustomerFormValues = z.infer<typeof CustomerSchema>;
+
+type FieldErrors = {
+  [K in keyof CustomerFormValues]?: string;
+};
 
 interface CustomerFormProps {
   initialValues?: Partial<CustomerFormValues>;
@@ -37,6 +45,7 @@ export function CustomerForm({ initialValues, customerId, onSuccess, onCancel }:
     company_name: initialValues?.company_name || "",
     status: initialValues?.status || "active",
   });
+  const [errors, setErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -46,6 +55,18 @@ export function CustomerForm({ initialValues, customerId, onSuccess, onCancel }:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    
+    const validated = CustomerSchema.safeParse(values);
+    if (!validated.success) {
+      const formattedErrors: FieldErrors = {};
+      validated.error.issues.forEach(issue => {
+        formattedErrors[issue.path[0] as keyof CustomerFormValues] = issue.message;
+      });
+      setErrors(formattedErrors);
+      return;
+    }
+
     setSaving(true);
     try {
       const url = customerId ? `/api/customers/${customerId}` : "/api/customers";
@@ -54,7 +75,7 @@ export function CustomerForm({ initialValues, customerId, onSuccess, onCancel }:
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify(validated.data),
       });
 
       const data = await res.json();
@@ -75,54 +96,62 @@ export function CustomerForm({ initialValues, customerId, onSuccess, onCancel }:
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
+    <form onSubmit={handleSubmit} noValidate className="space-y-6 max-w-2xl">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-medium">Name *</label>
-          <Input id="name" name="name" required value={values.name} onChange={handleChange} />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium">Email</label>
-          <Input id="email" name="email" type="email" value={values.email} onChange={handleChange} />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="phone" className="text-sm font-medium">Phone</label>
-          <Input id="phone" name="phone" value={values.phone} onChange={handleChange} />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="company_name" className="text-sm font-medium">Company Name</label>
-          <Input id="company_name" name="company_name" value={values.company_name} onChange={handleChange} />
-        </div>
-        <div className="space-y-2">
-          <label htmlFor="tax_id" className="text-sm font-medium">Tax ID</label>
-          <Input id="tax_id" name="tax_id" value={values.tax_id} onChange={handleChange} />
-        </div>
+        <FormField label="Name *" error={errors.name}>
+          {(field) => (
+            <Input {...field} name="name" value={values.name} onChange={handleChange} />
+          )}
+        </FormField>
+        <FormField label="Email" error={errors.email}>
+          {(field) => (
+            <Input {...field} name="email" type="email" value={values.email} onChange={handleChange} />
+          )}
+        </FormField>
+        <FormField label="Phone" error={errors.phone}>
+          {(field) => (
+            <Input {...field} name="phone" value={values.phone} onChange={handleChange} />
+          )}
+        </FormField>
+        <FormField label="Company Name" error={errors.company_name}>
+          {(field) => (
+            <Input {...field} name="company_name" value={values.company_name} onChange={handleChange} />
+          )}
+        </FormField>
+        <FormField label="Tax ID" error={errors.tax_id}>
+          {(field) => (
+            <Input {...field} name="tax_id" value={values.tax_id} onChange={handleChange} />
+          )}
+        </FormField>
       </div>
 
-      <div className="space-y-2">
-        <label htmlFor="address" className="text-sm font-medium">Address</label>
-        <Textarea id="address" name="address" rows={3} value={values.address} onChange={handleChange} />
-      </div>
+      <FormField label="Address" error={errors.address}>
+        {(field) => (
+          <Textarea {...field} name="address" rows={3} value={values.address} onChange={handleChange} />
+        )}
+      </FormField>
 
-      <div className="space-y-2">
-        <label htmlFor="notes" className="text-sm font-medium">Notes</label>
-        <Textarea id="notes" name="notes" rows={2} value={values.notes} onChange={handleChange} />
-      </div>
+      <FormField label="Notes" error={errors.notes}>
+        {(field) => (
+          <Textarea {...field} name="notes" rows={2} value={values.notes} onChange={handleChange} />
+        )}
+      </FormField>
 
       {customerId && (
-        <div className="space-y-2">
-          <label htmlFor="status" className="text-sm font-medium">Status</label>
-          <select
-            id="status"
-            name="status"
-            value={values.status}
-            onChange={handleChange}
-            className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <option value="active">Active</option>
-            <option value="archived">Archived</option>
-          </select>
-        </div>
+        <FormField label="Status" error={errors.status}>
+          {(field) => (
+            <select
+              {...field}
+              name="status"
+              value={values.status}
+              onChange={handleChange}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              <option value="active">Active</option>
+              <option value="archived">Archived</option>
+            </select>
+          )}
+        </FormField>
       )}
 
       <div className="flex justify-end gap-3 pt-4 border-t border-border">

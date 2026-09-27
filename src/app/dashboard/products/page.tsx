@@ -1,146 +1,124 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Package } from "lucide-react";
+import { Plus, Package } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/SearchInput";
 import { cn } from "@/lib/utils";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { EmptyState } from "@/components/EmptyState";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { MockProduct } from "@/lib/mockData";
+import { DataTable } from "@/components/DataTable";
+import { columns, ProductRow } from "./columns";
+import { useDebounce } from "@/hooks/useDebounce";
+import { FormDialog } from "@/components/ui/form-dialog";
+import { ProductForm } from "./ProductForm";
 
-const tabs = ["All Items", "Physical", "Services", "Digital"] as const;
+const tabs = ["All Items", "Products", "Services"] as const;
 
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
   const [tab, setTab] = useState<(typeof tabs)[number]>("All Items");
-  const [products, setProducts] = useState<MockProduct[]>([]);
+  const [products, setProducts] = useState<ProductRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isNewOpen, setIsNewOpen] = useState(false);
+
+  async function fetchProducts() {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (debouncedSearch) params.set("search", debouncedSearch);
+      if (tab === "Products") params.set("kind", "product");
+      if (tab === "Services") params.set("kind", "service");
+      // Fetch all so we see active and inactive
+      params.set("active", "false"); 
+
+      const res = await fetch(`/api/products?${params.toString()}`);
+      if (!res.ok) throw new Error("Failed to fetch products");
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+
+      const formatted: ProductRow[] = data.data.products.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        kind: p.kind,
+        pricing_model: p.pricing_model,
+        unit: p.unit,
+        default_rate_minor: p.default_rate_minor,
+        default_percent_bp: p.default_percent_bp,
+        is_active: p.is_active,
+        currency: data.data.currency, // Add currency to the row
+      }));
+
+      setProducts(formatted);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load items");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function fetchProducts() {
-      try {
-        const res = await fetch("/api/products");
-        if (!res.ok) throw new Error("Failed to fetch");
-        const json = await res.json();
-        
-        // Map database product fields to UI MockProduct interface if necessary
-        const fetchedProducts = (json.products || []).map((p: any) => ({
-          id: p.id || p.sku || Math.random().toString(),
-          name: p.name || "Unnamed Product",
-          sku: p.sku || "N/A",
-          category: p.category || "Physical",
-          taxRate: p.taxRate || "0%",
-          status: p.status || "ACTIVE",
-          price: p.price ? `$${p.price}` : "$0.00"
-        }));
-        
-        setProducts(fetchedProducts);
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to load products");
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchProducts();
-  }, []);
-
-  const filtered = products.filter((p) => {
-    const matchesTab =
-      tab === "All Items" ||
-      (tab === "Services" && p.category === "Service") ||
-      p.category === tab;
-    const matchesSearch =
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku.toLowerCase().includes(search.toLowerCase());
-    return matchesTab && matchesSearch;
-  });
+  }, [debouncedSearch, tab]);
 
   return (
-    <div className="w-full">
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Filter by item name, SKU, category..."
-            className="pl-8 bg-background"
+    <div className="w-full space-y-6">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Products & Services</h1>
+          <p className="text-muted-foreground">Manage your catalog items.</p>
+        </div>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <SearchInput
+            placeholder="Search items..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <FormDialog
+            isOpen={isNewOpen}
+            onOpenChange={setIsNewOpen}
+            title="Add Item"
+            className="sm:max-w-xl"
+            trigger={
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Item
+              </Button>
+            }
+          >
+            <ProductForm 
+              onSuccess={() => {
+                setIsNewOpen(false);
+                fetchProducts();
+              }} 
+              onCancel={() => setIsNewOpen(false)}
+            />
+          </FormDialog>
         </div>
-        <div className="flex rounded-lg border border-border p-1 bg-background">
-          {tabs.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={cn(
-                "px-3 py-1.5 text-sm rounded-md font-medium transition-colors",
-                tab === t ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-        <Button onClick={() => toast.info("Adding products is coming soon.")}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Product / Service
-        </Button>
       </div>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <Table>
-          <TableHeader className="bg-muted/50">
-            <TableRow>
-              <TableHead>Product / Service</TableHead>
-              <TableHead>SKU Code</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Tax Rate</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Rate / Price</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6} className="h-64 text-center p-0">
-                  <EmptyState
-                    title="No matching products"
-                    description="Adjust your filters or search for a different item."
-                    icon={<Package className="h-6 w-6" />}
-                  />
-                </TableCell>
-              </TableRow>
-            ) : (
-              filtered.map((product) => (
-                <TableRow key={product.id} className="hover:bg-muted/50">
-                  <TableCell>
-                    <p className="font-semibold text-foreground">{product.name}</p>
-                    <p className="text-xs text-muted-foreground">B2B Automated Ledger Item</p>
-                  </TableCell>
-                  <TableCell className="font-mono text-muted-foreground">{product.sku}</TableCell>
-                  <TableCell className="text-muted-foreground">{product.category}</TableCell>
-                  <TableCell className="font-mono text-muted-foreground">{product.taxRate}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={product.status} />
-                  </TableCell>
-                  <TableCell className="text-right font-mono font-semibold">{product.price}</TableCell>
-                </TableRow>
-              ))
+      <div className="flex rounded-lg border border-border p-1 bg-background w-max mb-4">
+        {tabs.map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={cn(
+              "px-4 py-1.5 text-sm rounded-md font-medium transition-colors",
+              tab === t ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
             )}
-          </TableBody>
-        </Table>
+          >
+            {t}
+          </button>
+        ))}
       </div>
+
+      <DataTable
+        columns={columns}
+        data={products}
+        isLoading={loading}
+      />
     </div>
   );
 }
