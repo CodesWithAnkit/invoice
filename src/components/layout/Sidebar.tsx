@@ -70,7 +70,10 @@ export function Sidebar() {
       </div>
 
       <div className="border-t border-border p-3 space-y-1">
-        <span className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground/50 cursor-not-allowed select-none">
+        <span
+          aria-disabled="true"
+          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground/50 cursor-not-allowed select-none"
+        >
           <HelpCircle className="h-4 w-4" />
           Help &amp; System Status
         </span>
